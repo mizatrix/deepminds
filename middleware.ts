@@ -57,13 +57,14 @@ export default auth((req) => {
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - api/auth (auth API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public folder
+         * Match only the routes that actually require authentication or protection.
+         * This avoids running middleware on every single request and fixes the deprecation warning.
          */
-        '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\..*|public).*)',
+        '/dashboard/:path*',
+        '/profile/:path*',
+        '/admin/:path*',
+        '/student/:path*',
+        '/login',
+        '/register'
     ],
 };
