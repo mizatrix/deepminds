@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Search, FileText, CheckCircle, XCircle, Trash2, Filter } from "lucide-react";
-import { getAuditLogs, type AuditLog } from "@/lib/submissions";
+import { getAuditLogs, type AuditLog } from "@/lib/actions/audit";
 
 export default function AuditLogPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -13,8 +13,8 @@ export default function AuditLogPage() {
         loadLogs();
     }, []);
 
-    const loadLogs = () => {
-        const data = getAuditLogs();
+    const loadLogs = async () => {
+        const data = await getAuditLogs();
         // Sort by most recent first
         const sorted = data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         setLogs(sorted);
@@ -25,7 +25,7 @@ export default function AuditLogPage() {
         const matchesSearch =
             log.performedBy.toLowerCase().includes(search.toLowerCase()) ||
             log.submissionTitle.toLowerCase().includes(search.toLowerCase()) ||
-            log.details.toLowerCase().includes(search.toLowerCase());
+            (log.details?.toLowerCase() || "").includes(search.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -74,8 +74,8 @@ export default function AuditLogPage() {
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === f
-                                        ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-                                        : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                                    ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                                     }`}
                             >
                                 {f.toUpperCase()}
