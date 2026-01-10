@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -16,16 +16,17 @@ import MaintenanceMode from "@/components/MaintenanceMode";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
+export const viewport: Viewport = {
+  themeColor: "#7c3aed",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "Academic Excellence Portal",
   description: "Browse and submit achievements across various categories.",
   manifest: "/manifest.json",
-  themeColor: "#7c3aed",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

@@ -289,7 +289,7 @@
         <div class="meta">
             <div class="meta-item">
                 <span class="meta-label">Version:</span>
-                <span>2.3.0 (Super Admin + Notifications)</span>
+                <span>2.4.0 (Deployment & Production Readiness)</span>
             </div>
             <div class="meta-item">
                 <span class="meta-label">Last Updated:</span>
@@ -297,7 +297,7 @@
             </div>
             <div class="meta-item">
                 <span class="meta-label">Status:</span>
-                <span>✅ Production Ready</span>
+                <span>✅ Production Live</span>
             </div>
         </div>
 
@@ -1167,7 +1167,7 @@ buttonHover, buttonPress, cardHover, pulse, shake</code></pre>
                 <div class="section" id="deployment">
                     <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Deployment Guide</h2>
 
-                    <h3>Option 1: Vercel (Recommended)</h3>
+                    <h3>Option 1: Vercel + Supabase (Recommended)</h3>
                     <ol>
                         <li><strong>Push to GitHub</strong>
                             <pre><code>git init
@@ -1179,22 +1179,27 @@ git push -u origin main</code></pre>
                             <ul>
                                 <li>Go to vercel.com</li>
                                 <li>Import your repository</li>
-                                <li>Configure environment variables</li>
+                                <li>Configure environment variables (see below)</li>
                                 <li>Deploy</li>
                             </ul>
                         </li>
                         <li><strong>Database Migration</strong>
-                            <pre><code>npx prisma migrate deploy
+                            <pre><code># Run locally to push schema to Supabase
+npx prisma db push --accept-data-loss
 npx prisma db seed</code></pre>
                         </li>
                     </ol>
 
-                    <h3>Environment Variables</h3>
-                    <pre><code># Database
-DATABASE_URL="postgresql://user:pass@host:5432/db"
+                    <h3>Environment Variables (Critical)</h3>
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Supabase Transaction Mode:</strong> For Vercel, you must use the "Transaction Pooler"
+                        (Port 6543) and append <code>&pgbouncer=true</code> to disable prepared statements.
+                    </div>
+                    <pre><code># Database for Vercel (Transaction Mode 6543 + pgbouncer=true)
+DATABASE_URL="postgresql://user:pass@host:6543/postgres?sslmode=require&pgbouncer=true"
 
 # NextAuth
-NEXTAUTH_URL="https://your-domain.com"
+NEXTAUTH_URL="https://your-project.vercel.app"
 NEXTAUTH_SECRET="generate-random-32-char-string"
 
 # OAuth (optional)
@@ -1202,7 +1207,8 @@ GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"</code></pre>
 
                     <div class="alert alert-success">
-                        <strong>✅ Quick Deploy:</strong> Run <code>npx vercel --prod</code> for one-command deployment!
+                        <strong>✅ Quick Deploy:</strong> The live site is now running at
+                        <code>deepminds-self.vercel.app</code>.
                     </div>
                 </div>
 
@@ -1236,12 +1242,12 @@ npm run build</code></pre>
 
             <!-- Footer -->
             <div class="footer">
-                <p><strong>CS Excellence Portal</strong> - Version 2.3.0 (Super Admin + Notifications)</p>
+                <p><strong>CS Excellence Portal</strong> - Version 2.4.0 (Deployment & Production Live)</p>
                 <p>Documentation updated on January 10, 2026</p>
-                <p><strong>Test Credentials:</strong></p>
-                <p>👑 Super Admin: superadmin@example.com / SuperAdmin@123456!</p>
-                <p>🛡️ Admin: admin@example.com / Admin@123456!</p>
-                <p>🎓 Student: student@example.com / Student@123456!</p>
+                <p><strong>Test Credentials (Live Site):</strong></p>
+                <p>👑 Super Admin: <code>superadmin@example.com</code> / <code>SuperAdmin@123456!</code></p>
+                <p>🛡️ Admin: <code>admin@example.com</code> / <code>Admin@123456!</code></p>
+                <p>🎓 Student: <code>student@example.com</code> / <code>Student@123456!</code></p>
                 <p>For support, contact: <a href="mailto:moasamy@msa.edu.eg"
                         style="color: #06b6d4; text-decoration: none;">moasamy@msa.edu.eg</a></p>
             </div>

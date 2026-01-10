@@ -6,11 +6,9 @@ import { auth } from '@/lib/auth/config';
 const protectedRoutes = ['/dashboard', '/profile', '/admin'];
 const authRoutes = ['/login', '/register'];
 
-export async function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-
-    // Get session
-    const session = await auth();
+export default auth((req) => {
+    const { pathname } = req.nextUrl;
+    const session = req.auth;
     const isAuthenticated = !!session?.user;
     const userRole = (session?.user as any)?.role;
 
@@ -20,7 +18,7 @@ export async function middleware(request: NextRequest) {
 
     // Redirect to login if accessing protected route without authentication
     if (isProtectedRoute && !isAuthenticated) {
-        const loginUrl = new URL('/login', request.url);
+        const loginUrl = new URL('/login', req.url);
         loginUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(loginUrl);
     }
@@ -28,33 +26,33 @@ export async function middleware(request: NextRequest) {
     // Redirect authenticated users away from auth pages to their appropriate dashboard
     if (isAuthRoute && isAuthenticated) {
         const dashboardUrl = userRole === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
-        return NextResponse.redirect(new URL(dashboardUrl, request.url));
+        return NextResponse.redirect(new URL(dashboardUrl, req.url));
     }
 
     // Protect admin routes - only ADMIN or SUPER_ADMIN role can access
     if (pathname.startsWith('/admin')) {
         if (!isAuthenticated) {
-            const loginUrl = new URL('/login', request.url);
+            const loginUrl = new URL('/login', req.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
         }
         if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
             // Redirect non-admin users to student dashboard
-            return NextResponse.redirect(new URL('/student/dashboard', request.url));
+            return NextResponse.redirect(new URL('/student/dashboard', req.url));
         }
     }
 
     // Protect student routes - require authentication
     if (pathname.startsWith('/student')) {
         if (!isAuthenticated) {
-            const loginUrl = new URL('/login', request.url);
+            const loginUrl = new URL('/login', req.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
         }
     }
 
     return NextResponse.next();
-}
+});
 
 export const config = {
     matcher: [
