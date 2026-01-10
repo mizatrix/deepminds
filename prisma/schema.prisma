@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String?
+  role          String   @default("STUDENT") // SUPER_ADMIN, ADMIN, or STUDENT
+  image         String?  // From OAuth providers
+  provider      String?  @default("credentials")
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Profile fields
+  avatar        String?  // Custom uploaded avatar
+  faculty       String?  // For students (e.g., "Computer Science")
+  year          String?  // For students (e.g., "1st Year", "2nd Year")
+  studentId     String?  // For students
+  department    String?  // For admins
+  position      String?  // For admins (e.g., "Dean", "Professor")
+  phone         String?
+  bio           String?  // Max 500 characters
+  
+  // Social links (optional)
+  linkedIn      String?
+  github        String?
+  twitter       String?
+  website       String?
+  
+  // Profile completion tracking
+  profileCompleted      Boolean @default(false)
+  completionPercentage  Int     @default(0)
+
+  @@map("users")
+}
+
+model Submission {
+  id               String   @id @default(cuid())
+  studentEmail     String
+  studentName      String
+  title            String
+  category         String
+  orgName          String
+  location         String
+  achievementDate  String
+  description      String
+  evidenceUrl      String
+  evidenceFileName String?
+  evidenceFileType String?
+  status           String   @default("PENDING") // PENDING, APPROVED, or REJECTED
+  points           Int?
+  submittedAt      DateTime @default(now())
+  reviewedAt       DateTime?
+  reviewedBy       String?
+  adminFeedback    String?
+
+  @@map("submissions")
+}
+
+model AuditLog {
+  id              String   @id @default(cuid())
+  timestamp       DateTime @default(now())
+  action          String   // submit, approve, reject, delete
+  performedBy     String
+  performedByName String
+  submissionId    String
+  submissionTitle String
+  details         String?
+
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   // Email of the user (recipient)
+  title     String
+  message   String
+  type      String   @default("INFO") // INFO, SUCCESS, ERROR, SUBMISSION_APPROVED, SUBMISSION_REJECTED, BADGE_EARNED, etc.
+  read      Boolean  @default(false)
+  link      String?  // Optional deep link (e.g., /student/submissions/123)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}

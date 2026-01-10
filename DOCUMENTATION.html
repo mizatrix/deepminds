@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Excellence Portal - Complete Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .meta {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meta-label {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .toc h2 {
+            color: #0ea5e9;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            padding: 8px 0;
+        }
+
+        .toc a {
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .toc a:hover {
+            background: white;
+            color: #667eea;
+            transform: translateX(10px);
+        }
+
+        .section {
+            margin-bottom: 60px;
+            scroll-margin-top: 20px;
+        }
+
+        h2 {
+            color: #0ea5e9;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #0ea5e9;
+        }
+
+        h3 {
+            color: #0891b2;
+            font-size: 1.6em;
+            margin: 30px 0 15px 0;
+        }
+
+        h4 {
+            color: #555;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        ul,
+        ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        pre code {
+            background: none;
+            color: #e2e8f0;
+            padding: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .badge-user {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-dev {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #0c5460;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #856404;
+            color: #856404;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #155724;
+            color: #155724;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: #0ea5e9;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .footer p {
+            color: #cbd5e0;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .header {
+                background: #0ea5e9;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Academic Excellence Portal</h1>
+            <p>Complete System Documentation</p>
+        </div>
+
+        <!-- Meta Information -->
+        <div class="meta">
+            <div class="meta-item">
+                <span class="meta-label">Version:</span>
+                <span>2.3.0 (Super Admin + Notifications)</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Last Updated:</span>
+                <span>January 10, 2026</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Status:</span>
+                <span>✅ Production Ready</span>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h2>📑 Table of Contents</h2>
+                <ul>
+                    <li><strong>For Users</strong>
+                        <ul>
+                            <li><a href="#getting-started">Getting Started</a></li>
+                            <li><a href="#student-guide">Student User Guide</a></li>
+                            <li><a href="#admin-guide">Admin User Guide</a></li>
+                            <li><a href="#profile-management">Profile Management</a></li>
+                            <li><a href="#faq">FAQ</a></li>
+                        </ul>
+                    </li>
+                    <li><strong>For Developers</strong>
+                        <ul>
+                            <li><a href="#architecture">System Architecture</a></li>
+                            <li><a href="#tech-stack">Technology Stack</a></li>
+                            <li><a href="#new-features">New Features (v2.1.0)</a></li>
+                            <li><a href="#database">Database Schema</a></li>
+                            <li><a href="#server-actions">Server Actions</a></li>
+                            <li><a href="#api">API Reference</a></li>
+                            <li><a href="#deployment">Deployment Guide</a></li>
+                            <li><a href="#troubleshooting">Troubleshooting</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- FOR USERS SECTION -->
+            <div class="section" id="getting-started">
+                <h2><span class="badge badge-user">FOR USERS</span> Getting Started</h2>
+
+                <h3>What is the Academic Excellence Portal?</h3>
+                <p>The Academic Excellence Portal is a comprehensive platform for tracking and showcasing student
+                    achievements across various categories including scientific research, competitions, hackathons,
+                    sports, volunteering, and more.</p>
+
+                <h3>Account Types</h3>
+                <table>
+                    <tr>
+                        <th>Account Type</th>
+                        <th>Features</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Student Account</strong></td>
+                        <td>Submit achievements, View leaderboard, Earn points and badges, Download certificates, Track
+                            progress</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Admin Account</strong></td>
+                        <td>Review submissions, Approve/reject achievements, Manage students, View analytics, Configure
+                            system settings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>👑 Super Admin Account</strong></td>
+                        <td>All Admin features PLUS: Promote/demote admins, Create new admins, Delete admin users,
+                            Cannot be demoted or deleted. <em>Only 1 Super Admin allowed.</em></td>
+                    </tr>
+                </table>
+
+                <h3>Creating an Account</h3>
+                <ol>
+                    <li><strong>Navigate to Registration:</strong> Click "Join Now" on the homepage or visit
+                        <code>/register</code>
+                    </li>
+                    <li><strong>Fill Registration Form:</strong>
+                        <ul>
+                            <li>Email address (required)</li>
+                            <li>Full name (required)</li>
+                            <li>Password (min 8 characters, must include uppercase, lowercase, number, special
+                                character)</li>
+                            <li>Confirm password</li>
+                        </ul>
+                    </li>
+                    <li><strong>Submit:</strong> You'll be redirected to login page</li>
+                    <li><strong>Alternative - Social Login:</strong> Click "Continue with Google/GitHub/Microsoft"</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>💡 First Login:</strong> After your first login, you'll see a Profile Completion Banner.
+                    Complete your profile to unlock all features!
+                </div>
+            </div>
+
+            <!-- Student Guide -->
+            <div class="section" id="student-guide">
+                <h2><span class="badge badge-user">FOR USERS</span> Student User Guide</h2>
+
+                <h3>Dashboard Overview</h3>
+                <p>Your dashboard shows:</p>
+                <ul>
+                    <li><strong>Profile Completion Banner</strong> - Percentage and missing fields (if incomplete)</li>
+                    <li><strong>Dashboard Stats (4 cards):</strong>
+                        <ul>
+                            <li>Total Submissions - All submissions (pending + approved + rejected)</li>
+                            <li>Total Points - Points earned from approved achievements</li>
+                            <li>Approved - Successfully approved submissions</li>
+                            <li>Pending - Awaiting admin review</li>
+                        </ul>
+                    </li>
+                    <li><strong>Recent Submissions</strong> - List with status and actions</li>
+                    <li><strong>Achievement Form</strong> - Submit new achievements</li>
+                </ul>
+
+                <h3>Submission Statuses & Actions</h3>
+                <table>
+                    <tr>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Available Actions</th>
+                    </tr>
+                    <tr>
+                        <td>🟡 <strong>Pending</strong></td>
+                        <td>Awaiting admin review</td>
+                        <td>View, <strong>Edit</strong></td>
+                    </tr>
+                    <tr>
+                        <td>✅ <strong>Approved</strong></td>
+                        <td>Accepted, points awarded</td>
+                        <td>View only (locked)</td>
+                    </tr>
+                    <tr>
+                        <td>❌ <strong>Rejected</strong></td>
+                        <td>Not accepted, see admin feedback</td>
+                        <td>View only (locked)</td>
+                    </tr>
+                </table>
+
+                <h3>Editing Submissions</h3>
+                <p><strong>Only pending submissions can be edited.</strong> Approved and rejected submissions are
+                    permanently locked.</p>
+
+                <h4>Edit Process:</h4>
+                <ol>
+                    <li>Click the <strong>Edit</strong> button (pencil icon) on a pending submission</li>
+                    <li>Confirm: "Are you sure you want to edit this submission?"</li>
+                    <li>Edit modal opens with pre-filled form</li>
+                    <li>Modify any fields: Title, Category, Organization, Location, Date, Description</li>
+                    <li>Click "Save Changes"</li>
+                    <li>Confirm: "Are you sure you want to save these changes?"</li>
+                    <li>Submission updated and list refreshes automatically</li>
+                </ol>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Important:</strong> Evidence files cannot be changed after initial submission. Only
+                    pending submissions can be edited. No submissions can be deleted to ensure data integrity.
+                </div>
+
+                <h3>Submitting an Achievement</h3>
+                <ol>
+                    <li>Navigate to Dashboard (<code>/student/dashboard</code>)</li>
+                    <li>Fill Achievement Form:
+                        <ul>
+                            <li><strong>Title:</strong> Name of your achievement</li>
+                            <li><strong>Category:</strong> Select from dropdown (Scientific, Artistic, Competition,
+                                etc.)</li>
+                            <li><strong>Organization:</strong> Where you achieved this</li>
+                            <li><strong>Location:</strong> City/Country</li>
+                            <li><strong>Date:</strong> When you achieved this</li>
+                            <li><strong>Description:</strong> Detailed explanation (max 500 characters)</li>
+                            <li><strong>Evidence:</strong> Upload proof (PDF, image, max 10MB)</li>
+                        </ul>
+                    </li>
+                    <li>Click "Submit Achievement"</li>
+                </ol>
+
+                <h3>Points System</h3>
+                <table>
+                    <tr>
+                        <th>Category</th>
+                        <th>Points</th>
+                    </tr>
+                    <tr>
+                        <td>Scientific Research</td>
+                        <td>100</td>
+                    </tr>
+                    <tr>
+                        <td>Entrepreneurship</td>
+                        <td>100</td>
+                    </tr>
+                    <tr>
+                        <td>Hackathons</td>
+                        <td>95</td>
+                    </tr>
+                    <tr>
+                        <td>Competition</td>
+                        <td>90</td>
+                    </tr>
+                    <tr>
+                        <td>Global Exchange</td>
+                        <td>90</td>
+                    </tr>
+                    <tr>
+                        <td>Awards</td>
+                        <td>85</td>
+                    </tr>
+                    <tr>
+                        <td>Artistic</td>
+                        <td>80</td>
+                    </tr>
+                    <tr>
+                        <td>Sports</td>
+                        <td>75</td>
+                    </tr>
+                    <tr>
+                        <td>Internships</td>
+                        <td>70</td>
+                    </tr>
+                    <tr>
+                        <td>Volunteering</td>
+                        <td>65</td>
+                    </tr>
+                    <tr>
+                        <td>Special Training</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>Other</td>
+                        <td>50</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Admin Guide -->
+            <div class="section" id="admin-guide">
+                <h2><span class="badge badge-user">FOR USERS</span> Admin User Guide</h2>
+
+                <h3>Admin Dashboard</h3>
+                <p>Access at <code>/admin/dashboard</code></p>
+                <ul>
+                    <li>Total users count</li>
+                    <li>Pending submissions</li>
+                    <li>Total achievements</li>
+                    <li>System statistics</li>
+                </ul>
+
+                <h3>Reviewing Submissions</h3>
+                <p>Location: <code>/admin/submissions</code></p>
+                <ol>
+                    <li>Click on a submission to view details</li>
+                    <li>Review student information, achievement details, and uploaded evidence</li>
+                    <li>Decision:
+                        <ul>
+                            <li><strong>Approve:</strong> Award points, student gets notified</li>
+                            <li><strong>Reject:</strong> Provide feedback explaining why</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Best Practices:</strong> Review evidence carefully, provide constructive feedback for
+                    rejections, be consistent with approval criteria, and respond within 48 hours.
+                </div>
+
+                <h3>System Settings</h3>
+                <p>Location: <code>/admin/settings</code></p>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Portal Name</strong></td>
+                        <td>Customize the platform display name</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Academic Terms</strong></td>
+                        <td>Add, edit, delete semesters with optional date ranges. Set active term.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Maintenance Mode</strong></td>
+                        <td>Block all student access (admins can still access)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Allow Registrations</strong></td>
+                        <td>Show/hide Create Account option on login page</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email Notifications</strong></td>
+                        <td>Toggle status update emails</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Auto-Approve Scientific</strong></td>
+                        <td>Automatically approve recognized journal papers</td>
+                    </tr>
+                </table>
+
+                <h3>User Management</h3>
+                <p>Location: <code>/admin/users</code></p>
+                <ul>
+                    <li><strong>Stats Cards:</strong> Total users, admins, students, active count</li>
+                    <li><strong>Search:</strong> Filter by name, email, or faculty</li>
+                    <li><strong>Role Filter:</strong> View all, admins only, or students only</li>
+                    <li><strong>Status Filter:</strong> Active or inactive users</li>
+                    <li><strong>Actions:</strong>
+                        <ul>
+                            <li>Promote/Demote between Admin and Student</li>
+                            <li>Activate/Deactivate accounts</li>
+                            <li>Add new users via modal form</li>
+                            <li>Delete users (with protection for last admin)</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>Audit Logs</h3>
+                <p>Location: <code>/admin/audit-logs</code></p>
+                <p>Track all system activity with comprehensive logging:</p>
+                <ul>
+                    <li><strong>User Info:</strong> Email, name, role</li>
+                    <li><strong>Action Types:</strong> Login, logout, submit, approve, reject, delete</li>
+                    <li><strong>Device Info:</strong> Browser, OS, device type</li>
+                    <li><strong>Location:</strong> IP address, city, country</li>
+                    <li><strong>Filters:</strong> Date range, action type, device type, search</li>
+                </ul>
+            </div>
+
+            <!-- Profile Management -->
+            <div class="section" id="profile-management">
+                <h2><span class="badge badge-user">FOR USERS</span> Profile Management</h2>
+
+                <h3>Profile Completion</h3>
+                <p><strong>Why Complete Your Profile?</strong></p>
+                <ul>
+                    <li>Unlock all features</li>
+                    <li>Appear in leaderboards</li>
+                    <li>Get personalized recommendations</li>
+                    <li>Build your academic portfolio</li>
+                </ul>
+
+                <h3>Student Required Fields (8)</h3>
+                <ol>
+                    <li>Full Name ✓ (from registration)</li>
+                    <li>Email ✓ (from registration)</li>
+                    <li>Profile Photo</li>
+                    <li>Faculty (e.g., "Computer Science")</li>
+                    <li>Academic Year (e.g., "2nd Year")</li>
+                    <li>Student ID</li>
+                    <li>Phone Number</li>
+                    <li>Bio (max 500 characters)</li>
+                </ol>
+
+                <h3>Admin Required Fields (6)</h3>
+                <ol>
+                    <li>Full Name ✓ (from registration)</li>
+                    <li>Email ✓ (from registration)</li>
+                    <li>Profile Photo</li>
+                    <li>Department</li>
+                    <li>Position/Title</li>
+                    <li>Phone Number</li>
+                </ol>
+
+                <p><strong>Completion Formula:</strong> <code>(filled fields / required fields) × 100</code></p>
+            </div>
+
+            <!-- FAQ -->
+            <div class="section" id="faq">
+                <h2><span class="badge badge-user">FOR USERS</span> Frequently Asked Questions</h2>
+
+                <h3>General</h3>
+                <p><strong>Q: How do I reset my password?</strong><br>
+                    A: Click "Forgot Password" on login page, enter your email, and follow the reset link.</p>
+
+                <p><strong>Q: How long does submission review take?</strong><br>
+                    A: Typically 24-48 hours. You'll be notified when reviewed.</p>
+
+                <h3>For Students</h3>
+                <p><strong>Q: Why was my achievement rejected?</strong><br>
+                    A: Check the admin feedback on your submission. Common reasons: insufficient evidence, doesn't meet
+                    criteria, duplicate submission.</p>
+
+                <p><strong>Q: Can I edit a submitted achievement?</strong><br>
+                    A: Yes, but only if it's still "Pending". Once approved or rejected, submissions cannot be edited.
+                    You'll need to click the Edit button and confirm twice (once to open the editor, once to save
+                    changes).</p>
+
+                <p><strong>Q: Can I delete a submission?</strong><br>
+                    A: No, submissions are permanent once created. This ensures data integrity and prevents accidental
+                    loss of achievement records.</p>
+
+                <p><strong>Q: How do I earn more points?</strong><br>
+                    A: Submit achievements in high-value categories (Scientific Research, Entrepreneurship, Hackathons =
+                    100 points each).</p>
+
+                <p><strong>Q: What happens to my profile completion percentage?</strong><br>
+                    A: It updates automatically as you fill in required fields. Students need 8 fields (100%), admins
+                    need 6 fields (100%). The completion banner will disappear once you reach 100%.</p>
+            </div>
+
+            <!-- FOR DEVELOPERS SECTION -->
+            <div class="section" id="architecture">
+                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> System Architecture</h2>
+
+                <p>The Academic Excellence Portal is built using the <strong>JAMstack</strong> architecture with Next.js
+                    as the full-stack framework.</p>
+
+                <pre><code>┌─────────────────────────────────────────┐
+│           Client (Browser)              │
+│  ┌─────────────────────────────────┐   │
+│  │  Next.js React Components       │   │
+│  │  - Pages                        │   │
+│  │  - Components                   │   │
+│  │  - Client State (React Hooks)   │   │
+│  └─────────────────────────────────┘   │
+└──────────────┬──────────────────────────┘
+               │ HTTP/HTTPS
+               ▼
+┌─────────────────────────────────────────┐
+│         Next.js Server (Node.js)        │
+│  ┌─────────────────────────────────┐   │
+│  │  API Routes                     │   │
+│  │  - /api/auth/*                  │   │
+│  │  - /api/profile                 │   │
+│  │  - /api/submissions             │   │
+│  └─────────────────────────────────┘   │
+└──────────────┬──────────────────────────┘
+               │ Prisma ORM
+               ▼
+┌─────────────────────────────────────────┐
+│    Database (SQLite/PostgreSQL)         │
+│  - Users                                │
+│  - Submissions                          │
+└─────────────────────────────────────────┘</code></pre>
+            </div>
+
+            <!-- Tech Stack -->
+            <div class="section" id="tech-stack">
+                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Technology Stack</h2>
+
+                <h3>Frontend</h3>
+                <ul>
+                    <li><strong>Framework:</strong> Next.js 14 (App Router)</li>
+                    <li><strong>UI Library:</strong> React 18</li>
+                    <li><strong>Styling:</strong> Tailwind CSS</li>
+                    <li><strong>Animations:</strong> Framer Motion</li>
+                    <li><strong>Icons:</strong> Lucide React, React Icons</li>
+                    <li><strong>Forms:</strong> React Hook Form + Zod validation</li>
+                </ul>
+
+                <h3>Backend</h3>
+                <ul>
+                    <li><strong>Runtime:</strong> Node.js</li>
+                    <li><strong>Framework:</strong> Next.js API Routes</li>
+                    <li><strong>Authentication:</strong> NextAuth.js</li>
+                    <li><strong>ORM:</strong> Prisma</li>
+                    <li><strong>Database:</strong> SQLite (dev), PostgreSQL (production)</li>
+                </ul>
+            </div>
+
+            <div class="section" id="new-features">
+                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> New Features (v2.2.0)</h2>
+
+                <div class="alert alert-success">
+                    <strong>✨ Latest Release:</strong> Version 2.2.0 introduces a real database-backed notification
+                    system, replacing the previous localStorage-based implementation.
+                </div>
+
+                <h3>🔔 Real Notification System (NEW in v2.2.0)</h3>
+                <p>Location: <code>lib/actions/notifications.ts</code>, <code>lib/notifications/service.ts</code>,
+                    <code>components/providers/NotificationProvider.tsx</code>
+                </p>
+                <ul>
+                    <li><strong>Database-backed:</strong> Notifications are now persisted in SQLite/PostgreSQL</li>
+                    <li><strong>Automatic triggers:</strong> Students are notified when submissions are
+                        approved/rejected</li>
+                    <li><strong>Real-time polling:</strong> Notifications refresh every 10 seconds</li>
+                    <li><strong>Optimistic updates:</strong> Instant UI feedback when marking as read</li>
+                    <li><strong>Deep linking:</strong> Click notifications to navigate to relevant submissions</li>
+                </ul>
+
+                <h4>Notification Types</h4>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Trigger</th>
+                        <th>Recipient</th>
+                    </tr>
+                    <tr>
+                        <td><code>SUBMISSION_APPROVED</code></td>
+                        <td>Admin approves a submission</td>
+                        <td>Student who submitted</td>
+                    </tr>
+                    <tr>
+                        <td><code>SUBMISSION_REJECTED</code></td>
+                        <td>Admin rejects a submission</td>
+                        <td>Student who submitted</td>
+                    </tr>
+                    <tr>
+                        <td><code>INFO</code></td>
+                        <td>General announcements</td>
+                        <td>Target user(s)</td>
+                    </tr>
+                </table>
+
+                <h3>Enhanced Audit Logging</h3>
+                <p>Location: <code>lib/audit-service.ts</code>, <code>lib/device-utils.ts</code>,
+                    <code>app/api/audit/route.ts</code>
+                </p>
+                <ul>
+                    <li>Device detection (browser, OS, device type)</li>
+                    <li>IP geolocation lookup using ip-api.com</li>
+                    <li>Comprehensive action tracking (login, logout, submit, approve, reject, delete)</li>
+                    <li>Admin audit logs viewer with filters at <code>/admin/audit-logs</code></li>
+                </ul>
+
+                <h3>Settings Persistence</h3>
+                <p>Location: <code>lib/settings-store.ts</code></p>
+                <pre><code>// Available Functions
+getSettings()              // Get all settings
+saveSettings(settings)     // Persist settings
+addTerm(name, start?, end?) // Add academic term
+updateTerm(id, updates)    // Update term
+deleteTerm(id)             // Remove term (except active)
+setActiveTerm(id)          // Set active term
+isMaintenanceMode()        // Check maintenance status
+isRegistrationAllowed()    // Check registration status</code></pre>
+
+                <h3>Flexible Term Management</h3>
+                <p>Admins can now create custom academic terms with:</p>
+                <ul>
+                    <li>Custom names (e.g., "Fall 2025", "Q1 2024", "Academic Year 2024-25")</li>
+                    <li>Optional start and end dates</li>
+                    <li>Set any term as active</li>
+                    <li>Edit and delete terms dynamically</li>
+                </ul>
+
+                <h3>Functional Maintenance Mode</h3>
+                <p>Location: <code>components/MaintenanceMode.tsx</code></p>
+                <ul>
+                    <li>Blocks all student access when enabled</li>
+                    <li>Admins can still access all features</li>
+                    <li>Login page always accessible for admin login</li>
+                    <li>Styled maintenance page with animations</li>
+                </ul>
+
+                <h3>Enhanced User Management</h3>
+                <p>Complete rewrite of <code>app/admin/users/page.tsx</code>:</p>
+                <ul>
+                    <li>Stats cards (total, admins, students, active)</li>
+                    <li>Search by name, email, faculty</li>
+                    <li>Filter by role and status</li>
+                    <li>Promote/demote users between Admin and Student</li>
+                    <li>Activate/deactivate users</li>
+                    <li>Add users via modal form</li>
+                    <li>Activity tracking from submissions</li>
+                </ul>
+
+                <h3>Animation Utilities</h3>
+                <p>Location: <code>lib/animations.tsx</code></p>
+                <pre><code>// Available Components
+import { 
+    AnimatedButton,
+    AnimatedCard,
+    PageTransition,
+    StaggerContainer,
+    StaggerItem 
+} from '@/lib/animations';
+
+// Animation Variants
+fadeIn, scaleIn, slideInLeft, slideInRight, slideInUp
+buttonHover, buttonPress, cardHover, pulse, shake</code></pre>
+
+                <h3>Mobile Improvements</h3>
+                <p>Enhanced in <code>app/globals.css</code>:</p>
+                <ul>
+                    <li>44px minimum touch targets</li>
+                    <li>iOS zoom prevention (16px font on inputs)</li>
+                    <li>Responsive table scrolling</li>
+                    <li>Shimmer loading animation</li>
+                    <li>Reduced motion preference support</li>
+                </ul>
+            </div>
+
+            <!-- Database Schema -->
+            <div class="section" id="database">
+                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Database Schema</h2>
+
+                <h3>Users Table</h3>
+                <pre><code>model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String?
+  role          String   @default("STUDENT")
+  
+  // Profile fields
+  avatar        String?
+  faculty       String?  // Students
+  year          String?  // Students
+  studentId     String?  // Students
+  department    String?  // Admins
+  position      String?  // Admins
+  phone         String?
+  bio           String?
+  
+  // Social links
+  linkedIn      String?
+  github        String?
+  twitter       String?
+  website       String?
+  
+  // Completion tracking
+  profileCompleted      Boolean @default(false)
+  completionPercentage  Int     @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}</code></pre>
+
+                <h3>Submissions Table</h3>
+                <pre><code>model Submission {
+  id               String   @id @default(cuid())
+  studentEmail     String
+  studentName      String
+  title            String
+  category         String
+  orgName          String
+  location         String
+  achievementDate  String
+  description      String
+  evidenceUrl      String
+  evidenceFileName String?
+  evidenceFileType String?
+  status           String   @default("PENDING")
+  points           Int?
+  submittedAt      DateTime @default(now())
+  reviewedAt       DateTime?
+  reviewedBy       String?
+  adminFeedback    String?
+}</code></pre>
+
+                <h3>AuditLog Table</h3>
+                <pre><code>model AuditLog {
+  id              String   @id @default(cuid())
+  timestamp       DateTime @default(now())
+  action          String   // submit, approve, reject, delete
+  performedBy     String
+  performedByName String
+  submissionId    String
+  submissionTitle String
+  details         String?
+}</code></pre>
+
+                <h3>Notification Table (NEW in v2.2.0)</h3>
+                <pre><code>model Notification {
+  id        String   @id @default(cuid())
+  userId    String   // Email of the recipient
+  title     String
+  message   String
+  type      String   @default("INFO") 
+            // Types: INFO, SUCCESS, ERROR, 
+            // SUBMISSION_APPROVED, SUBMISSION_REJECTED,
+            // BADGE_EARNED, CERTIFICATE_ISSUED
+  read      Boolean  @default(false)
+  link      String?  // Optional deep link
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}</code></pre>
+            </div>
+
+            <!-- Server Actions -->
+            <div class="section" id="server-actions">
+                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Server Actions (Phase 5)</h2>
+
+                <div class="alert alert-info">
+                    <strong>💡 Note:</strong> Phase 5 introduced Server Actions to replace localStorage-based operations
+                    with persistent database storage using Prisma.
+                </div>
+
+                <h3>Submission Actions</h3>
+                <p>Location: <code>lib/actions/submissions.ts</code></p>
+                <table>
+                    <tr>
+                        <th>Function</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>createSubmission()</code></td>
+                        <td>Create new submission in database</td>
+                    </tr>
+                    <tr>
+                        <td><code>getSubmissions()</code></td>
+                        <td>Fetch all submissions</td>
+                    </tr>
+                    <tr>
+                        <td><code>getSubmissionById(id)</code></td>
+                        <td>Fetch single submission</td>
+                    </tr>
+                    <tr>
+                        <td><code>updateSubmission(id, updates)</code></td>
+                        <td>Update submission status/feedback</td>
+                    </tr>
+                    <tr>
+                        <td><code>deleteSubmission(id)</code></td>
+                        <td>Remove submission</td>
+                    </tr>
+                    <tr>
+                        <td><code>bulkDeleteSubmissions(ids)</code></td>
+                        <td>Bulk delete submissions</td>
+                    </tr>
+                    <tr>
+                        <td><code>bulkUpdateSubmissionStatus(ids, status)</code></td>
+                        <td>Bulk approve/reject submissions</td>
+                    </tr>
+                    <tr>
+                        <td><code>getSubmissionStats()</code></td>
+                        <td>Get submission statistics</td>
+                    </tr>
+                </table>
+
+                <h3>Audit Log Actions</h3>
+                <p>Location: <code>lib/actions/audit.ts</code></p>
+                <table>
+                    <tr>
+                        <th>Function</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>createAuditLog()</code></td>
+                        <td>Record an action</td>
+                    </tr>
+                    <tr>
+                        <td><code>getAuditLogs()</code></td>
+                        <td>Fetch all logs</td>
+                    </tr>
+                    <tr>
+                        <td><code>getRecentAuditLogs(limit)</code></td>
+                        <td>Fetch recent logs with limit</td>
+                    </tr>
+                    <tr>
+                        <td><code>getAuditLogsBySubmission(id)</code></td>
+                        <td>Filter logs by submission</td>
+                    </tr>
+                    <tr>
+                        <td><code>getAuditLogStats()</code></td>
+                        <td>Get audit statistics</td>
+                    </tr>
+                </table>
+
+                <h3>Notification Actions (NEW in v2.2.0)</h3>
+                <p>Location: <code>lib/actions/notifications.ts</code></p>
+                <table>
+                    <tr>
+                        <th>Function</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>createNotification()</code></td>
+                        <td>Create a new notification in database</td>
+                    </tr>
+                    <tr>
+                        <td><code>getNotifications(userId)</code></td>
+                        <td>Fetch user's notifications (ordered by date)</td>
+                    </tr>
+                    <tr>
+                        <td><code>getUnreadCount(userId)</code></td>
+                        <td>Get count of unread notifications</td>
+                    </tr>
+                    <tr>
+                        <td><code>markNotificationAsRead(id)</code></td>
+                        <td>Mark single notification as read</td>
+                    </tr>
+                    <tr>
+                        <td><code>markAllNotificationsAsRead(userId)</code></td>
+                        <td>Mark all user's notifications as read</td>
+                    </tr>
+                    <tr>
+                        <td><code>deleteNotification(id)</code></td>
+                        <td>Remove a notification</td>
+                    </tr>
+                    <tr>
+                        <td><code>notifySubmissionApproved()</code></td>
+                        <td>Helper: Notify student of approval</td>
+                    </tr>
+                    <tr>
+                        <td><code>notifySubmissionRejected()</code></td>
+                        <td>Helper: Notify student of rejection</td>
+                    </tr>
+                </table>
+
+                <h3>File Upload Validation (Phase 5)</h3>
+                <p>Location: <code>app/api/upload/route.ts</code></p>
+                <table>
+                    <tr>
+                        <th>Validation</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Max File Size</td>
+                        <td>5MB</td>
+                    </tr>
+                    <tr>
+                        <td>Allowed Types</td>
+                        <td>JPEG, PNG, GIF, WebP, PDF</td>
+                    </tr>
+                    <tr>
+                        <td>Extensions</td>
+                        <td>.jpg, .jpeg, .png, .gif, .webp, .pdf</td>
+                    </tr>
+                </table>
+
+                <!-- API Reference -->
+                <div class="section" id="api">
+                    <h2><span class="badge badge-dev">FOR DEVELOPERS</span> API Reference</h2>
+
+                    <h3>Authentication</h3>
+                    <h4>POST /api/auth/register</h4>
+                    <p>Register a new user.</p>
+                    <pre><code>// Request Body
+{
+  "email": "student@example.com",
+  "name": "John Doe",
+  "password": "SecurePass123!"
+}
+
+// Response (201)
+{
+  "success": true,
+  "user": {
+    "id": "clx123...",
+    "email": "student@example.com",
+    "name": "John Doe",
+    "role": "STUDENT"
+  }
+}</code></pre>
+
+                    <h3>Profile Management</h3>
+                    <h4>GET /api/profile</h4>
+                    <p>Get current user's profile with completion data.</p>
+                    <pre><code>// Response (200)
+{
+  "user": {
+    "id": "clx123...",
+    "email": "student@example.com",
+    "name": "John Doe",
+    "role": "STUDENT",
+    "avatar": "/avatars/user123.jpg",
+    "faculty": "Computer Science",
+    "completionPercentage": 100
+  },
+  "completion": {
+    "percentage": 100,
+    "isComplete": true,
+    "missingFields": []
+  }
+}</code></pre>
+
+                    <h4>PUT /api/profile</h4>
+                    <p>Update current user's profile.</p>
+                    <pre><code>// Request Body
+{
+  "name": "John Doe",
+  "faculty": "Computer Science",
+  "year": "3rd Year",
+  "phone": "+20 123 456 7890",
+  "bio": "Updated bio..."
+}</code></pre>
+                </div>
+
+                <!-- Deployment -->
+                <div class="section" id="deployment">
+                    <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Deployment Guide</h2>
+
+                    <h3>Option 1: Vercel (Recommended)</h3>
+                    <ol>
+                        <li><strong>Push to GitHub</strong>
+                            <pre><code>git init
+git add .
+git commit -m "Initial commit"
+git push -u origin main</code></pre>
+                        </li>
+                        <li><strong>Connect to Vercel</strong>
+                            <ul>
+                                <li>Go to vercel.com</li>
+                                <li>Import your repository</li>
+                                <li>Configure environment variables</li>
+                                <li>Deploy</li>
+                            </ul>
+                        </li>
+                        <li><strong>Database Migration</strong>
+                            <pre><code>npx prisma migrate deploy
+npx prisma db seed</code></pre>
+                        </li>
+                    </ol>
+
+                    <h3>Environment Variables</h3>
+                    <pre><code># Database
+DATABASE_URL="postgresql://user:pass@host:5432/db"
+
+# NextAuth
+NEXTAUTH_URL="https://your-domain.com"
+NEXTAUTH_SECRET="generate-random-32-char-string"
+
+# OAuth (optional)
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"</code></pre>
+
+                    <div class="alert alert-success">
+                        <strong>✅ Quick Deploy:</strong> Run <code>npx vercel --prod</code> for one-command deployment!
+                    </div>
+                </div>
+
+                <!-- Troubleshooting -->
+                <div class="section" id="troubleshooting">
+                    <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Troubleshooting</h2>
+
+                    <h3>Common Issues</h3>
+
+                    <h4>Database Connection Error</h4>
+                    <p><strong>Error:</strong> <code>Can't reach database server</code></p>
+                    <p><strong>Solution:</strong></p>
+                    <ol>
+                        <li>Check DATABASE_URL in <code>.env.local</code></li>
+                        <li>Ensure database is running</li>
+                        <li>Verify network connectivity</li>
+                    </ol>
+
+                    <h4>Prisma Client Not Generated</h4>
+                    <p><strong>Error:</strong> <code>Cannot find module '@prisma/client'</code></p>
+                    <p><strong>Solution:</strong></p>
+                    <pre><code>npx prisma generate</code></pre>
+
+                    <h4>Build Fails</h4>
+                    <p><strong>Solution:</strong></p>
+                    <pre><code>rm -rf .next
+rm -rf node_modules && npm install
+npm run build</code></pre>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p><strong>CS Excellence Portal</strong> - Version 2.3.0 (Super Admin + Notifications)</p>
+                <p>Documentation updated on January 10, 2026</p>
+                <p><strong>Test Credentials:</strong></p>
+                <p>👑 Super Admin: superadmin@example.com / SuperAdmin@123456!</p>
+                <p>🛡️ Admin: admin@example.com / Admin@123456!</p>
+                <p>🎓 Student: student@example.com / Student@123456!</p>
+                <p>For support, contact: <a href="mailto:moasamy@msa.edu.eg"
+                        style="color: #06b6d4; text-decoration: none;">moasamy@msa.edu.eg</a></p>
+            </div>
+        </div>
+</body>
+
+</html>
