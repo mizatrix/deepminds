@@ -79,7 +79,7 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
             dragElastic={0.5}
             onDragEnd={handleDragEnd}
             style={{ x, opacity }}
-            className="pointer-events-auto w-full sm:w-auto sm:min-w-[300px] max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl p-4 flex items-start gap-3 backdrop-blur-md cursor-grab active:cursor-grabbing touch-pan-y"
+            className="pointer-events-auto w-auto min-w-[280px] max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl p-4 flex items-start gap-3 backdrop-blur-md cursor-grab active:cursor-grabbing touch-pan-y"
         >
             <div className="mt-0.5 flex-shrink-0">
                 {toast.type === "success" && <CheckCircle2 className="w-5 h-5 text-green-500" />}
