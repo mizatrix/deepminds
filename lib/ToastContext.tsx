@@ -38,12 +38,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     return (
         <ToastContext.Provider value={{ showToast }}>
             {children}
-            {/* Desktop: top-right, Mobile: bottom-center */}
+            {/* Desktop: top-right, Mobile: top-center */}
             <div className="fixed z-[100] flex flex-col gap-2 pointer-events-none
-                top-24 right-4 sm:right-4
-                bottom-auto sm:bottom-auto
+                top-20 right-4
                 left-4 sm:left-auto
-                max-sm:top-auto max-sm:bottom-24 max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:right-auto max-sm:items-center">
+                max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:right-auto max-sm:items-center">
                 <AnimatePresence>
                     {toasts.map((toast) => (
                         <ToastItem
