@@ -305,6 +305,6 @@ export async function getSubmissionStats(): Promise<{
 /**
  * Generate a unique submission ID (for compatibility with existing code)
  */
-export function generateSubmissionId(): string {
+export async function generateSubmissionId(): Promise<string> {
     return `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
