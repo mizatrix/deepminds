@@ -32,6 +32,33 @@ const displayCertificates = showEmptyState ? [] : certificates;
 
 export default function CertificatesPage() {
     const [generating, setGenerating] = useState<string | null>(null);
+    const [qrImage, setQrImage] = useState<string>("");
+    const [showQRModal, setShowQRModal] = useState(false);
+    const [selectedCert, setSelectedCert] = useState<typeof certificates[0] | null>(null);
+
+    const generateQRCode = async (cert: typeof certificates[0]) => {
+        try {
+            // Generate QR code with verification URL
+            const verificationUrl = `${window.location.origin}/verify/${cert.id}`;
+
+            // Import QRCode dynamically
+            const QRCode = (await import('qrcode')).default;
+            const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+                width: 300,
+                margin: 2,
+                color: {
+                    dark: '#1e293b',
+                    light: '#ffffff'
+                }
+            });
+
+            setQrImage(qrDataUrl);
+            setSelectedCert(cert);
+            setShowQRModal(true);
+        } catch (error) {
+            console.error('Error generating QR code:', error);
+        }
+    };
 
     const generatePDF = async (cert: typeof certificates[0]) => {
         setGenerating(cert.id);
@@ -162,13 +189,64 @@ export default function CertificatesPage() {
                                             </>
                                         )}
                                     </button>
-                                    <button className="px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                                    <button
+                                        onClick={() => generateQRCode(cert)}
+                                        className="px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    >
                                         <QrCode className="w-5 h-5" />
                                     </button>
                                 </div>
                             </div>
                         </motion.div>
                     ))}
+                </div>
+            )}
+
+            {/* QR Code Modal */}
+            {showQRModal && selectedCert && (
+                <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                    onClick={() => setShowQRModal(false)}
+                >
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full shadow-2xl"
+                    >
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <QrCode className="w-8 h-8 text-white" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                                Verify Certificate
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 mb-6">
+                                {selectedCert.title}
+                            </p>
+
+                            {/* QR Code */}
+                            <div className="bg-white p-4 rounded-2xl inline-block mb-6 shadow-lg">
+                                <img
+                                    src={qrImage}
+                                    alt="QR Code"
+                                    className="w-64 h-64"
+                                />
+                            </div>
+
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                                Scan this QR code to verify the authenticity of this certificate
+                            </p>
+
+                            <button
+                                onClick={() => setShowQRModal(false)}
+                                className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold hover:opacity-90 transition-opacity"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </motion.div>
                 </div>
             )}
         </div>
