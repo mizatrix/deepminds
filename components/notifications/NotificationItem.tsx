@@ -25,6 +25,10 @@ export default function NotificationItem({ notification, onRead }: NotificationI
                 return <Award className="w-5 h-5 text-purple-500" />;
             case 'CERTIFICATE_ISSUED':
                 return <FileText className="w-5 h-5 text-blue-500" />;
+            case 'MOTIVATIONAL':
+                return <Trophy className="w-5 h-5 text-amber-500" />;
+            case 'ANNOUNCEMENT':
+                return <AlertTriangle className="w-5 h-5 text-orange-500" />;
             case 'INFO':
             default:
                 return <Info className="w-5 h-5 text-blue-500" />;
@@ -40,10 +44,10 @@ export default function NotificationItem({ notification, onRead }: NotificationI
                 {getIcon()}
             </div>
             <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold text-slate-900 dark:text-slate-100 ${!notification.read ? 'text-blue-700 dark:text-blue-300' : ''}`}>
+                <p className={`text-sm font-semibold text-slate-900 dark:text-slate-100 ${!notification.read ? 'text-blue-700 dark:text-blue-300' : ''} line-clamp-2`}>
                     {notification.title}
                 </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5 break-words">
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5 break-words line-clamp-3">
                     {notification.message}
                 </p>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">

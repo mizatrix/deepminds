@@ -6,6 +6,7 @@ import { Bell, BellOff, CheckCheck, Trophy, CheckCircle, XCircle, Award, FileTex
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { Notification, NotificationType } from '@/lib/notifications/types';
+import MotivationalNotificationCard from '@/components/notifications/MotivationalNotificationCard';
 
 // Skeleton component for loading state
 function SkeletonNotificationItem() {
@@ -195,13 +196,29 @@ export default function NotificationsPage() {
                     </div>
                 ) : (
                     <div>
-                        {notifications.map((notification) => (
-                            <NotificationFeedItem
-                                key={notification.id}
-                                notification={notification}
-                                onRead={markAsRead}
-                            />
-                        ))}
+                        {notifications.map((notification) => {
+                            // Render motivational notifications with special card
+                            if (notification.type === 'MOTIVATIONAL' || notification.type === 'ANNOUNCEMENT') {
+                                return (
+                                    <div key={notification.id} className="p-4">
+                                        <MotivationalNotificationCard
+                                            notification={notification}
+                                            onRead={markAsRead}
+                                            userId={session?.user?.email || ''}
+                                        />
+                                    </div>
+                                );
+                            }
+
+                            // Regular notifications
+                            return (
+                                <NotificationFeedItem
+                                    key={notification.id}
+                                    notification={notification}
+                                    onRead={markAsRead}
+                                />
+                            );
+                        })}
                     </div>
                 )}
             </div>

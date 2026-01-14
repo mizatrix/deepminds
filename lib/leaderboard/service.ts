@@ -1,5 +1,5 @@
 import { getSubmissions } from '@/lib/submissions';
-import { getUsers } from '@/lib/auth/users';
+import { getUsers } from '@/lib/auth/users-db';
 import { calculateSubmissionPoints } from './points';
 
 export interface LeaderboardEntry {
@@ -18,9 +18,9 @@ export interface LeaderboardEntry {
 /**
  * Calculate leaderboard for CS faculty
  */
-export function calculateLeaderboard(): LeaderboardEntry[] {
+export async function calculateLeaderboard(): Promise<LeaderboardEntry[]> {
     const submissions = getSubmissions();
-    const users = getUsers();
+    const users = await getUsers();
 
     // Only count approved submissions
     const approvedSubmissions = submissions.filter(s => s.status === 'approved');
@@ -73,8 +73,8 @@ export function calculateLeaderboard(): LeaderboardEntry[] {
 /**
  * Get user's current rank
  */
-export function getUserRank(userEmail: string): number | null {
-    const leaderboard = calculateLeaderboard();
+export async function getUserRank(userEmail: string): Promise<number | null> {
+    const leaderboard = await calculateLeaderboard();
     const entry = leaderboard.find(e => e.email === userEmail);
     return entry ? entry.rank : null;
 }
@@ -82,6 +82,7 @@ export function getUserRank(userEmail: string): number | null {
 /**
  * Get top N users
  */
-export function getTopN(n: number = 10): LeaderboardEntry[] {
-    return calculateLeaderboard().slice(0, n);
+export async function getTopN(n: number = 10): Promise<LeaderboardEntry[]> {
+    const leaderboard = await calculateLeaderboard();
+    return leaderboard.slice(0, n);
 }

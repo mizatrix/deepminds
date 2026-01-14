@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createUser } from '@/lib/auth/users';
+import { createUser } from '@/lib/auth/users-db';
 import { registerSchema } from '@/lib/auth/validation';
 import { notifyWelcome } from '@/lib/actions/notifications';
 

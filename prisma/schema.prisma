@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -39,6 +40,10 @@ model User {
   // Profile completion tracking
   profileCompleted      Boolean @default(false)
   completionPercentage  Int     @default(0)
+  
+  // Email notification preferences
+  emailNotifications    Boolean @default(true)
+  emailDigestFrequency  String  @default("instant") // instant, daily, weekly, never
 
   @@map("users")
 }
@@ -92,4 +97,78 @@ model Notification {
   @@index([userId, read])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+model ScheduledNotification {
+  id            String   @id @default(cuid())
+  title         String
+  message       String
+  type          String   // MOTIVATIONAL, ANNOUNCEMENT
+  priority      String   // LOW, NORMAL, HIGH, URGENT
+  audience      String   // all, top_performers, new_students, inactive, high_achievers
+  templateId    String?  // Optional: reference to template used
+  scheduledFor  DateTime
+  sent          Boolean  @default(false)
+  sentAt        DateTime?
+  createdBy     String   // Email of admin who created it
+  createdAt     DateTime @default(now())
+  
+  @@index([scheduledFor, sent])
+  @@map("scheduled_notifications")
+}
+
+model NotificationReaction {
+  id                String   @id @default(cuid())
+  notificationId    String
+  userId            String   // Email of the user
+  reactionType      String   // like, love, celebrate, inspire
+  createdAt         DateTime @default(now())
+  
+  @@unique([notificationId, userId])
+  @@index([notificationId])
+  @@map("notification_reactions")
+}
+
+model NotificationAnalytics {
+  id                String   @id @default(cuid())
+  notificationId    String
+  userId            String
+  opened            Boolean  @default(false)
+  openedAt          DateTime?
+  clicked           Boolean  @default(false)
+  clickedAt         DateTime?
+  createdAt         DateTime @default(now())
+  
+  @@unique([notificationId, userId])
+  @@index([notificationId])
+  @@map("notification_analytics")
+}
+
+model NotificationTrigger {
+  id            String   @id @default(cuid())
+  name          String
+  type          String   // scheduled, milestone
+  enabled       Boolean  @default(true)
+  schedule      String?  // Cron expression
+  templateId    String
+  audience      String
+  lastRun       DateTime?
+  nextRun       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("notification_triggers")
+}
+
+model TriggerExecution {
+  id          String   @id @default(cuid())
+  triggerId   String
+  executedAt  DateTime @default(now())
+  success     Boolean
+  sent        Int
+  failed      Int
+  error       String?
+  
+  @@index([triggerId])
+  @@map("trigger_executions")
 }

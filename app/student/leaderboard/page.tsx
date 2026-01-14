@@ -16,14 +16,17 @@ export default function LeaderboardPage() {
 
     // Load real leaderboard data
     useEffect(() => {
-        try {
-            const data = calculateLeaderboard();
-            setLeaderboardData(data);
-        } catch (error) {
-            console.error('Error loading leaderboard:', error);
-        } finally {
-            setIsLoading(false);
+        async function loadLeaderboard() {
+            try {
+                const data = await calculateLeaderboard();
+                setLeaderboardData(data);
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            } finally {
+                setIsLoading(false);
+            }
         }
+        loadLeaderboard();
     }, []);
 
     // Filter by search query

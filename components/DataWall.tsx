@@ -148,8 +148,8 @@ export default function DataWall() {
         // Initial fetch
         fetchAchievements();
 
-        // Poll every 20 seconds
-        const interval = setInterval(fetchAchievements, 20000);
+        // Poll every 60 seconds (more reasonable interval)
+        const interval = setInterval(fetchAchievements, 60000);
 
         return () => clearInterval(interval);
     }, []);
@@ -157,12 +157,23 @@ export default function DataWall() {
     return (
         <div className="w-full h-[400px] md:h-[600px] relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl bg-slate-900">
             <div className="absolute top-6 left-6 z-10 bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20">
-                <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full animate-pulse ${isLive ? 'bg-green-400' : 'bg-yellow-400'}`} />
-                    {isLive ? 'Live Achievement Feed' : 'Achievement Feed'}
-                </h3>
+                <div className="flex items-center gap-2">
+                    <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full animate-pulse ${isLive ? 'bg-green-400' : 'bg-yellow-400'}`} />
+                        🌟 Community Wall
+                    </h3>
+                    <button
+                        className="text-white/60 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+                        title="This wall shows recent achievements from all students to inspire and celebrate collective success!"
+                        aria-label="Info about Community Wall"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                </div>
                 <p className="text-white/60 text-xs mt-1">
-                    {isLive ? `${achievements.length} approved achievements` : 'Loading real data...'}
+                    {isLive ? `🎯 Celebrating ${achievements.length} student achievements` : 'Loading amazing achievements...'}
                 </p>
             </div>
 

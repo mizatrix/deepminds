@@ -136,11 +136,30 @@ export async function verifyPassword(email: string, password: string): Promise<U
 /**
  * Change user password
  */
-export async function changePassword(userId: string, newPassword: string): Promise<void> {
+export async function changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+): Promise<boolean> {
+    const user = await findUserById(userId);
+
+    if (!user || !user.password) {
+        return false;
+    }
+
+    // Verify current password
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+        return false;
+    }
+
+    // Hash and update new password
     const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
     await prisma.user.update({
         where: { id: userId },
         data: { password: hashedPassword },
     });
+
+    return true;
 }

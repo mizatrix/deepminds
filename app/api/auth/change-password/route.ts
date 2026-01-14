@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
-import { changePassword } from '@/lib/auth/users';
+import { changePassword } from '@/lib/auth/users-db';
 import { changePasswordSchema } from '@/lib/auth/validation';
 
 export async function POST(request: Request) {
