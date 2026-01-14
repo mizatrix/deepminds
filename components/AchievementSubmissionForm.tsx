@@ -18,7 +18,7 @@ import {
     ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveSubmission, generateSubmissionId } from "@/lib/submissions";
+import { createSubmission, generateSubmissionId } from "@/lib/actions/submissions";
 import { createEnhancedAuditLog } from "@/lib/audit-service";
 
 const categories = [
@@ -118,16 +118,12 @@ export default function StudentSubmissionForm() {
         setIsSubmitting(true);
 
         try {
-            // Generate unique submission ID
-            const submissionId = generateSubmissionId();
-
-            // Get user info from context
+            // Get user info from session
             const userEmail = session?.user?.email || 'student@example.com';
             const userName = session?.user?.name || 'Student User';
 
-            // Create submission object
-            const submission = {
-                id: submissionId,
+            // Create submission in Supabase database (NOT localStorage)
+            const submission = await createSubmission({
                 studentEmail: userEmail,
                 studentName: userName,
                 title: formData.title,
@@ -139,19 +135,7 @@ export default function StudentSubmissionForm() {
                 evidenceUrl: formData.evidenceUrl || 'No evidence uploaded',
                 evidenceFileName: formData.evidenceFileName,
                 evidenceFileType: formData.evidenceFileType,
-                status: 'pending' as const,
-                submittedAt: new Date().toISOString()
-            };
-
-            // Save submission with error handling for localStorage quota
-            try {
-                saveSubmission(submission);
-            } catch (storageError: any) {
-                if (storageError.name === 'QuotaExceededError') {
-                    throw new Error('Storage quota exceeded. Please use a smaller file or clear some data.');
-                }
-                throw storageError;
-            }
+            });
 
             // Create enhanced audit log with device and location info
             await createEnhancedAuditLog({
@@ -160,17 +144,28 @@ export default function StudentSubmissionForm() {
                 userRole: 'STUDENT',
                 action: 'submit',
                 targetType: 'submission',
-                targetId: submissionId,
+                targetId: submission.id,
                 targetTitle: formData.title,
                 details: `Submitted achievement: ${formData.title} (Category: ${formData.category})`
             });
 
-            // Simulate API delay
-            await new Promise(r => setTimeout(r, 1500));
-
             setIsSubmitting(false);
-            showToast("Achievement submitted successfully! Pending admin review.", "success");
+            showToast("Achievement submitted successfully! Admins have been notified.", "success");
             setStep(4); // Success step
+
+            // Reset form
+            setFormData({
+                title: "",
+                category: "SCIENTIFIC",
+                orgName: "",
+                startDate: "",
+                endDate: "",
+                location: "",
+                description: "",
+                evidenceUrl: "",
+                evidenceFileName: "",
+                evidenceFileType: ""
+            });
         } catch (error: any) {
             setIsSubmitting(false);
             showToast(error.message || "Failed to submit achievement. Please try again.", "error");
