@@ -210,7 +210,7 @@ export default function StudentSubmissionForm() {
 
             <motion.div
                 layout
-                className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl border border-white/20 dark:border-slate-800/50 rounded-[2.5rem] shadow-2xl p-8 md:p-12 overflow-hidden"
+                className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl border border-white/20 dark:border-slate-800/50 rounded-3xl sm:rounded-[2.5rem] shadow-2xl p-4 sm:p-6 md:p-12 overflow-hidden"
             >
                 <AnimatePresence mode="wait">
                     {step === 1 && (
@@ -224,14 +224,14 @@ export default function StudentSubmissionForm() {
                             onSubmit={(e) => { e.preventDefault(); nextStep(); }}
                         >
                             <div className="space-y-2">
-                                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
                                     <Trophy className="w-8 h-8 text-purple-600" />
                                     Submit your Achievement(s) Details
                                 </h2>
                                 <p className="text-slate-500 dark:text-slate-400">Tell us what you've accomplished.</p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1 flex items-center gap-2">
                                         <Type className="w-4 h-4" /> Achievement Title
@@ -315,7 +315,7 @@ export default function StudentSubmissionForm() {
                             </div>
 
                             <div className="flex justify-end pt-4">
-                                <button type="submit" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-2xl hover:shadow-lg hover:scale-105 shadow-blue-500/30 transition-all flex items-center gap-2">
+                                <button type="submit" className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-2xl hover:shadow-lg hover:scale-105 shadow-blue-500/30 transition-all flex items-center gap-2 text-sm sm:text-base">
                                     Next Step <ChevronRight className="w-5 h-5" />
                                 </button>
                             </div>
@@ -333,7 +333,7 @@ export default function StudentSubmissionForm() {
                             onSubmit={(e) => { e.preventDefault(); nextStep(); }}
                         >
                             <div className="space-y-2">
-                                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
                                     <Sparkles className="w-8 h-8 text-purple-600" />
                                     Timeline & Impact
                                 </h2>
@@ -396,7 +396,7 @@ export default function StudentSubmissionForm() {
                                 <p className="text-slate-500 dark:text-slate-400">Upload certificates or media evidence.</p>
                             </div>
 
-                            <label className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2rem] p-12 flex flex-col items-center justify-center gap-4 bg-slate-50/50 dark:bg-slate-950/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group cursor-pointer relative overflow-hidden">
+                            <label className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-[2rem] p-6 sm:p-12 flex flex-col items-center justify-center gap-4 bg-slate-50/50 dark:bg-slate-950/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors group cursor-pointer relative overflow-hidden">
                                 <input
                                     type="file"
                                     className="hidden"
