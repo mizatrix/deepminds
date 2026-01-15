@@ -65,7 +65,7 @@ export default function CertificatesPage() {
     const generatePDF = async (cert: Certificate) => {
         setGenerating(cert.id);
         try {
-            await generateCertificatePDF(cert);
+            generateCertificatePDF(cert);
         } catch (error) {
             console.error('Error generating PDF:', error);
         } finally {

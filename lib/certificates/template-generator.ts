@@ -5,7 +5,7 @@ import { getCertificateConfig, getTierDisplayName } from './certificate-config';
 /**
  * Generate PDF certificate with category-specific design
  */
-export async function generateCertificatePDF(certificate: Certificate): Promise<void> {
+export function generateCertificatePDF(certificate: Certificate): void {
     const config = getCertificateConfig(certificate.category);
     const doc = new jsPDF({
         orientation: 'landscape',
@@ -133,13 +133,13 @@ export async function generateCertificatePDF(certificate: Certificate): Promise<
     doc.setTextColor(230, 230, 230);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(60);
-    doc.saveGraphicsState();
-    doc.setGState(new doc.GState({ opacity: 0.1 }));
+//     doc.saveGraphicsState();
+//     doc.setGState(new doc.GState({ opacity: 0.1 }));
     doc.text('AUTHENTIC', 148.5, 115, {
         align: 'center',
         angle: -45
     });
-    doc.restoreGraphicsState();
+//     doc.restoreGraphicsState();
 
     // Seal (decorative circle with category color)
     const sealX = 40;
