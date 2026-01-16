@@ -1,11 +1,13 @@
 import jsPDF from 'jspdf';
+import QRCode from 'qrcode';
 import type { Certificate } from '@/lib/actions/certificates';
 import { getCertificateConfig, getTierDisplayName } from './certificate-config';
 
 /**
  * Generate PDF certificate with category-specific design
+ * Now includes actual QR code for verification
  */
-export function generateCertificatePDF(certificate: Certificate): void {
+export async function generateCertificatePDF(certificate: Certificate): Promise<void> {
     const config = getCertificateConfig(certificate.category);
     const doc = new jsPDF({
         orientation: 'landscape',
@@ -117,29 +119,66 @@ export function generateCertificatePDF(certificate: Certificate): void {
     // Issuer
     doc.text(`By: ${certificate.issuer}`, 30, footerY + 8);
 
+    // University Logo (top left corner)
+    const logoX = 20;
+    const logoY = 20;
+    const logoSize = 25;
+
+    try {
+        // Load and add the MSA logo
+        const logoPath = '/msa-logo.png';
+        const logoImage = await loadImageAsBase64(logoPath);
+        doc.addImage(logoImage, 'PNG', logoX, logoY, logoSize, logoSize);
+    } catch (error) {
+        console.error('Error loading logo:', error);
+        // Fallback: draw placeholder if logo fails to load
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.rect(logoX, logoY, logoSize, logoSize);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text('MSA', logoX + logoSize / 2, logoY + logoSize / 2 + 1.5, { align: 'center' });
+    }
+
     // Certificate Number
+    doc.setTextColor(60, 60, 60);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
     doc.text(`Certificate No: ${certificate.certificateNo}`, 200, footerY, { align: 'right' });
 
-    // QR Code Placeholder (will be replaced with actual QR if available)
-    doc.setDrawColor(100, 100, 100);
-    doc.setLineWidth(1);
-    doc.rect(250, footerY - 5, 25, 25);
+    // Generate actual QR Code for verification
+    const verificationUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://msa-grad.edu'}/verify/${certificate.id}`;
+    const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+        width: 200,
+        margin: 1,
+        color: {
+            dark: '#1e293b',
+            light: '#ffffff'
+        }
+    });
+
+    // Add QR Code to PDF
+    const qrSize = 25;
+    const qrX = 250;
+    const qrY = footerY - 5;
+    doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+
+    // QR Label
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
-    doc.text('Scan to', 262.5, footerY + 22, { align: 'center' });
-    doc.text('Verify', 262.5, footerY + 26, { align: 'center' });
+    doc.text('Scan to Verify', qrX + qrSize / 2, qrY + qrSize + 4, { align: 'center' });
 
     // Watermark (semi-transparent)
     doc.setTextColor(230, 230, 230);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(60);
-//     doc.saveGraphicsState();
-//     doc.setGState(new doc.GState({ opacity: 0.1 }));
+    //     doc.saveGraphicsState();
+    //     doc.setGState(new doc.GState({ opacity: 0.1 }));
     doc.text('AUTHENTIC', 148.5, 115, {
         align: 'center',
         angle: -45
     });
-//     doc.restoreGraphicsState();
+    //     doc.restoreGraphicsState();
 
     // Seal (decorative circle with category color)
     const sealX = 40;
@@ -173,4 +212,18 @@ function hexToRGB(hex: string): [number, number, number] {
             parseInt(result[3], 16)
         ]
         : [0, 0, 0];
+}
+
+/**
+ * Load image from public folder and convert to base64
+ */
+async function loadImageAsBase64(imagePath: string): Promise<string> {
+    const response = await fetch(imagePath);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }

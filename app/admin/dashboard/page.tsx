@@ -9,39 +9,51 @@ import {
     Settings,
     Bell
 } from "lucide-react";
-
-const cards = [
-    {
-        title: "Review Submissions",
-        description: "12 pending achievements waiting for approval.",
-        href: "/admin/submissions",
-        icon: FileText,
-        color: "blue"
-    },
-    {
-        title: "User Management",
-        description: "Manage student accounts and roles.",
-        href: "/admin/users",
-        icon: Users,
-        color: "emerald"
-    },
-    {
-        title: "Analytics",
-        description: "View platform growth and engagement stats.",
-        href: "/admin/analytics",
-        icon: TrendingUp,
-        color: "amber"
-    },
-    {
-        title: "Settings",
-        description: "Configure system preferences.",
-        href: "/admin/settings",
-        icon: Settings,
-        color: "slate"
-    }
-];
+import { useState, useEffect } from "react";
+import { getSubmissions } from "@/lib/submissions";
 
 export default function AdminDashboardPage() {
+    const [pendingCount, setPendingCount] = useState(0);
+
+    useEffect(() => {
+        const submissions = getSubmissions();
+        const pending = submissions.filter(s => s.status === 'pending').length;
+        setPendingCount(pending);
+    }, []);
+
+    const cards = [
+        {
+            title: "Review Submissions",
+            description: pendingCount > 0
+                ? `${pendingCount} pending achievement${pendingCount > 1 ? 's' : ''} waiting for approval.`
+                : "No pending submissions at the moment.",
+            href: "/admin/submissions",
+            icon: FileText,
+            color: "blue"
+        },
+        {
+            title: "User Management",
+            description: "Manage student accounts and roles.",
+            href: "/admin/users",
+            icon: Users,
+            color: "emerald"
+        },
+        {
+            title: "Analytics",
+            description: "View platform growth and engagement stats.",
+            href: "/admin/analytics",
+            icon: TrendingUp,
+            color: "amber"
+        },
+        {
+            title: "Settings",
+            description: "Configure system preferences.",
+            href: "/admin/settings",
+            icon: Settings,
+            color: "slate"
+        }
+    ];
+
     return (
         <div className="container mx-auto px-4 py-12">
             {/* Profile Completion Banner */}
@@ -54,7 +66,9 @@ export default function AdminDashboardPage() {
                 </div>
                 <button className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm hover:shadow-md transition-all relative">
                     <Bell className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-                    <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-800" />
+                    {pendingCount > 0 && (
+                        <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-800" />
+                    )}
                 </button>
             </div>
 
