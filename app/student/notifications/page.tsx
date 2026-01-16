@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { useNotifications } from '@/components/providers/NotificationProvider';
 import { Bell, BellOff, CheckCheck, Trophy, CheckCircle, XCircle, Award, FileText, Info, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -101,6 +102,7 @@ function NotificationFeedItem({ notification, onRead }: { notification: Notifica
 }
 
 export default function NotificationsPage() {
+    const { data: session } = useSession();
     const { notifications, loading, markAsRead, markAllAsRead, unreadCount } = useNotifications();
     const [mounted, setMounted] = useState(false);
 
