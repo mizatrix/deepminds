@@ -2,7 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import { FcGoogle } from 'react-icons/fc';
-import { FaGithub, FaMicrosoft, FaFacebook } from 'react-icons/fa';
+import { FaGithub } from 'react-icons/fa';
 
 interface SocialLoginButtonsProps {
     callbackUrl?: string;
@@ -45,24 +45,6 @@ export default function SocialLoginButtons({ callbackUrl = '/' }: SocialLoginBut
                 >
                     <FaGithub className="h-5 w-5" />
                     GitHub
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => handleSocialLogin('microsoft')}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                >
-                    <FaMicrosoft className="h-5 w-5 text-blue-600" />
-                    Microsoft
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => handleSocialLogin('facebook')}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                >
-                    <FaFacebook className="h-5 w-5 text-blue-600" />
-                    Facebook
                 </button>
             </div>
         </div>
