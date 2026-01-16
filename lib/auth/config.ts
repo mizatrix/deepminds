@@ -2,8 +2,6 @@ import NextAuth, { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
-import MicrosoftEntraIDProvider from 'next-auth/providers/microsoft-entra-id';
-import FacebookProvider from 'next-auth/providers/facebook';
 import { verifyPassword, createUser, findUserByEmail } from './users-db';
 import { loginSchema } from './validation';
 
@@ -60,19 +58,6 @@ export const authConfig: NextAuthConfig = {
         GitHubProvider({
             clientId: process.env.GITHUB_ID!,
             clientSecret: process.env.GITHUB_SECRET!,
-        }),
-
-        // Microsoft OAuth Provider
-        MicrosoftEntraIDProvider({
-            clientId: process.env.MICROSOFT_CLIENT_ID!,
-            clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
-            issuer: `https://login.microsoftonline.com/${process.env.MICROSOFT_TENANT_ID || 'common'}/v2.0`,
-        }),
-
-        // Facebook OAuth Provider
-        FacebookProvider({
-            clientId: process.env.FACEBOOK_CLIENT_ID!,
-            clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
         }),
     ],
 
