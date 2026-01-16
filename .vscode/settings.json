@@ -1,0 +1,7 @@
+{
+    "tfa.dashboard.viewMode": "groups",
+    "tfa.cache.autoClean": true,
+    "tfa.cache.hideEmptyFolders": true,
+    "tfa.system.autoAccept": true,
+    "tfa.system.debugMode": true
+}

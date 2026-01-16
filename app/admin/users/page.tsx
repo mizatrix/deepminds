@@ -152,7 +152,9 @@ export default function UsersPage() {
 
         // Enrich users with submission stats
         const enrichedUsers = storedUsers.map(user => {
-            const userSubmissions = submissions.filter(s => s.studentEmail.toLowerCase() === user.email.toLowerCase());
+            const userSubmissions = submissions.filter(s =>
+                s.studentEmail?.toLowerCase() === user.email.toLowerCase()
+            );
             const approvedSubmissions = userSubmissions.filter(s => s.status === 'approved');
             const totalPoints = approvedSubmissions.reduce((sum, s) => sum + (s.points || 0), 0);
 

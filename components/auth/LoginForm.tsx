@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Eye, EyeOff } from 'lucide-react';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
 import { createEnhancedAuditLog } from '@/lib/audit-service';
 import { getSettings } from '@/lib/settings-store';
@@ -22,6 +22,7 @@ export default function LoginForm() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [registrationAllowed, setRegistrationAllowed] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
 
     // Check if registrations are allowed
     useEffect(() => {
@@ -129,16 +130,30 @@ export default function LoginForm() {
                     <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                         Password
                     </label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 dark:text-slate-100 placeholder:text-slate-400"
-                        placeholder="••••••••••••"
-                    />
+                    <div className="relative">
+                        <input
+                            id="password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            required
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 dark:text-slate-100 placeholder:text-slate-400"
+                            placeholder="••••••••••••"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                            {showPassword ? (
+                                <EyeOff className="w-5 h-5" />
+                            ) : (
+                                <Eye className="w-5 h-5" />
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
@@ -161,10 +176,10 @@ export default function LoginForm() {
                 </button>
             </form>
 
-            {/* Social Login - Enable later when configured */}
-            {/* <div className="mt-6">
+            {/* Social Login */}
+            <div className="mt-6">
                 <SocialLoginButtons callbackUrl={callbackUrl} />
-            </div> */}
+            </div>
 
             {/* Register Link */}
             {registrationAllowed && (

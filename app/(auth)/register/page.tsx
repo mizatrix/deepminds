@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Eye, EyeOff } from 'lucide-react';
 import SocialLoginButtons from '@/components/auth/SocialLoginButtons';
 import PasswordStrengthIndicator from '@/components/auth/PasswordStrengthIndicator';
 
@@ -19,6 +19,9 @@ export default function RegisterPage() {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [passwordTouched, setPasswordTouched] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -135,33 +138,72 @@ export default function RegisterPage() {
                         <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             Password
                         </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 dark:text-slate-100 placeholder:text-slate-400"
-                            placeholder="••••••••••••"
-                        />
+                        <div className="relative">
+                            <input
+                                id="password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                required
+                                value={formData.password}
+                                onChange={handleChange}
+                                onBlur={() => setPasswordTouched(true)}
+                                className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 dark:text-slate-100 placeholder:text-slate-400"
+                                placeholder="••••••••••••"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? (
+                                    <EyeOff className="w-5 h-5" />
+                                ) : (
+                                    <Eye className="w-5 h-5" />
+                                )}
+                            </button>
+                        </div>
                         <PasswordStrengthIndicator password={formData.password} />
+                        {passwordTouched && formData.password && formData.password.length < 12 && (
+                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                ⚠️ Password must be at least 12 characters
+                            </p>
+                        )}
+                        {passwordTouched && formData.password && formData.password.length >= 12 && !/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) && (
+                            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                ⚠️ Password must contain at least one special character (!@#$%^&*...)
+                            </p>
+                        )}
                     </div>
 
                     <div>
                         <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             Confirm Password
                         </label>
-                        <input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            required
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 dark:text-slate-100 placeholder:text-slate-400"
-                            placeholder="••••••••••••"
-                        />
+                        <div className="relative">
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type={showConfirmPassword ? "text" : "password"}
+                                required
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 dark:text-slate-100 placeholder:text-slate-400"
+                                placeholder="••••••••••••"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                            >
+                                {showConfirmPassword ? (
+                                    <EyeOff className="w-5 h-5" />
+                                ) : (
+                                    <Eye className="w-5 h-5" />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     <button
@@ -187,15 +229,6 @@ export default function RegisterPage() {
                     >
                         Sign in
                     </Link>
-                </div>
-
-                {/* Password Requirements */}
-                <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl text-xs text-slate-500 text-center">
-                    <p className="font-medium mb-1">Password Requirements:</p>
-                    <ul className="space-y-1">
-                        <li>• Minimum 12 characters</li>
-                        <li>• At least one special character (!@#$%^&*...)</li>
-                    </ul>
                 </div>
             </div>
         </div>
