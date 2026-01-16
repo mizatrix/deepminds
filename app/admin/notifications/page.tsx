@@ -235,8 +235,8 @@ export default function AdminNotificationsPage() {
                                 <button
                                     onClick={() => setSendNow(true)}
                                     className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${sendNow
-                                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                                         }`}
                                 >
                                     📤 Send Now
@@ -252,8 +252,8 @@ export default function AdminNotificationsPage() {
                                         }
                                     }}
                                     className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${!sendNow
-                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                                         }`}
                                 >
                                     ⏰ Schedule
@@ -268,7 +268,7 @@ export default function AdminNotificationsPage() {
                                     </label>
                                     <DatePicker
                                         selected={scheduledDate}
-                                        onChange={(date) => setScheduledDate(date)}
+                                        onChange={(date: Date | null) => setScheduledDate(date)}
                                         showTimeSelect
                                         dateFormat="MMMM d, yyyy h:mm aa"
                                         minDate={new Date()}
