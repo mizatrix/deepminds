@@ -119,26 +119,7 @@ export async function generateCertificatePDF(certificate: Certificate): Promise<
     // Issuer
     doc.text(`By: ${certificate.issuer}`, 30, footerY + 8);
 
-    // University Logo (top left corner)
-    const logoX = 20;
-    const logoY = 20;
-    const logoSize = 25;
 
-    try {
-        // Load and add the MSA logo
-        const logoPath = '/msa-logo.png';
-        const logoImage = await loadImageAsBase64(logoPath);
-        doc.addImage(logoImage, 'PNG', logoX, logoY, logoSize, logoSize);
-    } catch (error) {
-        console.error('Error loading logo:', error);
-        // Fallback: draw placeholder if logo fails to load
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.5);
-        doc.rect(logoX, logoY, logoSize, logoSize);
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text('MSA', logoX + logoSize / 2, logoY + logoSize / 2 + 1.5, { align: 'center' });
-    }
 
     // Certificate Number
     doc.setTextColor(60, 60, 60);
@@ -168,17 +149,7 @@ export async function generateCertificatePDF(certificate: Certificate): Promise<
     doc.setTextColor(100, 100, 100);
     doc.text('Scan to Verify', qrX + qrSize / 2, qrY + qrSize + 4, { align: 'center' });
 
-    // Watermark (semi-transparent)
-    doc.setTextColor(230, 230, 230);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(60);
-    //     doc.saveGraphicsState();
-    //     doc.setGState(new doc.GState({ opacity: 0.1 }));
-    doc.text('AUTHENTIC', 148.5, 115, {
-        align: 'center',
-        angle: -45
-    });
-    //     doc.restoreGraphicsState();
+
 
     // Seal (decorative circle with category color)
     const sealX = 40;
@@ -190,11 +161,7 @@ export async function generateCertificatePDF(certificate: Certificate): Promise<
     doc.setFillColor(...primaryRGB);
     doc.circle(sealX, sealY, 8, 'F');
 
-    // MSA in seal
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MSA', sealX, sealY + 2, { align: 'center' });
+
 
     // Save PDF
     doc.save(`${certificate.certificateNo}.pdf`);
