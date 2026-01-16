@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Bot, Plus, Play, Pause, Trash2, Clock, CheckCircle2, XCircle, Calendar } from 'lucide-react';
-import { getTriggers, createTrigger, toggleTrigger, deleteTrigger, executeTrigger, getTriggerExecutions, COMMON_TRIGGERS, type NotificationTrigger } from '@/lib/actions/triggers';
-import { MOTIVATIONAL_TEMPLATES } from '@/lib/actions/motivational-notifications';
+import { getTriggers, createTrigger, toggleTrigger, deleteTrigger, executeTrigger, getTriggerExecutions } from '@/lib/actions/triggers';
+import { COMMON_TRIGGERS, type NotificationTrigger } from '@/lib/actions/triggers.types';
+import { MOTIVATIONAL_TEMPLATES } from '@/lib/actions/motivational-notifications.types';
 import Link from 'next/link';
 
 export default function AdminTriggersPage() {
@@ -129,8 +130,8 @@ export default function AdminTriggersPage() {
                                             {trigger.name}
                                         </h3>
                                         <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${trigger.enabled
-                                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
                                             }`}>
                                             {trigger.enabled ? 'Active' : 'Disabled'}
                                         </span>
@@ -174,8 +175,8 @@ export default function AdminTriggersPage() {
                                     <button
                                         onClick={() => handleToggle(trigger.id, trigger.enabled)}
                                         className={`p-2 rounded-xl transition-colors ${trigger.enabled
-                                                ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
-                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
                                             }`}
                                         title={trigger.enabled ? 'Disable' : 'Enable'}
                                     >

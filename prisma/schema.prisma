@@ -45,12 +45,15 @@ model User {
   emailNotifications    Boolean @default(true)
   emailDigestFrequency  String  @default("instant") // instant, daily, weekly, never
 
+  submissions           Submission[] // Relation to submissions
+
   @@map("users")
 }
 
 model Submission {
   id               String   @id @default(cuid())
   studentEmail     String
+  user             User     @relation(fields: [studentEmail], references: [email]) // Relation to User
   studentName      String
   title            String
   category         String

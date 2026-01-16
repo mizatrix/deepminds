@@ -1,22 +1,10 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { sendTemplateNotification, type AudienceFilter } from './motivational-notifications';
+import { sendTemplateNotification } from './motivational-notifications';
+import type { AudienceFilter } from './motivational-notifications.types';
 import { revalidatePath } from 'next/cache';
-
-export interface ScheduledNotification {
-    id: string;
-    title: string;
-    message: string;
-    type: string;
-    priority: string;
-    audience: string;
-    scheduledFor: Date;
-    sent: boolean;
-    sentAt?: Date;
-    createdBy: string;
-    createdAt: Date;
-}
+import type { ScheduledNotification } from './scheduled-notifications.types';
 
 /**
  * Create a scheduled notification

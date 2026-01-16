@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Sparkles, Users, Target, Send, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
-import { MOTIVATIONAL_TEMPLATES, type AudienceFilter, sendTemplateNotification } from '@/lib/actions/motivational-notifications';
+import { MOTIVATIONAL_TEMPLATES, type AudienceFilter } from '@/lib/actions/motivational-notifications.types';
+import { sendTemplateNotification } from '@/lib/actions/motivational-notifications';
 import { createScheduledNotification } from '@/lib/actions/scheduled-notifications';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';

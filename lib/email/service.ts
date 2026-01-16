@@ -1,7 +1,5 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export interface EmailOptions {
     to: string | string[];
     subject: string;
@@ -19,6 +17,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
             return { success: false, error: 'Email service not configured' };
         }
 
+        const resend = new Resend(process.env.RESEND_API_KEY);
         const fromEmail = options.from || process.env.FROM_EMAIL || 'notifications@yourdomain.com';
 
         await resend.emails.send({

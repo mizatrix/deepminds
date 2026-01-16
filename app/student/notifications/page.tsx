@@ -103,6 +103,7 @@ function NotificationFeedItem({ notification, onRead }: { notification: Notifica
 
 export default function NotificationsPage() {
     const { data: session } = useSession();
+    const userEmail = session?.user?.email || '';
     const { notifications, loading, markAsRead, markAllAsRead, unreadCount } = useNotifications();
     const [mounted, setMounted] = useState(false);
 
@@ -206,7 +207,7 @@ export default function NotificationsPage() {
                                         <MotivationalNotificationCard
                                             notification={notification}
                                             onRead={markAsRead}
-                                            userId={session?.user?.email || ''}
+                                            userId={userEmail}
                                         />
                                     </div>
                                 );
