@@ -137,17 +137,22 @@ export default function StudentSubmissionForm() {
                 evidenceFileType: formData.evidenceFileType,
             });
 
-            // Create enhanced audit log with device and location info
-            await createEnhancedAuditLog({
-                userEmail: userEmail,
-                userName: userName,
-                userRole: 'STUDENT',
-                action: 'submit',
-                targetType: 'submission',
-                targetId: submission.id,
-                targetTitle: formData.title,
-                details: `Submitted achievement: ${formData.title} (Category: ${formData.category})`
-            });
+            // Create enhanced audit log with device and location info (non-blocking)
+            try {
+                await createEnhancedAuditLog({
+                    userEmail: userEmail,
+                    userName: userName,
+                    userRole: 'STUDENT',
+                    action: 'submit',
+                    targetType: 'submission',
+                    targetId: submission.id,
+                    targetTitle: formData.title,
+                    details: `Submitted achievement: ${formData.title} (Category: ${formData.category})`
+                });
+            } catch (auditError) {
+                // Don't block submission if audit logging fails
+                console.error('Audit logging failed (non-critical):', auditError);
+            }
 
             setIsSubmitting(false);
             showToast("Achievement submitted successfully! Admins have been notified.", "success");
