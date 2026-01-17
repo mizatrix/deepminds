@@ -172,3 +172,32 @@ model TriggerExecution {
   @@index([triggerId])
   @@map("trigger_executions")
 }
+
+model Badge {
+  id              String      @id @default(cuid())
+  name            String      @unique
+  description     String
+  icon            String      // Lucide icon name: "Star", "Zap", "Trophy"
+  color           String      @default("purple")
+  category        String?     // Null = general badge, string = category-specific
+  triggerType     String      // "first_submission", "category_count", "total_points"
+  triggerValue    Int         @default(1)
+  createdAt       DateTime    @default(now())
+
+  userBadges      UserBadge[]
+  @@map("badges")
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String   // User email
+  badgeId   String
+  earnedAt  DateTime @default(now())
+
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@map("user_badges")
+}
+

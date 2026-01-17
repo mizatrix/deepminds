@@ -9,6 +9,7 @@ import {
     notifyMilestone,
     getAdminEmails,
 } from './notifications';
+import { checkAndAwardBadges } from './badges';
 
 // Types matching the existing Submission interface
 export interface Submission {
@@ -171,6 +172,13 @@ export async function updateSubmission(
                 } catch (error) {
                     console.error('Failed to check milestone:', error);
                 }
+            }
+
+            // Check and award applicable badges
+            try {
+                await checkAndAwardBadges(submission.studentEmail, submission.category);
+            } catch (error) {
+                console.error('Failed to check badges:', error);
             }
         } else if (updates.status === 'rejected') {
             await notifySubmissionRejected(
