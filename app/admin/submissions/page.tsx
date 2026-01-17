@@ -53,7 +53,7 @@ export default function SubmissionsPage() {
         const adminEmail = session?.user?.email || 'admin@example.com';
         const adminName = session?.user?.name || 'Admin';
 
-        updateSubmission(submission.id, {
+        await updateSubmission(submission.id, {
             status: 'approved',
             reviewedAt: new Date().toISOString(),
             reviewedBy: adminName,
@@ -83,7 +83,7 @@ export default function SubmissionsPage() {
         const adminEmail = session?.user?.email || 'admin@example.com';
         const adminName = session?.user?.name || 'Admin';
 
-        updateSubmission(submission.id, {
+        await updateSubmission(submission.id, {
             status: 'rejected',
             reviewedAt: new Date().toISOString(),
             reviewedBy: adminName,
@@ -113,7 +113,7 @@ export default function SubmissionsPage() {
         const adminEmail = session?.user?.email || 'admin@example.com';
         const adminName = session?.user?.name || 'Admin';
 
-        deleteSubmission(submission.id);
+        await deleteSubmission(submission.id);
 
         await createEnhancedAuditLog({
             userEmail: adminEmail,

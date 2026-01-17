@@ -28,6 +28,13 @@ export default function StudentDashboard() {
     useEffect(() => {
         if (session?.user?.email) {
             loadSubmissions();
+
+            // Poll for updates every 30 seconds
+            const intervalId = setInterval(() => {
+                loadSubmissions();
+            }, 30000);
+
+            return () => clearInterval(intervalId);
         }
         // Load dashboard preferences
         const prefs = getDashboardPreferences();
