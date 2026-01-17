@@ -8,8 +8,8 @@ import {
     getSubmissions,
     updateSubmission,
     deleteSubmission,
-    type Submission
-} from "@/lib/submissions";
+} from "@/lib/actions/submissions";
+import { type Submission } from "@/lib/submissions";
 import { createEnhancedAuditLog } from "@/lib/audit-service";
 import BulkActionBar from "@/components/admin/BulkActionBar";
 import { exportSubmissionsToCSV, exportSubmissionsToPDF } from "@/lib/admin/exportUtils";
@@ -39,13 +39,13 @@ export default function SubmissionsPage() {
         setSelectedIds(new Set());
     }, [filter, search, categoryFilter, dateRange]);
 
-    // Load submissions from localStorage
+    // Load submissions from database
     useEffect(() => {
         loadSubmissions();
     }, []);
 
-    const loadSubmissions = () => {
-        const data = getSubmissions();
+    const loadSubmissions = async () => {
+        const data = await getSubmissions();
         setSubmissions(data);
     };
 
@@ -323,8 +323,8 @@ export default function SubmissionsPage() {
                         <button
                             onClick={() => setShowFilters(!showFilters)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-colors ${showFilters || hasActiveFilters
-                                    ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-600'
-                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-600'
+                                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                                 }`}
                         >
                             <Filter className="w-4 h-4" />

@@ -118,7 +118,7 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
  */
 export async function updateSubmission(
     id: string,
-    updates: Partial<Pick<Submission, 'status' | 'adminFeedback' | 'points' | 'reviewedBy'>>
+    updates: Partial<Pick<Submission, 'status' | 'adminFeedback' | 'points' | 'reviewedBy' | 'reviewedAt'>>
 ): Promise<Submission> {
     // Get the current submission to check if status is changing
     const existing = await prisma.submission.findUnique({ where: { id } });
