@@ -146,7 +146,7 @@ export async function notifySubmissionApproved(
         'Achievement Approved! 🎉',
         `Your submission "${submissionTitle}" has been approved${pointsText}`,
         'SUBMISSION_APPROVED',
-        submissionId ? `/student/submissions/${submissionId}` : '/student/submissions'
+        '/student/dashboard' // Link to dashboard where students see their submissions
     );
 }
 
@@ -165,7 +165,7 @@ export async function notifySubmissionRejected(
         'Feedback on Your Submission 📝',
         `Your submission "${submissionTitle}" requires some updates.${feedbackText}`,
         'SUBMISSION_REJECTED',
-        submissionId ? `/student/submissions/${submissionId}` : '/student/submissions'
+        '/student/dashboard' // Link to dashboard where students see their submissions
     );
 }
 
