@@ -19,24 +19,27 @@ export async function getAudienceEmails(filter: AudienceFilter): Promise<string[
             return allUsers.map(u => u.email);
 
         case 'top_performers':
-            // Get top 20% by points (calculated from approved submissions)
-            const usersWithPoints = await prisma.user.findMany({
+            // Get all students
+            const allStudentsForTop = await prisma.user.findMany({
                 where: { role: 'STUDENT' },
-                include: {
-                    submissions: {
-                        where: { status: 'APPROVED' },
-                        select: { points: true },
-                    },
-                },
+                select: { email: true },
             });
 
-            const usersWithTotalPoints = usersWithPoints.map(user => ({
-                email: user.email,
-                points: user.submissions.reduce((sum, sub) => sum + (sub.points || 0), 0),
-            })).sort((a, b) => b.points - a.points);
+            // Get points for each student separately
+            const usersWithTotalPoints = await Promise.all(
+                allStudentsForTop.map(async (user) => {
+                    const submissions = await prisma.submission.findMany({
+                        where: { studentEmail: user.email, status: 'APPROVED' },
+                        select: { points: true },
+                    });
+                    const points = submissions.reduce((sum, sub) => sum + (sub.points || 0), 0);
+                    return { email: user.email, points };
+                })
+            );
 
-            const top20Percent = Math.ceil(usersWithTotalPoints.length * 0.2);
-            return usersWithTotalPoints.slice(0, top20Percent).map(u => u.email);
+            const sorted = usersWithTotalPoints.sort((a, b) => b.points - a.points);
+            const top20Percent = Math.ceil(sorted.length * 0.2);
+            return sorted.slice(0, top20Percent).map(u => u.email);
 
         case 'new_students':
             const thirtyDaysAgo = new Date();
@@ -57,43 +60,36 @@ export async function getAudienceEmails(filter: AudienceFilter): Promise<string[
 
             const allStudents = await prisma.user.findMany({
                 where: { role: 'STUDENT' },
-                include: {
-                    submissions: {
-                        orderBy: { submittedAt: 'desc' },
-                        take: 1,
-                    },
-                },
+                select: { email: true },
             });
 
-            const inactiveStudents = allStudents.filter(user => {
-                if (user.submissions.length === 0) return true;
-                return new Date(user.submissions[0].submittedAt) < inactiveThreshold;
+            // Get recent submissions
+            const recentSubmissionsCheck = await prisma.submission.findMany({
+                where: { submittedAt: { gte: inactiveThreshold } },
+                select: { studentEmail: true },
+                distinct: ['studentEmail'],
             });
 
-            return inactiveStudents.map(u => u.email);
+            const activeEmails = new Set(recentSubmissionsCheck.map(s => s.studentEmail));
+            return allStudents.filter(u => !activeEmails.has(u.email)).map(u => u.email);
 
         case 'high_achievers':
-            const highAchievers = await prisma.user.findMany({
-                where: {
-                    role: 'STUDENT',
-                    submissions: {
-                        some: { status: 'APPROVED' },
-                    },
-                },
-                include: {
-                    _count: {
-                        select: {
-                            submissions: {
-                                where: { status: 'APPROVED' },
-                            },
-                        },
-                    },
-                },
+            const allStudentsForHigh = await prisma.user.findMany({
+                where: { role: 'STUDENT' },
+                select: { email: true },
             });
 
-            return highAchievers
-                .filter(u => u._count.submissions >= 5)
-                .map(u => u.email);
+            // Get approved submission counts for each student
+            const usersWithCounts = await Promise.all(
+                allStudentsForHigh.map(async (user) => {
+                    const count = await prisma.submission.count({
+                        where: { studentEmail: user.email, status: 'APPROVED' },
+                    });
+                    return { email: user.email, count };
+                })
+            );
+
+            return usersWithCounts.filter(u => u.count >= 5).map(u => u.email);
 
         default:
             return [];
