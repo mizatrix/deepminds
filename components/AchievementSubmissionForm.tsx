@@ -139,12 +139,15 @@ export default function StudentSubmissionForm() {
         setIsSubmitting(true);
 
         try {
+            console.log('=== SUBMISSION START ===');
+
             // Get user info from session
             const userEmail = session?.user?.email || 'student@example.com';
             const userName = session?.user?.name || 'Student User';
+            console.log('User info:', { userEmail, userName });
 
-            // Create submission in Supabase database (NOT localStorage)
-            const submission = await createSubmission({
+            // Prepare submission data
+            const submissionData = {
                 studentEmail: userEmail,
                 studentName: userName,
                 title: formData.title,
@@ -156,10 +159,17 @@ export default function StudentSubmissionForm() {
                 evidenceUrl: formData.evidenceUrl || 'No evidence uploaded',
                 evidenceFileName: formData.evidenceFileName,
                 evidenceFileType: formData.evidenceFileType,
-            });
+            };
+            console.log('Submission data prepared:', submissionData);
+
+            // Create submission in Supabase database (NOT localStorage)
+            console.log('Calling createSubmission...');
+            const submission = await createSubmission(submissionData);
+            console.log('Submission created successfully:', submission.id);
 
             // Create enhanced audit log with device and location info (non-blocking)
             try {
+                console.log('Creating audit log...');
                 await createEnhancedAuditLog({
                     userEmail: userEmail,
                     userName: userName,
@@ -170,14 +180,17 @@ export default function StudentSubmissionForm() {
                     targetTitle: formData.title,
                     details: `Submitted achievement: ${formData.title} (Category: ${formData.category})`
                 });
+                console.log('Audit log created');
             } catch (auditError) {
                 // Don't block submission if audit logging fails
                 console.error('Audit logging failed (non-critical):', auditError);
             }
 
+            console.log('Setting success state...');
             setIsSubmitting(false);
             showToast("Achievement submitted successfully! Admins have been notified.", "success");
             setStep(4); // Success step
+            console.log('=== SUBMISSION COMPLETE ===');
 
             // Reset form
             setFormData({
@@ -193,9 +206,15 @@ export default function StudentSubmissionForm() {
                 evidenceFileType: ""
             });
         } catch (error: any) {
+            console.error('=== SUBMISSION FAILED ===');
+            console.error('Error type:', error.constructor.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            console.error('Full error object:', error);
+
             setIsSubmitting(false);
-            showToast(error.message || "Failed to submit achievement. Please try again.", "error");
-            console.error('Submission error:', error);
+            const errorMessage = error.message || "Failed to submit achievement. Please try again.";
+            showToast(errorMessage, "error");
         }
     };
 
