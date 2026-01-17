@@ -77,14 +77,8 @@ export async function createSubmission(data: Omit<Submission, 'id' | 'status' | 
         },
     });
 
-    // Revalidate paths (non-blocking)
-    try {
-        revalidatePath('/admin');
-        revalidatePath('/dashboard');
-        revalidatePath('/student');
-    } catch (error) {
-        console.error('Failed to revalidate paths (non-critical):', error);
-    }
+    // NOTE: Removed revalidatePath calls as they cause Cache API errors
+    // Cache will invalidate naturally or on next navigation
 
     // Notify admins about new submission (non-blocking)
     try {
