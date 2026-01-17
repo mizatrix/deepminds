@@ -1,4 +1,4 @@
-import { getSubmissions } from '@/lib/submissions';
+import { getSubmissions } from '@/lib/actions/submissions';
 import { getUsers } from '@/lib/auth/users-db';
 import { calculateSubmissionPoints } from './points';
 
@@ -19,7 +19,7 @@ export interface LeaderboardEntry {
  * Calculate leaderboard for CS faculty
  */
 export async function calculateLeaderboard(): Promise<LeaderboardEntry[]> {
-    const submissions = getSubmissions();
+    const submissions = await getSubmissions();
     const users = await getUsers();
 
     // Only count approved submissions
@@ -31,7 +31,8 @@ export async function calculateLeaderboard(): Promise<LeaderboardEntry[]> {
 
     approvedSubmissions.forEach(submission => {
         const hasEvidence = !!submission.evidenceUrl && submission.evidenceUrl !== 'No evidence uploaded';
-        const points = calculateSubmissionPoints(submission.category, hasEvidence);
+        // Use the actual points from the submission (awarded by admin), not calculated points
+        const points = submission.points || calculateSubmissionPoints(submission.category, hasEvidence);
 
         const currentPoints = userPoints.get(submission.studentEmail) || 0;
         const currentCount = userAchievements.get(submission.studentEmail) || 0;
