@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { createSubmission, generateSubmissionId } from "@/lib/actions/submissions";
 import { createEnhancedAuditLog } from "@/lib/audit-service";
+import { uploadEvidenceFile } from "@/lib/storage";
 
 const categories = [
     "SCIENTIFIC", "ARTISTIC", "SPECIAL TRAINING", "COMPETITION", "HACKATHONS", "AWARDS", "SPORTS",
@@ -97,35 +98,32 @@ export default function StudentSubmissionForm() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check file size (max 5MB for localStorage)
-        if (file.size > 5 * 1024 * 1024) {
-            showToast("File too large. Maximum size is 5MB.", "error");
+        // Check file size (max 10MB for Supabase Storage)
+        const maxSizeMB = 10;
+        if (file.size > maxSizeMB * 1024 * 1024) {
+            showToast(`File too large. Maximum size is ${maxSizeMB}MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`, "error");
             return;
         }
 
         setUploading(true);
         try {
-            // Convert file to base64 data URL
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                setFormData(prev => ({
-                    ...prev,
-                    evidenceUrl: base64String,
-                    evidenceFileName: file.name,
-                    evidenceFileType: file.type
-                }));
-                showToast("File uploaded successfully!", "success");
-                setUploading(false);
-            };
-            reader.onerror = () => {
-                showToast("Error reading file. Please try again.", "error");
-                setUploading(false);
-            };
-            reader.readAsDataURL(file);
-        } catch (error) {
+            // Get user email for organizing files
+            const userEmail = session?.user?.email || 'anonymous';
+
+            // Upload to Supabase Storage
+            const result = await uploadEvidenceFile(file, userEmail);
+
+            setFormData(prev => ({
+                ...prev,
+                evidenceUrl: result.url,
+                evidenceFileName: result.fileName,
+                evidenceFileType: result.fileType
+            }));
+            showToast("File uploaded successfully!", "success");
+        } catch (error: any) {
             console.error('Error uploading file:', error);
-            showToast("Error uploading file. Please try again.", "error");
+            showToast(error.message || "Error uploading file. Please try again.", "error");
+        } finally {
             setUploading(false);
         }
     };
