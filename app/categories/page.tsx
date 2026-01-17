@@ -3,29 +3,43 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ACHIEVEMENT_CATEGORIES } from "@/lib/categories";
-import { getSubmissions } from "@/lib/submissions";
+import { getSubmissions } from "@/lib/actions/submissions";
 import { ArrowRight, Users, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 
 export default function CategoriesPage() {
-    // Calculate stats for each category
-    const categoryStats = useMemo(() => {
-        const submissions = getSubmissions();
-        const approved = submissions.filter((s) => s.status === "approved");
+    // State for category stats
+    const [categoryStats, setCategoryStats] = useState(
+        ACHIEVEMENT_CATEGORIES.map(category => ({
+            ...category,
+            studentCount: 0,
+            achievementCount: 0,
+            totalPoints: 0,
+        }))
+    );
 
-        return ACHIEVEMENT_CATEGORIES.map((category) => {
-            const categorySubmissions = approved.filter((s) => s.category === category.id);
-            const uniqueStudents = new Set(categorySubmissions.map((s) => s.studentEmail)).size;
-            const totalPoints = categorySubmissions.reduce((sum, s) => sum + (s.points || 0), 0);
+    // Load data from database
+    useEffect(() => {
+        const loadData = async () => {
+            const submissions = await getSubmissions();
+            const approved = submissions.filter((s) => s.status === "approved");
 
-            return {
-                ...category,
-                studentCount: uniqueStudents,
-                achievementCount: categorySubmissions.length,
-                totalPoints,
-            };
-        });
+            const stats = ACHIEVEMENT_CATEGORIES.map((category) => {
+                const categorySubmissions = approved.filter((s) => s.category === category.id);
+                const uniqueStudents = new Set(categorySubmissions.map((s) => s.studentEmail)).size;
+                const totalPoints = categorySubmissions.reduce((sum, s) => sum + (s.points || 0), 0);
+
+                return {
+                    ...category,
+                    studentCount: uniqueStudents,
+                    achievementCount: categorySubmissions.length,
+                    totalPoints,
+                };
+            });
+            setCategoryStats(stats);
+        };
+        loadData();
     }, []);
 
     return (

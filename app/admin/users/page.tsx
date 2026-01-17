@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { User, Shield, GraduationCap, Search, Plus, Trash2, ArrowUpDown, UserCheck, UserX, Activity, Crown, ShieldAlert } from "lucide-react";
 import { useToast } from "@/lib/ToastContext";
-import { getSubmissions } from "@/lib/submissions";
+import { getSubmissions } from "@/lib/actions/submissions";
 import { useRole } from "@/lib/RoleContext";
 
 type UserRole = "SUPER_ADMIN" | "ADMIN" | "STUDENT";
@@ -147,25 +147,28 @@ export default function UsersPage() {
 
     // Load users and enrich with submission data
     useEffect(() => {
-        const storedUsers = getStoredUsers();
-        const submissions = getSubmissions();
+        const loadData = async () => {
+            const storedUsers = getStoredUsers();
+            const submissions = await getSubmissions();
 
-        // Enrich users with submission stats
-        const enrichedUsers = storedUsers.map(user => {
-            const userSubmissions = submissions.filter(s =>
-                s.studentEmail?.toLowerCase() === user.email.toLowerCase()
-            );
-            const approvedSubmissions = userSubmissions.filter(s => s.status === 'approved');
-            const totalPoints = approvedSubmissions.reduce((sum, s) => sum + (s.points || 0), 0);
+            // Enrich users with submission stats
+            const enrichedUsers = storedUsers.map(user => {
+                const userSubmissions = submissions.filter(s =>
+                    s.studentEmail?.toLowerCase() === user.email.toLowerCase()
+                );
+                const approvedSubmissions = userSubmissions.filter(s => s.status === 'approved');
+                const totalPoints = approvedSubmissions.reduce((sum, s) => sum + (s.points || 0), 0);
 
-            return {
-                ...user,
-                submissionCount: userSubmissions.length,
-                points: totalPoints
-            };
-        });
+                return {
+                    ...user,
+                    submissionCount: userSubmissions.length,
+                    points: totalPoints
+                };
+            });
 
-        setUsers(enrichedUsers);
+            setUsers(enrichedUsers);
+        };
+        loadData();
     }, []);
 
     // Filter and sort users

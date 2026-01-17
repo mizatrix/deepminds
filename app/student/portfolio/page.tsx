@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, SortAsc, LayoutGrid, List, Share2, Trophy } from "lucide-react";
-import { getSubmissionsByStudent, type Submission } from "@/lib/submissions";
+import { getSubmissionsByStudent } from "@/lib/actions/submissions";
+import { type Submission } from "@/lib/submissions";
 import AchievementGalleryCard from "@/components/portfolio/AchievementGalleryCard";
 import ShareModal from "@/components/portfolio/ShareModal";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -31,18 +32,21 @@ export default function PortfolioPage() {
         }
     }, [session?.user?.email, session?.user?.name]);
 
-    const loadAchievements = () => {
+    const loadAchievements = async () => {
         setIsLoading(true);
-        setTimeout(() => {
+        try {
             const userEmail = session?.user?.email;
             if (userEmail) {
-                const submissions = getSubmissionsByStudent(userEmail);
+                const submissions = await getSubmissionsByStudent(userEmail);
                 // Only show approved achievements in portfolio
                 const approved = submissions.filter(s => s.status === 'approved');
                 setAchievements(approved);
             }
+        } catch (error) {
+            console.error('Error loading achievements:', error);
+        } finally {
             setIsLoading(false);
-        }, 800);
+        }
     };
 
     const categories = Array.from(new Set(achievements.map(a => a.category)));

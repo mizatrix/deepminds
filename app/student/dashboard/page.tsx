@@ -6,7 +6,8 @@ import StudentStats from "@/components/StudentStats";
 import ProfileCompletionBanner from "@/components/ProfileCompletionBanner";
 import { ArrowRight, Trophy, FileCheck, Star, Eye, Clock, CheckCircle, XCircle, Edit2, Save, X as XIcon, Settings, Medal } from "lucide-react";
 import Link from "next/link";
-import { getSubmissionsByStudent, type Submission } from "@/lib/submissions";
+import { getSubmissionsByStudent } from "@/lib/actions/submissions";
+import { type Submission } from "@/lib/submissions";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import CustomizeModal from "@/components/dashboard/CustomizeModal";
@@ -33,21 +34,23 @@ export default function StudentDashboard() {
         setDashboardPrefs(prefs);
     }, [session?.user?.email]);
 
-    const loadSubmissions = () => {
+    const loadSubmissions = async () => {
         setIsLoading(true);
-        // Simulate network delay for skeleton demo (remove in production)
-        setTimeout(() => {
+        try {
             const userEmail = session?.user?.email;
             if (userEmail) {
-                const userSubmissions = getSubmissionsByStudent(userEmail);
+                const userSubmissions = await getSubmissionsByStudent(userEmail);
                 // Sort by most recent first
                 const sorted = userSubmissions.sort((a, b) =>
                     new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
                 );
                 setSubmissions(sorted);
             }
+        } catch (error) {
+            console.error('Error loading submissions:', error);
+        } finally {
             setIsLoading(false);
-        }, 800);
+        }
     };
 
     const getStatusBadge = (status: Submission['status']) => {

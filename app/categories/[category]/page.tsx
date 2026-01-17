@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getCategoryById } from "@/lib/categories";
-import { getSubmissions } from "@/lib/submissions";
+import { getSubmissions } from "@/lib/actions/submissions";
 import { cn } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 9;
@@ -44,45 +44,49 @@ export default function CategoryPage() {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState<"points" | "recent">("points");
+    const [categoryData, setCategoryData] = useState<StudentAchievement[]>([]);
 
-    // Get all approved submissions for this category
-    const categoryData = useMemo(() => {
-        const submissions = getSubmissions();
-        const approvedInCategory = submissions.filter(
-            (s) => s.status === "approved" && s.category === categoryId
-        );
+    // Load data from database
+    useEffect(() => {
+        const loadData = async () => {
+            const submissions = await getSubmissions();
+            const approvedInCategory = submissions.filter(
+                (s) => s.status === "approved" && s.category === categoryId
+            );
 
-        // Group by student
-        const studentMap = new Map<string, StudentAchievement>();
+            // Group by student
+            const studentMap = new Map<string, StudentAchievement>();
 
-        approvedInCategory.forEach((submission) => {
-            const existing = studentMap.get(submission.studentEmail);
-            const achievement = {
-                id: submission.id,
-                title: submission.title,
-                orgName: submission.orgName,
-                location: submission.location,
-                achievementDate: submission.achievementDate,
-                points: submission.points || 0,
-            };
+            approvedInCategory.forEach((submission) => {
+                const existing = studentMap.get(submission.studentEmail);
+                const achievement = {
+                    id: submission.id,
+                    title: submission.title,
+                    orgName: submission.orgName,
+                    location: submission.location,
+                    achievementDate: submission.achievementDate,
+                    points: submission.points || 0,
+                };
 
-            if (existing) {
-                existing.achievements.push(achievement);
-                existing.totalPoints += achievement.points;
-                existing.achievementCount++;
-            } else {
-                studentMap.set(submission.studentEmail, {
-                    studentName: submission.studentName,
-                    studentEmail: submission.studentEmail,
-                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${submission.studentName}`,
-                    achievements: [achievement],
-                    totalPoints: achievement.points,
-                    achievementCount: 1,
-                });
-            }
-        });
+                if (existing) {
+                    existing.achievements.push(achievement);
+                    existing.totalPoints += achievement.points;
+                    existing.achievementCount++;
+                } else {
+                    studentMap.set(submission.studentEmail, {
+                        studentName: submission.studentName,
+                        studentEmail: submission.studentEmail,
+                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${submission.studentName}`,
+                        achievements: [achievement],
+                        totalPoints: achievement.points,
+                        achievementCount: 1,
+                    });
+                }
+            });
 
-        return Array.from(studentMap.values());
+            setCategoryData(Array.from(studentMap.values()));
+        };
+        loadData();
     }, [categoryId]);
 
     // Sort students
