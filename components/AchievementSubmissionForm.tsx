@@ -56,6 +56,20 @@ export default function StudentSubmissionForm() {
 
     useEffect(() => {
         setIsMounted(true);
+
+        // Restore form data from localStorage if available
+        const savedData = localStorage.getItem('achievement_draft');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                setFormData(parsed);
+                // Clear the saved data after restoring
+                localStorage.removeItem('achievement_draft');
+                showToast('Your progress has been restored!', 'success');
+            } catch (error) {
+                console.error('Error restoring form data:', error);
+            }
+        }
     }, []);
 
     const nextStep = () => setStep(s => s + 1);
@@ -63,8 +77,15 @@ export default function StudentSubmissionForm() {
 
     const checkAuth = () => {
         if (!isAuthenticated) {
-            showToast("Please login to continue", "error");
-            router.push("/login");
+            // Save current form data to localStorage before redirecting
+            try {
+                localStorage.setItem('achievement_draft', JSON.stringify(formData));
+                showToast("Please login to continue. Your progress will be saved!", "info");
+            } catch (error) {
+                console.error('Error saving form data:', error);
+                showToast("Please login to continue", "error");
+            }
+            router.push("/login?redirect=/");
             return false;
         }
         return true;
