@@ -77,11 +77,16 @@ export async function createSubmission(data: Omit<Submission, 'id' | 'status' | 
         },
     });
 
-    revalidatePath('/admin');
-    revalidatePath('/dashboard');
-    revalidatePath('/student');
+    // Revalidate paths (non-blocking)
+    try {
+        revalidatePath('/admin');
+        revalidatePath('/dashboard');
+        revalidatePath('/student');
+    } catch (error) {
+        console.error('Failed to revalidate paths (non-critical):', error);
+    }
 
-    // Notify admins about new submission
+    // Notify admins about new submission (non-blocking)
     try {
         const adminEmails = await getAdminEmails();
         if (adminEmails.length > 0) {
