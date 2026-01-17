@@ -10,15 +10,21 @@ import {
     Bell
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { getSubmissions } from "@/lib/submissions";
+import { getSubmissionStats } from "@/lib/actions/submissions";
 
 export default function AdminDashboardPage() {
     const [pendingCount, setPendingCount] = useState(0);
 
     useEffect(() => {
-        const submissions = getSubmissions();
-        const pending = submissions.filter(s => s.status === 'pending').length;
-        setPendingCount(pending);
+        async function loadStats() {
+            try {
+                const stats = await getSubmissionStats();
+                setPendingCount(stats.pending);
+            } catch (error) {
+                console.error('Error loading submission stats:', error);
+            }
+        }
+        loadStats();
     }, []);
 
     const cards = [
