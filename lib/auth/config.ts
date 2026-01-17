@@ -125,6 +125,9 @@ export const authConfig: NextAuthConfig = {
         updateAge: 24 * 60 * 60, // Update session every 24 hours to keep it fresh
     },
 
+    // Trust the host header from Vercel's proxy
+    trustHost: true,
+
     debug: process.env.NODE_ENV === 'development',
 
     secret: process.env.NEXTAUTH_SECRET,
