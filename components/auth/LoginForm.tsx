@@ -14,6 +14,7 @@ export default function LoginForm() {
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '/';
     const registered = searchParams.get('registered') === 'true';
+    const authError = searchParams.get('error');
 
     const [formData, setFormData] = useState({
         email: '',
@@ -28,7 +29,12 @@ export default function LoginForm() {
     useEffect(() => {
         const settings = getSettings();
         setRegistrationAllowed(settings.allowRegistrations);
-    }, []);
+
+        // Set error message based on auth error
+        if (authError === 'AccessDenied') {
+            setError('Your account has been deactivated. Please contact an administrator.');
+        }
+    }, [authError]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
