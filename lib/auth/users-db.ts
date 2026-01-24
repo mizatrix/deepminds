@@ -8,6 +8,7 @@ export interface User {
     name: string;
     role: 'STUDENT' | 'ADMIN';
     image?: string;
+    isActive: boolean;
     createdAt: string;
     emailVerified?: boolean;
     provider?: 'credentials' | 'google' | 'github' | 'microsoft' | 'facebook';
@@ -24,6 +25,7 @@ function toUser(u: NonNullable<Awaited<ReturnType<typeof prisma.user.findUnique>
         name: u.name,
         role: u.role as 'STUDENT' | 'ADMIN',
         image: u.image ?? undefined,
+        isActive: u.isActive,
         createdAt: u.createdAt.toISOString(),
         emailVerified: u.emailVerified,
         provider: (u.provider ?? undefined) as User['provider'],

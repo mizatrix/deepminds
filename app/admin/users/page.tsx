@@ -3,81 +3,14 @@
 import { useState, useEffect } from "react";
 import { User, Shield, GraduationCap, Search, Plus, Trash2, ArrowUpDown, UserCheck, UserX, Activity, Crown, ShieldAlert } from "lucide-react";
 import { useToast } from "@/lib/ToastContext";
-import { getSubmissions } from "@/lib/actions/submissions";
 import { useRole } from "@/lib/RoleContext";
+import { getUsers, toggleUserStatus, deleteUser as deleteUserAction, promoteUserRole, demoteUserRole, type UserData } from "@/lib/actions/user-management";
 
 type UserRole = "SUPER_ADMIN" | "ADMIN" | "STUDENT";
 
-interface UserData {
-    id: string;
-    name: string;
-    email: string;
-    role: UserRole;
-    faculty: string;
-    status: "Active" | "Inactive";
-    joinedAt: string;
-    submissionCount?: number;
-    points?: number;
-}
-
-// Mock initial users - in real app, would come from database
-const initialUsers: UserData[] = [
-    {
-        id: "user_0",
-        name: "Super Admin",
-        email: "superadmin@example.com",
-        role: "SUPER_ADMIN",
-        faculty: "System Administration",
-        status: "Active",
-        joinedAt: "2024-01-01"
-    },
-    {
-        id: "user_1",
-        name: "Admin User",
-        email: "admin@example.com",
-        role: "ADMIN",
-        faculty: "Computer Science",
-        status: "Active",
-        joinedAt: "2024-01-01"
-    },
-    {
-        id: "user_2",
-        name: "Student User",
-        email: "student@example.com",
-        role: "STUDENT",
-        faculty: "Computer Science",
-        status: "Active",
-        joinedAt: "2024-01-15"
-    }
-];
-
-const USERS_KEY = "cs_excellence_users";
-
-function getStoredUsers(): UserData[] {
-    if (typeof window === 'undefined') return initialUsers;
-    try {
-        const stored = localStorage.getItem(USERS_KEY);
-        if (stored) {
-            const users = JSON.parse(stored);
-            // Ensure there's at least one super admin
-            const hasSuperAdmin = users.some((u: UserData) => u.role === 'SUPER_ADMIN');
-            if (!hasSuperAdmin) {
-                const usersWithSuperAdmin = [initialUsers[0], ...users];
-                localStorage.setItem(USERS_KEY, JSON.stringify(usersWithSuperAdmin));
-                return usersWithSuperAdmin;
-            }
-            return users;
-        }
-        localStorage.setItem(USERS_KEY, JSON.stringify(initialUsers));
-        return initialUsers;
-    } catch {
-        return initialUsers;
-    }
-}
-
-function saveUsers(users: UserData[]): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+// Helper function to convert database isActive to UI status
+function getUserStatus(isActive: boolean): "Active" | "Inactive" {
+    return isActive ? "Active" : "Inactive";
 }
 
 // Role hierarchy helpers
@@ -145,28 +78,11 @@ export default function UsersPage() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [newUser, setNewUser] = useState({ name: "", email: "", faculty: "", role: "STUDENT" as UserRole });
 
-    // Load users and enrich with submission data
+    // Load users from database
     useEffect(() => {
         const loadData = async () => {
-            const storedUsers = getStoredUsers();
-            const submissions = await getSubmissions();
-
-            // Enrich users with submission stats
-            const enrichedUsers = storedUsers.map(user => {
-                const userSubmissions = submissions.filter(s =>
-                    s.studentEmail?.toLowerCase() === user.email.toLowerCase()
-                );
-                const approvedSubmissions = userSubmissions.filter(s => s.status === 'approved');
-                const totalPoints = approvedSubmissions.reduce((sum, s) => sum + (s.points || 0), 0);
-
-                return {
-                    ...user,
-                    submissionCount: userSubmissions.length,
-                    points: totalPoints
-                };
-            });
-
-            setUsers(enrichedUsers);
+            const dbUsers = await getUsers();
+            setUsers(dbUsers);
         };
         loadData();
     }, []);
@@ -176,9 +92,10 @@ export default function UsersPage() {
         .filter(u => {
             const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
                 u.email.toLowerCase().includes(search.toLowerCase()) ||
-                u.faculty.toLowerCase().includes(search.toLowerCase());
+                (u.faculty || '').toLowerCase().includes(search.toLowerCase());
             const matchesRole = roleFilter === "ALL" || u.role === roleFilter;
-            const matchesStatus = statusFilter === "ALL" || u.status === statusFilter;
+            const userStatus = getUserStatus(u.isActive);
+            const matchesStatus = statusFilter === "ALL" || userStatus === statusFilter;
             return matchesSearch && matchesRole && matchesStatus;
         })
         .sort((a, b) => {
@@ -186,7 +103,7 @@ export default function UsersPage() {
             if (sortBy === "name") cmp = a.name.localeCompare(b.name);
             else if (sortBy === "email") cmp = a.email.localeCompare(b.email);
             else if (sortBy === "role") cmp = ROLE_HIERARCHY[b.role] - ROLE_HIERARCHY[a.role];
-            else if (sortBy === "joinedAt") cmp = new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime();
+            else if (sortBy === "joinedAt") cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             return sortDir === "asc" ? cmp : -cmp;
         });
 
@@ -199,178 +116,65 @@ export default function UsersPage() {
         }
     };
 
+    // Note: User creation is handled through the database seeding or a separate admin panel
+    // This demo add user modal is kept for UI consistency but should be connected to a proper API
     const handleAddUser = () => {
-        if (!newUser.name || !newUser.email) {
-            showToast("Please fill in name and email", "error");
-            return;
-        }
-
-        if (users.some(u => u.email.toLowerCase() === newUser.email.toLowerCase())) {
-            showToast("User with this email already exists", "error");
-            return;
-        }
-
-        // Only Super Admin can create ADMIN or SUPER_ADMIN users
-        if ((newUser.role === 'ADMIN' || newUser.role === 'SUPER_ADMIN') && !isSuperAdmin) {
-            showToast("Only Super Admins can create Admin accounts", "error");
-            return;
-        }
-
-        const user: UserData = {
-            id: `user_${Date.now()}`,
-            name: newUser.name,
-            email: newUser.email,
-            role: newUser.role,
-            faculty: newUser.faculty || "Unknown",
-            status: "Active",
-            joinedAt: new Date().toISOString().split('T')[0],
-            submissionCount: 0,
-            points: 0
-        };
-
-        const updatedUsers = [...users, user];
-        setUsers(updatedUsers);
-        saveUsers(updatedUsers);
+        showToast("User creation should be done through database seeding or proper user registration", "info");
         setShowAddModal(false);
-        setNewUser({ name: "", email: "", faculty: "", role: "STUDENT" });
-        showToast(`User "${user.name}" added successfully!`, "success");
     };
 
-    const handlePromoteRole = (userId: string) => {
-        const user = users.find(u => u.id === userId);
-        if (!user) return;
-
-        // Check permissions
-        if (!canManageUser(userRole, user.role)) {
-            showToast("You don't have permission to change this user's role", "error");
-            return;
-        }
-
-        let newRole: UserRole;
-        if (user.role === 'STUDENT') {
-            newRole = 'ADMIN';
-        } else if (user.role === 'ADMIN' && isSuperAdmin) {
-            // Check if there's already a Super Admin (only 1 allowed)
-            const existingSuperAdmin = users.find(u => u.role === 'SUPER_ADMIN');
-            if (existingSuperAdmin) {
-                showToast("Only one Super Admin is allowed in the system", "error");
-                return;
-            }
-            newRole = 'SUPER_ADMIN';
+    const handlePromoteRole = async (userId: string) => {
+        const result = await promoteUserRole(userId);
+        if (result.success) {
+            showToast(`User promoted to ${result.newRole}`, "success");
+            // Reload users
+            const dbUsers = await getUsers();
+            setUsers(dbUsers);
         } else {
-            showToast("Cannot promote this user further", "error");
-            return;
+            showToast(result.error || "Failed to promote user", "error");
         }
-
-        // Enhanced logging for Super Admin actions
-        console.log(`[SUPER_ADMIN ACTION] Role promotion: ${user.email} promoted from ${user.role} to ${newRole} by Super Admin`);
-
-        const updatedUsers = users.map(u => {
-            if (u.id === userId) {
-                showToast(`${u.name} promoted to ${newRole}`, "success");
-                return { ...u, role: newRole };
-            }
-            return u;
-        });
-        setUsers(updatedUsers);
-        saveUsers(updatedUsers);
     };
 
-    const handleDemoteRole = (userId: string) => {
-        const user = users.find(u => u.id === userId);
-        if (!user) return;
-
-        // Super Admins cannot be demoted
-        if (user.role === 'SUPER_ADMIN') {
-            showToast("Super Admins cannot be demoted", "error");
-            return;
-        }
-
-        // Check permissions
-        if (!canManageUser(userRole, user.role)) {
-            showToast("You don't have permission to change this user's role", "error");
-            return;
-        }
-
-        let newRole: UserRole;
-        if (user.role === 'ADMIN') {
-            newRole = 'STUDENT';
+    const handleDemoteRole = async (userId: string) => {
+        const result = await demoteUserRole(userId);
+        if (result.success) {
+            showToast(`User demoted to ${result.newRole}`, "success");
+            // Reload users
+            const dbUsers = await getUsers();
+            setUsers(dbUsers);
         } else {
-            showToast("Cannot demote this user further", "error");
-            return;
+            showToast(result.error || "Failed to demote user", "error");
         }
-
-        // Enhanced logging for Super Admin actions
-        if (isSuperAdmin) {
-            console.log(`[SUPER_ADMIN ACTION] Role demotion: ${user.email} demoted from ${user.role} to ${newRole} by Super Admin`);
-        }
-
-        const updatedUsers = users.map(u => {
-            if (u.id === userId) {
-                showToast(`${u.name} demoted to ${newRole}`, "success");
-                return { ...u, role: newRole };
-            }
-            return u;
-        });
-        setUsers(updatedUsers);
-        saveUsers(updatedUsers);
     };
 
-    const handleToggleStatus = (userId: string) => {
-        const user = users.find(u => u.id === userId);
-        if (!user) return;
-
-        // Cannot deactivate Super Admins
-        if (user.role === 'SUPER_ADMIN') {
-            showToast("Super Admins cannot be deactivated", "error");
-            return;
+    const handleToggleStatus = async (userId: string) => {
+        const result = await toggleUserStatus(userId);
+        if (result.success && result.user) {
+            const newStatus = getUserStatus(result.user.isActive);
+            showToast(`${result.user.name} is now ${newStatus}`, "success");
+            // Reload users
+            const dbUsers = await getUsers();
+            setUsers(dbUsers);
+        } else {
+            showToast(result.error || "Failed to toggle user status", "error");
         }
-
-        if (!canManageUser(userRole, user.role) && user.role !== 'STUDENT') {
-            showToast("You don't have permission to change this user's status", "error");
-            return;
-        }
-
-        const updatedUsers = users.map(u => {
-            if (u.id === userId) {
-                const newStatus = u.status === "Active" ? "Inactive" : "Active";
-                showToast(`${u.name} is now ${newStatus}`, "success");
-                return { ...u, status: newStatus as "Active" | "Inactive" };
-            }
-            return u;
-        });
-        setUsers(updatedUsers);
-        saveUsers(updatedUsers);
     };
 
-    const handleDeleteUser = (userId: string) => {
+    const handleDeleteUser = async (userId: string) => {
         const user = users.find(u => u.id === userId);
         if (!user) return;
-
-        // Super Admins cannot be deleted
-        if (user.role === 'SUPER_ADMIN') {
-            showToast("Super Admins cannot be deleted", "error");
-            return;
-        }
-
-        // Check permissions
-        if (!canManageUser(userRole, user.role)) {
-            showToast("You don't have permission to delete this user", "error");
-            return;
-        }
-
-        // Prevent deleting the last admin
-        if (user.role === "ADMIN" && users.filter(u => u.role === "ADMIN" || u.role === "SUPER_ADMIN").length === 1) {
-            showToast("Cannot delete the only admin user", "error");
-            return;
-        }
 
         if (!confirm(`Delete user "${user.name}"? This cannot be undone.`)) return;
 
-        const updatedUsers = users.filter(u => u.id !== userId);
-        setUsers(updatedUsers);
-        saveUsers(updatedUsers);
-        showToast(`User "${user.name}" deleted.`, "success");
+        const result = await deleteUserAction(userId);
+        if (result.success) {
+            showToast(`User "${user.name}" deleted.`, "success");
+            // Reload users
+            const dbUsers = await getUsers();
+            setUsers(dbUsers);
+        } else {
+            showToast(result.error || "Failed to delete user", "error");
+        }
     };
 
     const stats = {
@@ -378,7 +182,7 @@ export default function UsersPage() {
         superAdmins: users.filter(u => u.role === "SUPER_ADMIN").length,
         admins: users.filter(u => u.role === "ADMIN").length,
         students: users.filter(u => u.role === "STUDENT").length,
-        active: users.filter(u => u.status === "Active").length
+        active: users.filter(u => u.isActive).length
     };
 
     return (
@@ -567,11 +371,11 @@ export default function UsersPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${user.status === 'Active'
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${user.isActive
                                                 ? 'bg-green-100 dark:bg-green-900/20 text-green-600'
                                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
                                                 }`}>
-                                                {user.status}
+                                                {getUserStatus(user.isActive)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
@@ -605,12 +409,12 @@ export default function UsersPage() {
                                                     onClick={() => handleToggleStatus(user.id)}
                                                     disabled={user.role === 'SUPER_ADMIN'}
                                                     className={`p-2 rounded-lg transition-colors ${user.role !== 'SUPER_ADMIN'
-                                                        ? user.status === "Active"
+                                                        ? user.isActive
                                                             ? "text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                                                             : "text-slate-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                                                         : 'text-slate-200 dark:text-slate-700 cursor-not-allowed'
                                                         }`}
-                                                    title={user.role === 'SUPER_ADMIN' ? 'Cannot modify Super Admin' : user.status === "Active" ? "Deactivate" : "Activate"}
+                                                    title={user.role === 'SUPER_ADMIN' ? 'Cannot modify Super Admin' : user.isActive ? "Deactivate" : "Activate"}
                                                 >
                                                     <Activity className="w-4 h-4" />
                                                 </button>

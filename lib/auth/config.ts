@@ -69,12 +69,15 @@ export const authConfig: NextAuthConfig = {
 
     callbacks: {
         async signIn({ user, account, profile }) {
-            // For OAuth providers, create user if doesn't exist
+            console.log('[signIn] Checking account status for:', user.email, 'provider:', account?.provider);
+
+            // For OAuth providers, create user if doesn't exist FIRST
             if (account?.provider !== 'credentials') {
                 const existingUser = await findUserByEmail(user.email!);
 
                 if (!existingUser) {
                     try {
+                        console.log('[signIn] Creating new OAuth user:', user.email);
                         await createUser({
                             email: user.email!,
                             name: user.name || 'User',
@@ -83,12 +86,22 @@ export const authConfig: NextAuthConfig = {
                             role: 'STUDENT', // Default role for OAuth users
                         });
                     } catch (error) {
-                        console.error('Error creating OAuth user:', error);
+                        console.error('[signIn] Error creating OAuth user:', error);
                         return false;
                     }
                 }
             }
 
+            // NOW check if user account is active (after potentially creating it)
+            const dbUser = await findUserByEmail(user.email!);
+
+            if (dbUser && !dbUser.isActive) {
+                console.log('[signIn] BLOCKED - Account is deactivated:', user.email);
+                // Account is deactivated - prevent login
+                return false; // Return false to block sign-in
+            }
+
+            console.log('[signIn] ALLOWED - Account is active:', user.email);
             return true;
         },
 

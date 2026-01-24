@@ -40,6 +40,13 @@ export async function createNotification(
     type: NotificationType,
     link?: string
 ): Promise<DbNotification> {
+    console.log('[Notification] Creating:', {
+        userId,
+        title,
+        type,
+        timestamp: new Date().toISOString()
+    });
+
     const notification = await prisma.notification.create({
         data: {
             userId,
@@ -49,6 +56,8 @@ export async function createNotification(
             link,
         },
     });
+
+    console.log('[Notification] Created successfully:', notification.id);
 
     revalidatePath('/student/notifications');
     revalidatePath('/student');

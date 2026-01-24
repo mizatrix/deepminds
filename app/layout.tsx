@@ -9,7 +9,6 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import { RoleProvider } from "@/lib/RoleContext";
 import { ToastProvider } from "@/lib/ToastContext"; // Added ToastProvider import
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
-import LiveFeedSimulator from "@/components/LiveFeedSimulator";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import SkipLink from "@/components/a11y/SkipLink";
 import MaintenanceMode from "@/components/MaintenanceMode";
@@ -54,7 +53,6 @@ export default function RootLayout({
                 <NotificationProvider>
                   <MaintenanceMode>
                     <SkipLink />
-                    <LiveFeedSimulator />
                     <InstallPrompt />
                     <Navbar />
                     <main id="main-content" className="flex-1 container mx-auto px-4 py-8">

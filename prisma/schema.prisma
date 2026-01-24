@@ -44,6 +44,9 @@ model User {
   // Email notification preferences
   emailNotifications    Boolean @default(true)
   emailDigestFrequency  String  @default("instant") // instant, daily, weekly, never
+  
+  // Account status
+  isActive              Boolean @default(true)
 
   @@map("users")
 }

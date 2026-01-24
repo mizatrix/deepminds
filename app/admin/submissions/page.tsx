@@ -546,178 +546,195 @@ export default function SubmissionsPage() {
             {/* Details Modal */}
             {selectedSubmission && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl p-8 space-y-6">
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <h2 className="text-2xl font-bold">
-                                    <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                                        Submission Details
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+                        <div className="overflow-y-auto p-8 space-y-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h2 className="text-2xl font-bold">
+                                        <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                            Submission Details
+                                        </span>
+                                    </h2>
+                                    <p className="text-slate-500 dark:text-slate-400">Reviewing entry for {selectedSubmission.studentName}</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setSelectedSubmission(null);
+                                        setFeedback("");
+                                    }}
+                                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                                >
+                                    <X className="w-6 h-6 text-slate-400" />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold uppercase text-slate-400">Title</label>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.title}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold uppercase text-slate-400">Category</label>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.category}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold uppercase text-slate-400">Organization</label>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.orgName}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold uppercase text-slate-400">Location</label>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.location}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold uppercase text-slate-400">Date</label>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">{new Date(selectedSubmission.achievementDate).toLocaleDateString()}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold uppercase text-slate-400">Status</label>
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${selectedSubmission.status === 'approved' ? "bg-green-100 text-green-700" :
+                                        selectedSubmission.status === 'rejected' ? "bg-red-100 text-red-700" :
+                                            "bg-amber-100 text-amber-700"
+                                        }`}>
+                                        {selectedSubmission.status.toUpperCase()}
                                     </span>
-                                </h2>
-                                <p className="text-slate-500 dark:text-slate-400">Reviewing entry for {selectedSubmission.studentName}</p>
+                                </div>
                             </div>
-                            <button
-                                onClick={() => {
-                                    setSelectedSubmission(null);
-                                    setFeedback("");
-                                }}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
-                            >
-                                <X className="w-6 h-6 text-slate-400" />
-                            </button>
-                        </div>
 
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-400">Title</label>
-                                <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.title}</p>
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase text-slate-400">Description</label>
+                                <p className="p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 text-sm leading-relaxed border border-slate-100 dark:border-slate-800">
+                                    {selectedSubmission.description}
+                                </p>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-400">Category</label>
-                                <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.category}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-400">Organization</label>
-                                <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.orgName}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-400">Location</label>
-                                <p className="font-medium text-slate-900 dark:text-slate-100">{selectedSubmission.location}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-400">Date</label>
-                                <p className="font-medium text-slate-900 dark:text-slate-100">{new Date(selectedSubmission.achievementDate).toLocaleDateString()}</p>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-400">Status</label>
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${selectedSubmission.status === 'approved' ? "bg-green-100 text-green-700" :
-                                    selectedSubmission.status === 'rejected' ? "bg-red-100 text-red-700" :
-                                        "bg-amber-100 text-amber-700"
-                                    }`}>
-                                    {selectedSubmission.status.toUpperCase()}
-                                </span>
-                            </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-slate-400">Description</label>
-                            <p className="p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 text-sm leading-relaxed border border-slate-100 dark:border-slate-800">
-                                {selectedSubmission.description}
-                            </p>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-slate-400">Evidence</label>
-                            {selectedSubmission.evidenceUrl && selectedSubmission.evidenceUrl !== 'No evidence uploaded' ? (
-                                <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-                                    {selectedSubmission.evidenceFileType?.startsWith('image/') ? (
-                                        <img
-                                            src={selectedSubmission.evidenceUrl}
-                                            alt="Evidence"
-                                            className="w-full h-auto max-h-96 object-contain bg-slate-50 dark:bg-slate-950"
-                                        />
-                                    ) : selectedSubmission.evidenceFileType === 'application/pdf' ? (
-                                        <div className="p-4 bg-slate-50 dark:bg-slate-950">
-                                            <div className="flex items-center gap-3 mb-3">
-                                                <div className="w-12 h-12 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                                                    <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase text-slate-400">Evidence</label>
+                                {selectedSubmission.evidenceUrl && selectedSubmission.evidenceUrl !== 'No evidence uploaded' ? (
+                                    <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                                        {selectedSubmission.evidenceFileType?.startsWith('image/') ? (
+                                            <img
+                                                src={selectedSubmission.evidenceUrl}
+                                                alt="Evidence"
+                                                className="w-full h-auto max-h-96 object-contain bg-slate-50 dark:bg-slate-950"
+                                            />
+                                        ) : selectedSubmission.evidenceFileType === 'application/pdf' ? (
+                                            <div className="p-4 bg-slate-50 dark:bg-slate-950">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <div className="w-12 h-12 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                                                        <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-medium text-slate-900 dark:text-white">{selectedSubmission.evidenceFileName || 'Evidence.pdf'}</p>
+                                                        <p className="text-xs text-slate-500">PDF Document</p>
+                                                    </div>
+                                                </div>
+                                                <iframe
+                                                    src={selectedSubmission.evidenceUrl}
+                                                    className="w-full h-96 rounded-lg border border-slate-200 dark:border-slate-700"
+                                                    title="PDF Preview"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="p-6 bg-slate-50 dark:bg-slate-950 text-center">
+                                                <div className="w-16 h-16 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mx-auto mb-3">
+                                                    <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
                                                     </svg>
                                                 </div>
-                                                <div className="flex-1">
-                                                    <p className="font-medium text-slate-900 dark:text-white">{selectedSubmission.evidenceFileName || 'Evidence.pdf'}</p>
-                                                    <p className="text-xs text-slate-500">PDF Document</p>
-                                                </div>
+                                                <p className="font-medium text-slate-900 dark:text-white mb-1">{selectedSubmission.evidenceFileName || 'Uploaded File'}</p>
+                                                <p className="text-sm text-slate-500 mb-3">{selectedSubmission.evidenceFileType || 'File'}</p>
+                                                <button
+                                                    onClick={async () => {
+                                                        try {
+                                                            //Check if file exists
+                                                            const response = await fetch(selectedSubmission.evidenceUrl!, { method: 'HEAD' });
+                                                            if (!response.ok) {
+                                                                showToast('File not found. This file may have been deleted or moved.', 'error');
+                                                                return;
+                                                            }
+                                                            // File exists, proceed with download
+                                                            const link = document.createElement('a');
+                                                            link.href = selectedSubmission.evidenceUrl!;
+                                                            link.download = selectedSubmission.evidenceFileName || 'evidence';
+                                                            link.click();
+                                                        } catch (error) {
+                                                            showToast('Unable to download file. Please try again later.', 'error');
+                                                        }
+                                                    }}
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium cursor-pointer"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    Download File
+                                                </button>
                                             </div>
-                                            <iframe
-                                                src={selectedSubmission.evidenceUrl}
-                                                className="w-full h-96 rounded-lg border border-slate-200 dark:border-slate-700"
-                                                title="PDF Preview"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="p-6 bg-slate-50 dark:bg-slate-950 text-center">
-                                            <div className="w-16 h-16 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mx-auto mb-3">
-                                                <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-                                                </svg>
-                                            </div>
-                                            <p className="font-medium text-slate-900 dark:text-white mb-1">{selectedSubmission.evidenceFileName || 'Uploaded File'}</p>
-                                            <p className="text-sm text-slate-500 mb-3">{selectedSubmission.evidenceFileType || 'File'}</p>
-                                            <a
-                                                href={selectedSubmission.evidenceUrl}
-                                                download={selectedSubmission.evidenceFileName}
-                                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
-                                                Download File
-                                            </a>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-xl text-center text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800">
-                                    No evidence uploaded
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-xl text-center text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800">
+                                        No evidence uploaded
+                                    </div>
+                                )}
+                            </div>
+
+                            {selectedSubmission.status === 'pending' && (
+                                <>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase text-slate-400">Points to Award</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="100"
+                                            value={points}
+                                            onChange={(e) => setPoints(parseInt(e.target.value))}
+                                            className="w-full p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase text-slate-400">Admin Feedback</label>
+                                        <textarea
+                                            className="w-full p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 text-sm border border-slate-100 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            rows={3}
+                                            placeholder="Provide feedback..."
+                                            value={feedback}
+                                            onChange={(e) => setFeedback(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="flex gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                        <button
+                                            onClick={() => handleApprove(selectedSubmission)}
+                                            className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-xl hover:shadow-lg hover:scale-105 transition-all"
+                                        >
+                                            Approve & Award {points} Points
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (!feedback.trim()) {
+                                                    showToast("Please provide feedback for rejection.", "error");
+                                                    return;
+                                                }
+                                                handleReject(selectedSubmission);
+                                            }}
+                                            className="flex-1 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                                        >
+                                            Reject
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {selectedSubmission.adminFeedback && selectedSubmission.status !== 'pending' && (
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase text-slate-400">Admin Feedback</label>
+                                    <p className="p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 text-sm leading-relaxed border border-slate-100 dark:border-slate-800">
+                                        {selectedSubmission.adminFeedback}
+                                    </p>
                                 </div>
                             )}
                         </div>
-
-                        {selectedSubmission.status === 'pending' && (
-                            <>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase text-slate-400">Points to Award</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="100"
-                                        value={points}
-                                        onChange={(e) => setPoints(parseInt(e.target.value))}
-                                        className="w-full p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase text-slate-400">Admin Feedback</label>
-                                    <textarea
-                                        className="w-full p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 text-sm border border-slate-100 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        rows={3}
-                                        placeholder="Provide feedback..."
-                                        value={feedback}
-                                        onChange={(e) => setFeedback(e.target.value)}
-                                    />
-                                </div>
-                                <div className="flex gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                                    <button
-                                        onClick={() => handleApprove(selectedSubmission)}
-                                        className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-xl hover:shadow-lg hover:scale-105 transition-all"
-                                    >
-                                        Approve & Award {points} Points
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            if (!feedback.trim()) {
-                                                showToast("Please provide feedback for rejection.", "error");
-                                                return;
-                                            }
-                                            handleReject(selectedSubmission);
-                                        }}
-                                        className="flex-1 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 font-bold rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                                    >
-                                        Reject
-                                    </button>
-                                </div>
-                            </>
-                        )}
-
-                        {selectedSubmission.adminFeedback && selectedSubmission.status !== 'pending' && (
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-slate-400">Admin Feedback</label>
-                                <p className="p-4 bg-slate-50 dark:bg-slate-950/50 rounded-xl text-slate-700 dark:text-slate-300 text-sm leading-relaxed border border-slate-100 dark:border-slate-800">
-                                    {selectedSubmission.adminFeedback}
-                                </p>
-                            </div>
-                        )}
                     </div>
                 </div>
             )}
