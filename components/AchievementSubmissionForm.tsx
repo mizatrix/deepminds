@@ -20,7 +20,6 @@ import {
 import { cn } from "@/lib/utils";
 import { createSubmission, generateSubmissionId } from "@/lib/actions/submissions";
 import { createEnhancedAuditLog } from "@/lib/audit-service";
-import { uploadEvidenceFile } from "@/lib/storage";
 
 const categories = [
     "SCIENTIFIC", "ARTISTIC", "SPECIAL TRAINING", "COMPETITION", "HACKATHONS", "AWARDS", "SPORTS",
@@ -98,8 +97,8 @@ export default function StudentSubmissionForm() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check file size (max 10MB for Supabase Storage)
-        const maxSizeMB = 10;
+        // Check file size (max 5MB for R2)
+        const maxSizeMB = 5;
         if (file.size > maxSizeMB * 1024 * 1024) {
             showToast(`File too large. Maximum size is ${maxSizeMB}MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`, "error");
             return;
@@ -107,11 +106,20 @@ export default function StudentSubmissionForm() {
 
         setUploading(true);
         try {
-            // Get user email for organizing files
-            const userEmail = session?.user?.email || 'anonymous';
+            // Upload via API route (server-side R2 upload)
+            const formData = new FormData();
+            formData.append('file', file);
 
-            // Upload to Supabase Storage
-            const result = await uploadEvidenceFile(file, userEmail);
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Upload failed');
+            }
 
             setFormData(prev => ({
                 ...prev,

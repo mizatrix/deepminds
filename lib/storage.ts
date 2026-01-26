@@ -1,58 +1,84 @@
-'use client';
+'use server';
 
-import { supabase } from '@/lib/supabase';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
-const BUCKET_NAME = 'evidence-files';
+// Cloudflare R2 Configuration
+const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID!;
+const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!;
+const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY!;
+const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || 'evidence-files';
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!; // Your custom domain or R2.dev URL
+
+// Initialize S3 Client for Cloudflare R2
+const s3Client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
+    },
+});
 
 /**
- * Upload a file to Supabase Storage
+ * Upload a file to Cloudflare R2 Storage
  * Returns the public URL of the uploaded file
  */
 export async function uploadEvidenceFile(
-    file: File,
+    fileBuffer: Buffer,
+    fileName: string,
+    fileType: string,
     studentEmail: string
 ): Promise<{ url: string; fileName: string; fileType: string }> {
     // Generate unique filename
     const timestamp = Date.now();
     const sanitizedEmail = studentEmail.replace(/[^a-zA-Z0-9]/g, '_');
-    const fileExt = file.name.split('.').pop() || 'file';
-    const fileName = `${sanitizedEmail}/${timestamp}_${file.name}`;
+    const filePath = `${sanitizedEmail}/${timestamp}_${fileName}`;
 
-    // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false,
-        });
+    // Upload to R2
+    const command = new PutObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: filePath,
+        Body: fileBuffer,
+        ContentType: fileType,
+        CacheControl: 'max-age=3600',
+    });
 
-    if (error) {
-        console.error('Supabase upload error:', error);
-        throw new Error(`Upload failed: ${error.message}`);
+    try {
+        await s3Client.send(command);
+    } catch (error) {
+        console.error('R2 upload error:', error);
+        throw new Error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(data.path);
+    // Construct public URL
+    const publicUrl = `${R2_PUBLIC_URL}/${filePath}`;
 
     return {
         url: publicUrl,
-        fileName: file.name,
-        fileType: file.type,
+        fileName: fileName,
+        fileType: fileType,
     };
 }
 
 /**
- * Delete a file from Supabase Storage
+ * Delete a file from Cloudflare R2 Storage
  */
 export async function deleteEvidenceFile(filePath: string): Promise<void> {
-    const { error } = await supabase.storage
-        .from(BUCKET_NAME)
-        .remove([filePath]);
+    // Extract the key from the full URL if needed
+    let key = filePath;
+    if (filePath.startsWith(R2_PUBLIC_URL)) {
+        key = filePath.replace(`${R2_PUBLIC_URL}/`, '');
+    }
 
-    if (error) {
-        console.error('Supabase delete error:', error);
-        throw new Error(`Delete failed: ${error.message}`);
+    const command = new DeleteObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: key,
+    });
+
+    try {
+        await s3Client.send(command);
+    } catch (error) {
+        console.error('R2 delete error:', error);
+        throw new Error(`Delete failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }

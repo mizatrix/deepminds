@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { uploadEvidenceFile } from "@/lib/storage";
+import { auth } from "@/lib/auth/config";
 
 // Configuration
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -15,6 +15,15 @@ const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
 
 export async function POST(request: NextRequest) {
     try {
+        // Get authenticated user
+        const session = await auth();
+        if (!session?.user?.email) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
         const data = await request.formData();
         const file: File | null = data.get("file") as unknown as File;
 
@@ -50,33 +59,23 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Convert File to Buffer for R2 upload
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Ensure uploads directory exists
-        const uploadsDir = path.join(process.cwd(), "public", "uploads");
-        await mkdir(uploadsDir, { recursive: true });
-
-        // Sanitize filename and create unique name
-        const timestamp = Date.now();
-        const randomStr = Math.random().toString(36).substring(2, 10);
-        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const uniqueName = `${timestamp}-${randomStr}-${safeName}`;
-        const filePath = path.join(uploadsDir, uniqueName);
-
-        // Write file to disk
-        await writeFile(filePath, buffer);
-
-        // Return the public URL
-        const publicUrl = `/uploads/${uniqueName}`;
+        // Upload to Cloudflare R2
+        const result = await uploadEvidenceFile(
+            buffer,
+            file.name,
+            file.type,
+            session.user.email
+        );
 
         return NextResponse.json({
             success: true,
-            url: publicUrl,
-            filename: uniqueName,
-            originalName: file.name,
-            size: file.size,
-            type: file.type,
+            url: result.url,
+            fileName: result.fileName,
+            fileType: result.fileType,
         });
 
     } catch (error) {
@@ -87,4 +86,3 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-
