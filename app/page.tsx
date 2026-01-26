@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRole } from "@/lib/RoleContext";
+import { usePortalName } from "@/lib/SettingsContext";
 import StudentSubmissionForm from "@/components/AchievementSubmissionForm";
 import BackgroundGradient from "@/components/BackgroundGradient";
 import DataWall from "@/components/DataWall";
@@ -12,6 +13,7 @@ import Link from "next/link";
 
 export default function Home() {
   const { isAdmin, isAuthenticated } = useRole();
+  const portalName = usePortalName();
   const [isInitialMount, setIsInitialMount] = useState(true);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function Home() {
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest shadow-lg shadow-blue-500/10 mb-4">
             <Sparkles className="w-4 h-4" />
-            Academic Excellence Portal
+            {portalName}
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tight mb-4">
             Your Journey <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Matters!</span>

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/lib/RoleContext";
+import { usePortalName } from "@/lib/SettingsContext";
 import NotificationBell from "./notifications/NotificationBell";
 import GlobalSearch from "./search/GlobalSearch";
 
@@ -39,6 +40,7 @@ export default function Navbar() {
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const { role, isAdmin, isSuperAdmin, isAuthenticated, logout } = useRole();
+    const portalName = usePortalName();
 
     // Show admin items only when admin is on /admin/* routes
     const isOnAdminRoute = pathname?.startsWith('/admin');
@@ -84,7 +86,7 @@ export default function Navbar() {
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-bold text-lg leading-none text-slate-900 dark:text-white">
-                                    CS <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Excellence</span>
+                                    {portalName.split(' ')[0]} <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{portalName.split(' ').slice(1).join(' ') || 'Portal'}</span>
                                 </span>
                                 <span className="text-[10px] font-bold tracking-widest uppercase text-purple-600 dark:text-purple-400">
                                     Portal
