@@ -206,3 +206,17 @@ model UserBadge {
   @@map("user_badges")
 }
 
+// System-wide settings stored in database
+model SystemSettings {
+  id                    String   @id @default("singleton") // Only one row
+  portalName            String   @default("CS Excellence Portal")
+  maintenanceMode       Boolean  @default(false)
+  allowRegistrations    Boolean  @default(true)
+  emailNotifications    Boolean  @default(true)
+  autoApproveScientific Boolean  @default(false)
+  termsJson             String   @default("[]") // JSON array of academic terms
+  updatedAt             DateTime @updatedAt
+  updatedBy             String?  // Email of last admin who updated
+
+  @@map("system_settings")
+}

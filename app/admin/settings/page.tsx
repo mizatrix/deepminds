@@ -1,23 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Bell, Shield, Globe, Plus, Edit2, Trash2, Check, X, Calendar } from "lucide-react";
+import { Save, Bell, Shield, Globe, Plus, Edit2, Trash2, Check, X, Calendar, Loader2 } from "lucide-react";
 import { useToast } from "@/lib/ToastContext";
-import {
-    getSettings,
-    saveSettings,
-    addTerm,
-    updateTerm,
-    deleteTerm,
-    setActiveTerm,
-    type SystemSettings,
-    type AcademicTerm
-} from "@/lib/settings-store";
+import { useSettings, type SystemSettingsData, type AcademicTerm } from "@/lib/SettingsContext";
+import { useSession } from "next-auth/react";
 
 export default function SettingsPage() {
     const { showToast } = useToast();
-    const [loading, setLoading] = useState(false);
-    const [settings, setSettings] = useState<SystemSettings | null>(null);
+    const { settings: contextSettings, loading: contextLoading, updateSettings } = useSettings();
+    const { data: session } = useSession();
+    const [saving, setSaving] = useState(false);
+    const [settings, setSettings] = useState<SystemSettingsData | null>(null);
 
     // Term management state
     const [showAddTerm, setShowAddTerm] = useState(false);
@@ -26,30 +20,44 @@ export default function SettingsPage() {
     const [newTermStart, setNewTermStart] = useState("");
     const [newTermEnd, setNewTermEnd] = useState("");
 
-    // Load settings on mount
+    // Load settings from context
     useEffect(() => {
-        setSettings(getSettings());
-    }, []);
+        if (contextSettings) {
+            setSettings(contextSettings);
+        }
+    }, [contextSettings]);
 
-    if (!settings) {
-        return <div className="flex items-center justify-center h-96">Loading...</div>;
+    if (contextLoading || !settings) {
+        return (
+            <div className="flex items-center justify-center h-96">
+                <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+            </div>
+        );
     }
 
-    const handleToggle = (key: keyof SystemSettings) => {
-        const newSettings = { ...settings, [key]: !settings[key] };
-        setSettings(newSettings);
+    const handleToggle = (key: keyof SystemSettingsData) => {
+        const newSettings = { ...settings, [key]: !settings[key as keyof SystemSettingsData] };
+        setSettings(newSettings as SystemSettingsData);
     };
 
-    const handleChange = (key: keyof SystemSettings, value: string) => {
-        setSettings({ ...settings, [key]: value });
+    const handleChange = (key: keyof SystemSettingsData, value: string) => {
+        setSettings({ ...settings, [key]: value } as SystemSettingsData);
     };
 
     const handleSaveSettings = async () => {
-        setLoading(true);
-        saveSettings(settings);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setLoading(false);
-        showToast("System settings saved successfully!", "success");
+        setSaving(true);
+        try {
+            const success = await updateSettings(settings);
+            if (success) {
+                showToast("System settings saved to database!", "success");
+            } else {
+                showToast("Failed to save settings", "error");
+            }
+        } catch (error) {
+            showToast("Error saving settings", "error");
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleAddTerm = () => {
@@ -58,7 +66,15 @@ export default function SettingsPage() {
             return;
         }
 
-        const newTerm = addTerm(newTermName, newTermStart, newTermEnd);
+        const newTerm: AcademicTerm = {
+            id: `term_${Date.now()}`,
+            name: newTermName,
+            startDate: newTermStart,
+            endDate: newTermEnd,
+            isActive: false,
+            createdAt: new Date().toISOString()
+        };
+
         setSettings(prev => prev ? {
             ...prev,
             terms: [...prev.terms, newTerm]
@@ -68,18 +84,12 @@ export default function SettingsPage() {
         setNewTermStart("");
         setNewTermEnd("");
         setShowAddTerm(false);
-        showToast(`Term "${newTermName}" added successfully!`, "success");
+        showToast(`Term "${newTermName}" added! Remember to save.`, "success");
     };
 
     const handleUpdateTerm = (termId: string) => {
         const term = settings.terms.find(t => t.id === termId);
         if (!term) return;
-
-        updateTerm(termId, {
-            name: newTermName || term.name,
-            startDate: newTermStart || term.startDate,
-            endDate: newTermEnd || term.endDate
-        });
 
         setSettings(prev => prev ? {
             ...prev,
@@ -94,7 +104,7 @@ export default function SettingsPage() {
         setNewTermName("");
         setNewTermStart("");
         setNewTermEnd("");
-        showToast("Term updated successfully!", "success");
+        showToast("Term updated! Remember to save.", "success");
     };
 
     const handleDeleteTerm = (termId: string) => {
@@ -108,24 +118,22 @@ export default function SettingsPage() {
 
         if (!confirm(`Delete term "${term.name}"? This cannot be undone.`)) return;
 
-        deleteTerm(termId);
         setSettings(prev => prev ? {
             ...prev,
             terms: prev.terms.filter(t => t.id !== termId)
         } : prev);
 
-        showToast(`Term "${term.name}" deleted.`, "success");
+        showToast(`Term "${term.name}" deleted. Remember to save.`, "success");
     };
 
     const handleSetActiveTerm = (termId: string) => {
-        setActiveTerm(termId);
         setSettings(prev => prev ? {
             ...prev,
             terms: prev.terms.map(t => ({ ...t, isActive: t.id === termId }))
         } : prev);
 
         const term = settings.terms.find(t => t.id === termId);
-        showToast(`"${term?.name}" is now the active term.`, "success");
+        showToast(`"${term?.name}" is now the active term. Remember to save.`, "success");
     };
 
     const startEditing = (term: AcademicTerm) => {
@@ -146,7 +154,7 @@ export default function SettingsPage() {
         <div className="max-w-4xl mx-auto space-y-8 pb-12">
             <div>
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white">System Settings</h1>
-                <p className="text-slate-500 dark:text-slate-400">Manage global configurations and preferences.</p>
+                <p className="text-slate-500 dark:text-slate-400">Manage global configurations (stored in database).</p>
             </div>
 
             {/* General Settings */}
@@ -166,6 +174,7 @@ export default function SettingsPage() {
                         onChange={(e) => handleChange("portalName", e.target.value)}
                         className="w-full max-w-md px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                     />
+                    <p className="text-xs text-slate-400">This name appears in the navbar and home page</p>
                 </div>
             </div>
 
@@ -252,12 +261,11 @@ export default function SettingsPage() {
                             <div
                                 key={term.id}
                                 className={`p-4 rounded-xl border transition-all ${term.isActive
-                                        ? 'bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800'
-                                        : 'bg-slate-50 dark:bg-slate-950/50 border-slate-100 dark:border-slate-800'
+                                    ? 'bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800'
+                                    : 'bg-slate-50 dark:bg-slate-950/50 border-slate-100 dark:border-slate-800'
                                     }`}
                             >
                                 {editingTermId === term.id ? (
-                                    // Editing Mode
                                     <div className="space-y-3">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                             <input
@@ -296,14 +304,13 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
                                 ) : (
-                                    // Display Mode
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <button
                                                 onClick={() => handleSetActiveTerm(term.id)}
                                                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${term.isActive
-                                                        ? 'border-purple-600 bg-purple-600'
-                                                        : 'border-slate-300 dark:border-slate-600 hover:border-purple-400'
+                                                    ? 'border-purple-600 bg-purple-600'
+                                                    : 'border-slate-300 dark:border-slate-600 hover:border-purple-400'
                                                     }`}
                                             >
                                                 {term.isActive && <Check className="w-3 h-3 text-white" />}
@@ -337,8 +344,8 @@ export default function SettingsPage() {
                                             <button
                                                 onClick={() => handleDeleteTerm(term.id)}
                                                 className={`p-2 rounded-lg transition-colors ${term.isActive
-                                                        ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
-                                                        : 'text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                                    ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                                                    : 'text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
                                                     }`}
                                                 title={term.isActive ? "Cannot delete active term" : "Delete"}
                                                 disabled={term.isActive}
@@ -433,11 +440,14 @@ export default function SettingsPage() {
             <div className="flex justify-end pt-4">
                 <button
                     onClick={handleSaveSettings}
-                    disabled={loading}
+                    disabled={saving}
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {loading ? (
-                        <>Saving...</>
+                    {saving ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Saving to Database...
+                        </>
                     ) : (
                         <>
                             <Save className="w-5 h-5" />
