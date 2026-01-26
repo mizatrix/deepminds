@@ -9,6 +9,8 @@ export interface User {
     role: 'STUDENT' | 'ADMIN';
     image?: string;
     isActive: boolean;
+    isDeleted: boolean;
+    deletedAt?: string;
     createdAt: string;
     emailVerified?: boolean;
     provider?: 'credentials' | 'google' | 'github' | 'microsoft' | 'facebook';
@@ -26,6 +28,8 @@ function toUser(u: NonNullable<Awaited<ReturnType<typeof prisma.user.findUnique>
         role: u.role as 'STUDENT' | 'ADMIN',
         image: u.image ?? undefined,
         isActive: u.isActive,
+        isDeleted: u.isDeleted,
+        deletedAt: u.deletedAt?.toISOString(),
         createdAt: u.createdAt.toISOString(),
         emailVerified: u.emailVerified,
         provider: (u.provider ?? undefined) as User['provider'],
@@ -41,11 +45,23 @@ export async function getUsers(): Promise<User[]> {
 }
 
 /**
- * Find user by email
+ * Find user by email (excludes deleted users by default)
  */
 export async function findUserByEmail(email: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-        where: { email },
+    const user = await prisma.user.findFirst({
+        where: { email, isDeleted: false },
+    });
+
+    if (!user) return null;
+    return toUser(user);
+}
+
+/**
+ * Find deleted user by email (for checking if email is banned from re-registration)
+ */
+export async function findDeletedUserByEmail(email: string): Promise<User | null> {
+    const user = await prisma.user.findFirst({
+        where: { email, isDeleted: true },
     });
 
     if (!user) return null;

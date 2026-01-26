@@ -47,6 +47,8 @@ model User {
   
   // Account status
   isActive              Boolean @default(true)
+  isDeleted             Boolean @default(false)
+  deletedAt             DateTime?
 
   @@map("users")
 }

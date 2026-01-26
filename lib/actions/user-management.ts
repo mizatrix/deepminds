@@ -81,6 +81,7 @@ export async function toggleUserStatus(userId: string): Promise<{ success: boole
 export async function getUsers(): Promise<UserData[]> {
     try {
         const users = await prisma.user.findMany({
+            where: { isDeleted: false },
             orderBy: { createdAt: 'desc' }
         });
 
@@ -116,7 +117,7 @@ export async function getUsers(): Promise<UserData[]> {
 }
 
 /**
- * Delete a user
+ * Delete a user (soft delete - marks as deleted, doesn't remove from database)
  */
 export async function deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
     try {
@@ -146,8 +147,14 @@ export async function deleteUser(userId: string): Promise<{ success: boolean; er
             return { success: false, error: 'Super Admins cannot be deleted' };
         }
 
-        await prisma.user.delete({
-            where: { id: userId }
+        // Soft delete: mark as deleted instead of removing
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                isDeleted: true,
+                deletedAt: new Date(),
+                isActive: false // Also deactivate
+            }
         });
 
         revalidatePath('/admin/users');

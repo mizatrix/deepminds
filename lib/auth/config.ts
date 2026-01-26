@@ -2,7 +2,7 @@ import NextAuth, { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
-import { verifyPassword, createUser, findUserByEmail } from './users-db';
+import { verifyPassword, createUser, findUserByEmail, findDeletedUserByEmail } from './users-db';
 import { loginSchema } from './validation';
 
 export const authConfig: NextAuthConfig = {
@@ -71,8 +71,15 @@ export const authConfig: NextAuthConfig = {
         async signIn({ user, account, profile }) {
             console.log('[signIn] Checking account status for:', user.email, 'provider:', account?.provider);
 
-            // For OAuth providers, create user if doesn't exist FIRST
+            // For OAuth providers, check if this email was previously deleted FIRST
             if (account?.provider !== 'credentials') {
+                // Check if this email belongs to a deleted account - block re-registration
+                const deletedUser = await findDeletedUserByEmail(user.email!);
+                if (deletedUser) {
+                    console.log('[signIn] BLOCKED - Account was deleted, cannot re-register:', user.email);
+                    return false; // Block sign-in for deleted accounts
+                }
+
                 const existingUser = await findUserByEmail(user.email!);
 
                 if (!existingUser) {
