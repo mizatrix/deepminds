@@ -1,1257 +1,1527 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Excellence Portal - Complete Documentation</title>
+    <title>Academic Excellence Portal - Documentation</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Portal Docs">
+    <link rel="manifest" href="docs-manifest.json">
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Mermaid for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ========== LIGHT MODE (Default) ========== */
+        :root {
+            --primary-color: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --sidebar-width: 280px;
+
+            /* Light mode colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --code-bg: #1e293b;
+            --hero-gradient: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #0891b2 100%);
+        }
+
+        /* ========== DARK MODE ========== */
+        [data-bs-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+            --code-bg: #0f172a;
+            --hero-gradient: linear-gradient(135deg, #0c4a6e 0%, #164e63 50%, #134e4a 100%);
+
+            --bs-body-bg: var(--bg-primary);
+            --bs-body-color: var(--text-primary);
+            --bs-secondary-color: var(--text-secondary);
+            --bs-border-color: var(--border-color);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+        /* ========== HERO HEADER ========== */
+        .hero-header {
+            background: var(--hero-gradient);
             color: white;
-            padding: 60px 40px;
-            text-align: center;
+            padding: 3rem 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .header h1 {
-            font-size: 3em;
-            font-weight: 900;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        /* ========== SIDEBAR (Mobile App Style) ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-primary);
+            z-index: 1050;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
         }
 
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
+        .sidebar.show {
+            left: 0;
         }
 
-        .meta {
-            background: #f8f9fa;
-            padding: 20px 40px;
-            border-bottom: 2px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 20px;
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
-        .meta-item {
+        .sidebar-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--hero-gradient);
+            color: white;
         }
 
-        .meta-label {
-            font-weight: 700;
-            color: #667eea;
+        .sidebar-header h5 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .content {
-            padding: 40px;
+        .sidebar-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .toc {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 40px;
-            border-left: 4px solid #0ea5e9;
+        .sidebar-close:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        .toc h2 {
-            color: #0ea5e9;
-            margin-bottom: 20px;
-            font-size: 1.8em;
+        .sidebar-body {
+            padding: 1rem;
         }
 
-        .toc ul {
-            list-style: none;
+        .main-content {
+            margin-left: 0;
         }
 
-        .toc li {
-            padding: 8px 0;
-        }
-
-        .toc a {
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s;
-            display: block;
-            padding: 8px 12px;
-            border-radius: 6px;
-        }
-
-        .toc a:hover {
-            background: white;
-            color: #667eea;
-            transform: translateX(10px);
-        }
-
-        .section {
-            margin-bottom: 60px;
-            scroll-margin-top: 20px;
-        }
-
-        h2 {
-            color: #0ea5e9;
-            font-size: 2.2em;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #0ea5e9;
-        }
-
-        h3 {
-            color: #0891b2;
-            font-size: 1.6em;
-            margin: 30px 0 15px 0;
-        }
-
-        h4 {
-            color: #555;
-            font-size: 1.3em;
-            margin: 20px 0 10px 0;
-        }
-
-        p {
-            margin-bottom: 15px;
-            color: #555;
-        }
-
-        ul,
-        ol {
-            margin-left: 30px;
-            margin-bottom: 20px;
-        }
-
-        li {
-            margin-bottom: 8px;
-            color: #555;
-        }
-
-        code {
-            background: #f8f9fa;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            color: #e83e8c;
-            font-size: 0.9em;
-        }
-
-        pre {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 20px;
-            border-radius: 12px;
-            overflow-x: auto;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        pre code {
+        .menu-toggle {
             background: none;
-            color: #e2e8f0;
-            padding: 0;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 1.1rem;
+            width: 2rem;
+            flex-shrink: 0;
+            color: var(--primary-color);
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(14, 165, 233, 0.12);
+            color: var(--primary-color);
+            padding-left: 1.25rem;
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link.active i {
+            color: white;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
             font-weight: 700;
-            margin-right: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding: 1.25rem 1rem 0.5rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--border-color);
         }
 
+        .nav-section-title:first-of-type {
+            border-top: none;
+            margin-top: 0;
+            padding-top: 0.5rem;
+        }
+
+        /* ========== BADGES ========== */
         .badge-user {
-            background: #d1ecf1;
-            color: #0c5460;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            font-weight: 600;
         }
 
         .badge-dev {
-            background: #d4edda;
-            color: #155724;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            font-weight: 600;
         }
 
-        .alert {
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            border-left: 4px solid;
+        [data-bs-theme="dark"] .badge-user {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(6, 182, 212, 0.3) 100%);
+            color: #7dd3fc;
         }
 
+        [data-bs-theme="dark"] .badge-dev {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(52, 211, 153, 0.3) 100%);
+            color: #6ee7b7;
+        }
+
+        /* ========== SECTIONS ========== */
+        section {
+            scroll-margin-top: 80px;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        section h2 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        section h3,
+        section h5 {
+            color: var(--text-secondary);
+        }
+
+        /* ========== CARDS ========== */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-bs-theme="dark"] .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* ========== TABLES ========== */
+        .table {
+            --bs-table-bg: var(--card-bg);
+            --bs-table-border-color: var(--border-color);
+        }
+
+        .table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .table-striped>tbody>tr:nth-of-type(odd) {
+            background: var(--bg-secondary);
+        }
+
+        /* ========== CODE BLOCKS ========== */
+        pre {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        code {
+            color: var(--primary-color);
+            background: var(--bg-tertiary);
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+        }
+
+        pre code {
+            color: #e2e8f0;
+            background: transparent;
+            padding: 0;
+        }
+
+        /* ========== DIAGRAMS ========== */
+        .diagram-container {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border-color);
+            overflow: visible;
+            min-height: 300px;
+        }
+
+        .diagram-container .mermaid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 280px;
+        }
+
+        .diagram-container .mermaid svg {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        /* ========== ACCORDION ========== */
+        .accordion-button {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .accordion-button:not(.collapsed) {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary-color);
+        }
+
+        .accordion-body {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            padding-bottom: 60px;
+        }
+
+        .accordion-collapse {
+            height: auto !important;
+        }
+
+        .accordion-item {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Ensure diagrams in accordions have proper height */
+        .accordion-body .diagram-container {
+            min-height: 450px;
+            padding: 1rem;
+            padding-bottom: 40px;
+        }
+
+        .accordion-body .diagram-container .mermaid {
+            min-height: 420px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem 0 3rem 0;
+        }
+
+        .accordion-body .mermaid svg,
+        .mermaid svg {
+            overflow: visible !important;
+            min-height: 400px;
+            max-width: 100%;
+            height: auto !important;
+            margin-bottom: 40px;
+        }
+
+        /* ========== DARK MODE MERMAID FIXES ========== */
+        [data-bs-theme="dark"] .mermaid svg text {
+            fill: #e2e8f0 !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid .messageText,
+        [data-bs-theme="dark"] .mermaid .loopText,
+        [data-bs-theme="dark"] .mermaid .labelText,
+        [data-bs-theme="dark"] .mermaid text.actor,
+        [data-bs-theme="dark"] .mermaid .sequenceNumber {
+            fill: #ffffff !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid .messageLine0,
+        [data-bs-theme="dark"] .mermaid .messageLine1,
+        [data-bs-theme="dark"] .mermaid line,
+        [data-bs-theme="dark"] .mermaid .edgePath path {
+            stroke: #94a3b8 !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid .note,
+        [data-bs-theme="dark"] .mermaid .noteText {
+            fill: #0f172a !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid .activation0,
+        [data-bs-theme="dark"] .mermaid .activation1,
+        [data-bs-theme="dark"] .mermaid .activation2 {
+            fill: #334155 !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid .actor-line {
+            stroke: #64748b !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid rect.actor {
+            fill: #1e293b !important;
+            stroke: #0ea5e9 !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid .loopLine {
+            stroke: #475569 !important;
+        }
+
+        [data-bs-theme="dark"] .mermaid .labelBox {
+            fill: #1e293b !important;
+            stroke: #475569 !important;
+        }
+
+        /* ========== ALERTS ========== */
         .alert-info {
-            background: #d1ecf1;
-            border-color: #0c5460;
-            color: #0c5460;
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--primary-color);
+            color: var(--text-primary);
         }
 
         .alert-warning {
-            background: #fff3cd;
-            border-color: #856404;
-            color: #856404;
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning-color);
+            color: var(--text-primary);
         }
 
-        .alert-success {
-            background: #d4edda;
-            border-color: #155724;
-            color: #155724;
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger-color);
+            color: var(--text-primary);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* ========== THEME TOGGLE ========== */
+        .theme-toggle {
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
-        th {
-            background: #0ea5e9;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 700;
+        .theme-toggle:hover {
+            transform: rotate(20deg);
         }
 
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e9ecef;
+        /* ========== NAVBAR ========== */
+        .navbar {
+            background: var(--bg-primary) !important;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        tr:hover {
-            background: #f8f9fa;
-        }
-
+        /* ========== FOOTER ========== */
         .footer {
-            background: #2d3748;
-            color: white;
-            padding: 40px;
-            text-align: center;
+            background: var(--code-bg);
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
         }
 
-        .footer p {
-            color: #cbd5e0;
+        .footer code {
+            background: var(--bg-tertiary);
+            color: var(--primary-color);
         }
 
+        /* ========== PWA INSTALL BUTTON ========== */
+        .pwa-install-btn {
+            display: none;
+        }
+
+        .pwa-install-btn.show {
+            display: inline-flex;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* ========== LIST GROUP ========== */
+        .list-group-item {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        /* ========== PRINT STYLES ========== */
         @media print {
+
+            .sidebar,
+            .navbar,
+            .theme-toggle,
+            .pwa-install-btn {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+            }
+
             body {
                 background: white;
-                padding: 0;
-            }
-
-            .container {
-                box-shadow: none;
-            }
-
-            .header {
-                background: #0ea5e9;
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
+                color: black;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>📚 Academic Excellence Portal</h1>
-            <p>Complete System Documentation</p>
+    <!-- Backdrop for sidebar -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar (Mobile App Style) -->
+    <aside class="sidebar" id="sidebarNav">
+        <div class="sidebar-header">
+            <h5><i class="bi bi-book"></i> Navigation</h5>
+            <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="sidebar-body">
+            <div class="nav-section-title">For Users</div>
+            <nav class="nav flex-column">
+                <a class="nav-link" href="#getting-started"><i class="bi bi-rocket"></i>Getting Started</a>
+                <a class="nav-link" href="#student-guide"><i class="bi bi-person-badge"></i>Student Guide</a>
+                <a class="nav-link" href="#admin-guide"><i class="bi bi-shield-check"></i>Admin Guide</a>
+                <a class="nav-link" href="#super-admin-guide"><i class="bi bi-crown"></i>Super Admin Guide</a>
+                <a class="nav-link" href="#profile-management"><i class="bi bi-person-gear"></i>Profile Management</a>
+                <a class="nav-link" href="#faq"><i class="bi bi-question-circle"></i>FAQ</a>
+            </nav>
+
+            <div class="nav-section-title">For Developers</div>
+            <nav class="nav flex-column">
+                <a class="nav-link" href="#architecture"><i class="bi bi-diagram-3"></i>Architecture</a>
+                <a class="nav-link" href="#tech-stack"><i class="bi bi-stack"></i>Tech Stack</a>
+                <a class="nav-link" href="#sequence-diagrams"><i class="bi bi-arrow-left-right"></i>Sequence
+                    Diagrams</a>
+                <a class="nav-link" href="#database"><i class="bi bi-database"></i>Database Schema</a>
+                <a class="nav-link" href="#server-actions"><i class="bi bi-lightning"></i>Server Actions</a>
+                <a class="nav-link" href="#api"><i class="bi bi-braces"></i>API Reference</a>
+                <a class="nav-link" href="#deployment"><i class="bi bi-cloud-upload"></i>Deployment</a>
+                <a class="nav-link" href="#hardcoded-values"><i class="bi bi-exclamation-triangle"></i>Hardcoded
+                    Values</a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Navbar -->
+    <nav class="navbar sticky-top">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center gap-3">
+                <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a class="navbar-brand fw-bold mb-0" href="#">
+                    <i class="bi bi-mortarboard-fill text-primary me-2"></i>
+                    Portal Docs
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-success pwa-install-btn" id="installBtn">
+                    <i class="bi bi-download me-1"></i> Install
+                </button>
+                <span class="badge bg-success d-none d-sm-inline">v2.5.0</span>
+                <button class="btn btn-sm btn-outline-secondary theme-toggle" onclick="toggleTheme()"
+                    title="Toggle dark/light mode">
+                    <i class="bi bi-moon-stars" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Header -->
+        <div class="hero-header text-center">
+            <h1 class="display-4 fw-bold mb-2">📚 Academic Excellence Portal</h1>
+            <p class="lead mb-3">Complete System Documentation</p>
+            <div class="d-flex justify-content-center gap-4 flex-wrap">
+                <span><i class="bi bi-calendar3 me-1"></i> Updated: January 26, 2026</span>
+                <span><i class="bi bi-check-circle me-1"></i> Status: Production Live</span>
+            </div>
         </div>
 
-        <!-- Meta Information -->
-        <div class="meta">
-            <div class="meta-item">
-                <span class="meta-label">Version:</span>
-                <span>2.4.0 (Deployment & Production Readiness)</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Last Updated:</span>
-                <span>January 10, 2026</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Status:</span>
-                <span>✅ Production Live</span>
-            </div>
-        </div>
+        <div class="container-lg py-4">
+            <!-- Getting Started -->
+            <section id="getting-started">
+                <h2><span class="badge badge-user me-2">FOR USERS</span>Getting Started</h2>
 
-        <!-- Content -->
-        <div class="content">
-            <!-- Table of Contents -->
-            <div class="toc">
-                <h2>📑 Table of Contents</h2>
-                <ul>
-                    <li><strong>For Users</strong>
-                        <ul>
-                            <li><a href="#getting-started">Getting Started</a></li>
-                            <li><a href="#student-guide">Student User Guide</a></li>
-                            <li><a href="#admin-guide">Admin User Guide</a></li>
-                            <li><a href="#profile-management">Profile Management</a></li>
-                            <li><a href="#faq">FAQ</a></li>
-                        </ul>
-                    </li>
-                    <li><strong>For Developers</strong>
-                        <ul>
-                            <li><a href="#architecture">System Architecture</a></li>
-                            <li><a href="#tech-stack">Technology Stack</a></li>
-                            <li><a href="#new-features">New Features (v2.1.0)</a></li>
-                            <li><a href="#database">Database Schema</a></li>
-                            <li><a href="#server-actions">Server Actions</a></li>
-                            <li><a href="#api">API Reference</a></li>
-                            <li><a href="#deployment">Deployment Guide</a></li>
-                            <li><a href="#troubleshooting">Troubleshooting</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+                <h3 class="h5 mt-4">What is the Academic Excellence Portal?</h3>
+                <p>A comprehensive platform for tracking and showcasing student achievements across categories including
+                    scientific research, competitions, hackathons, sports, volunteering, and more.</p>
 
-            <!-- FOR USERS SECTION -->
-            <div class="section" id="getting-started">
-                <h2><span class="badge badge-user">FOR USERS</span> Getting Started</h2>
+                <h3 class="h5 mt-4">Account Types</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account Type</th>
+                                <th>Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>🎓 Student</strong></td>
+                                <td>Submit achievements, View leaderboard, Earn points and badges, Download certificates
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>🛡️ Admin</strong></td>
+                                <td>Review submissions, Approve/reject achievements, Manage students, View analytics
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>👑 Super Admin</strong></td>
+                                <td>Uses the same <code>/admin</code> interface as Admin, but with extra permissions:
+                                    Promote users to Admin, Demote Admins to Student, Full system control.
+                                    <em>Only 1 Super Admin allowed in the system.</em>
+                                    <br><small class="text-muted">Access: Navigate to Admin Panel → Users to see
+                                        promotion/demotion buttons</small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                <h3>What is the Academic Excellence Portal?</h3>
-                <p>The Academic Excellence Portal is a comprehensive platform for tracking and showcasing student
-                    achievements across various categories including scientific research, competitions, hackathons,
-                    sports, volunteering, and more.</p>
+                <!-- Test Accounts for Testers -->
+                <h3 class="h5 mt-4">🧪 Test Accounts for Testers</h3>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>For Testing Only:</strong> These accounts are created by the database seed script for
+                    testing purposes.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark">👑 Super Admin</span></td>
+                                <td><code>superadmin@example.com</code></td>
+                                <td><code>SuperAdmin@123456!</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">🛡️ Admin</span></td>
+                                <td><code>admin@example.com</code></td>
+                                <td><code>Admin@123456!</code></td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">🎓 Student</span></td>
+                                <td><code>student@example.com</code></td>
+                                <td><code>Student@123456!</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                <h3>Account Types</h3>
-                <table>
-                    <tr>
-                        <th>Account Type</th>
-                        <th>Features</th>
-                    </tr>
-                    <tr>
-                        <td><strong>Student Account</strong></td>
-                        <td>Submit achievements, View leaderboard, Earn points and badges, Download certificates, Track
-                            progress</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Admin Account</strong></td>
-                        <td>Review submissions, Approve/reject achievements, Manage students, View analytics, Configure
-                            system settings</td>
-                    </tr>
-                    <tr>
-                        <td><strong>👑 Super Admin Account</strong></td>
-                        <td>All Admin features PLUS: Promote/demote admins, Create new admins, Delete admin users,
-                            Cannot be demoted or deleted. <em>Only 1 Super Admin allowed.</em></td>
-                    </tr>
-                </table>
+                <div class="alert alert-info">
+                    <i class="bi bi-lightbulb me-2"></i><strong>First Login:</strong> Complete your profile to unlock
+                    all features!
+                </div>
+            </section>
 
-                <h3>Creating an Account</h3>
+            <!-- Student Guide -->
+            <section id="student-guide">
+                <h2><span class="badge badge-user me-2">FOR USERS</span>Student User Guide</h2>
+
+                <h3 class="h5 mt-4">Dashboard Overview</h3>
+                <div class="row g-3">
+                    <div class="col-6 col-lg-3">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <i class="bi bi-file-earmark-text display-6 text-primary"></i>
+                                <h6 class="mt-2 mb-0">Total Submissions</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <i class="bi bi-star-fill display-6 text-warning"></i>
+                                <h6 class="mt-2 mb-0">Total Points</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <i class="bi bi-check-circle-fill display-6 text-success"></i>
+                                <h6 class="mt-2 mb-0">Approved</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card text-center h-100">
+                            <div class="card-body">
+                                <i class="bi bi-hourglass-split display-6" style="color: var(--warning-color)"></i>
+                                <h6 class="mt-2 mb-0">Pending</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="h5 mt-4">Points System</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>🔬 Scientific Research</td>
+                                    <td><span class="badge bg-primary">100</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🚀 Entrepreneurship</td>
+                                    <td><span class="badge bg-primary">100</span></td>
+                                </tr>
+                                <tr>
+                                    <td>💻 Hackathons</td>
+                                    <td><span class="badge bg-info">95</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🏆 Competition</td>
+                                    <td><span class="badge bg-info">90</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🌍 Global Exchange</td>
+                                    <td><span class="badge bg-info">90</span></td>
+                                </tr>
+                                <tr>
+                                    <td>⭐ Awards</td>
+                                    <td><span class="badge bg-secondary">85</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>🎨 Artistic</td>
+                                    <td><span class="badge bg-secondary">80</span></td>
+                                </tr>
+                                <tr>
+                                    <td>⚽ Sports</td>
+                                    <td><span class="badge bg-secondary">75</span></td>
+                                </tr>
+                                <tr>
+                                    <td>💼 Internships</td>
+                                    <td><span class="badge bg-secondary">70</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🤝 Volunteering</td>
+                                    <td><span class="badge bg-secondary">65</span></td>
+                                </tr>
+                                <tr>
+                                    <td>📚 Special Training</td>
+                                    <td><span class="badge bg-secondary">60</span></td>
+                                </tr>
+                                <tr>
+                                    <td>✨ Other</td>
+                                    <td><span class="badge bg-secondary">50</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Guide -->
+            <section id="admin-guide">
+                <h2><span class="badge badge-user me-2">FOR USERS</span>Admin User Guide</h2>
+
+                <h3 class="h5 mt-4">System Settings</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Portal Name</strong></td>
+                                <td>Customize the platform display name</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Academic Terms</strong></td>
+                                <td>Add, edit, delete semesters with date ranges</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maintenance Mode</strong></td>
+                                <td>Block student access (admins can still access)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Allow Registrations</strong></td>
+                                <td>Show/hide Create Account option</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email Notifications</strong></td>
+                                <td>Toggle status update emails</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auto-Approve Scientific</strong></td>
+                                <td>Auto-approve recognized journal papers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Super Admin Guide -->
+            <section id="super-admin-guide">
+                <h2><span class="badge bg-warning text-dark me-2">👑 SUPER ADMIN</span>Super Admin Guide</h2>
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Important:</strong> Super Admin uses the <strong>same <code>/admin</code> interface</strong>
+                    as regular Admins.
+                    There is no separate Super Admin dashboard. Additional controls appear on the <strong>Users</strong>
+                    page.
+                </div>
+
+                <h3 class="h5 mt-4">Super Admin Exclusive Features</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Location</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Promote to Admin</strong></td>
+                                <td><code>/admin/users</code></td>
+                                <td>Elevate a Student to Admin role. A "Promote" button appears next to eligible users.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Demote to Student</strong></td>
+                                <td><code>/admin/users</code></td>
+                                <td>Remove Admin privileges. A "Demote" button appears next to Admin users.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Full System Control</strong></td>
+                                <td>All Admin pages</td>
+                                <td>Access to all Admin features without restrictions.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="h5 mt-4">How to Access Super Admin Features</h3>
                 <ol>
-                    <li><strong>Navigate to Registration:</strong> Click "Join Now" on the homepage or visit
-                        <code>/register</code>
-                    </li>
-                    <li><strong>Fill Registration Form:</strong>
-                        <ul>
-                            <li>Email address (required)</li>
-                            <li>Full name (required)</li>
-                            <li>Password (min 8 characters, must include uppercase, lowercase, number, special
-                                character)</li>
-                            <li>Confirm password</li>
-                        </ul>
-                    </li>
-                    <li><strong>Submit:</strong> You'll be redirected to login page</li>
-                    <li><strong>Alternative - Social Login:</strong> Click "Continue with Google/GitHub/Microsoft"</li>
+                    <li>Log in with your Super Admin account</li>
+                    <li>Navigate to <code>/admin</code> (Admin Panel)</li>
+                    <li>Go to <strong>Users</strong> page from the sidebar</li>
+                    <li>You'll see <span class="badge bg-success">Promote</span> and <span
+                            class="badge bg-danger">Demote</span> buttons visible only to you</li>
                 </ol>
 
                 <div class="alert alert-info">
-                    <strong>💡 First Login:</strong> After your first login, you'll see a Profile Completion Banner.
-                    Complete your profile to unlock all features!
+                    <i class="bi bi-shield-exclamation me-2"></i>
+                    <strong>Note:</strong> Only <strong>ONE</strong> Super Admin is allowed in the system.
+                    The Super Admin cannot be demoted or deleted.
                 </div>
-            </div>
-
-            <!-- Student Guide -->
-            <div class="section" id="student-guide">
-                <h2><span class="badge badge-user">FOR USERS</span> Student User Guide</h2>
-
-                <h3>Dashboard Overview</h3>
-                <p>Your dashboard shows:</p>
-                <ul>
-                    <li><strong>Profile Completion Banner</strong> - Percentage and missing fields (if incomplete)</li>
-                    <li><strong>Dashboard Stats (4 cards):</strong>
-                        <ul>
-                            <li>Total Submissions - All submissions (pending + approved + rejected)</li>
-                            <li>Total Points - Points earned from approved achievements</li>
-                            <li>Approved - Successfully approved submissions</li>
-                            <li>Pending - Awaiting admin review</li>
-                        </ul>
-                    </li>
-                    <li><strong>Recent Submissions</strong> - List with status and actions</li>
-                    <li><strong>Achievement Form</strong> - Submit new achievements</li>
-                </ul>
-
-                <h3>Submission Statuses & Actions</h3>
-                <table>
-                    <tr>
-                        <th>Status</th>
-                        <th>Description</th>
-                        <th>Available Actions</th>
-                    </tr>
-                    <tr>
-                        <td>🟡 <strong>Pending</strong></td>
-                        <td>Awaiting admin review</td>
-                        <td>View, <strong>Edit</strong></td>
-                    </tr>
-                    <tr>
-                        <td>✅ <strong>Approved</strong></td>
-                        <td>Accepted, points awarded</td>
-                        <td>View only (locked)</td>
-                    </tr>
-                    <tr>
-                        <td>❌ <strong>Rejected</strong></td>
-                        <td>Not accepted, see admin feedback</td>
-                        <td>View only (locked)</td>
-                    </tr>
-                </table>
-
-                <h3>Editing Submissions</h3>
-                <p><strong>Only pending submissions can be edited.</strong> Approved and rejected submissions are
-                    permanently locked.</p>
-
-                <h4>Edit Process:</h4>
-                <ol>
-                    <li>Click the <strong>Edit</strong> button (pencil icon) on a pending submission</li>
-                    <li>Confirm: "Are you sure you want to edit this submission?"</li>
-                    <li>Edit modal opens with pre-filled form</li>
-                    <li>Modify any fields: Title, Category, Organization, Location, Date, Description</li>
-                    <li>Click "Save Changes"</li>
-                    <li>Confirm: "Are you sure you want to save these changes?"</li>
-                    <li>Submission updated and list refreshes automatically</li>
-                </ol>
-
-                <div class="alert alert-warning">
-                    <strong>⚠️ Important:</strong> Evidence files cannot be changed after initial submission. Only
-                    pending submissions can be edited. No submissions can be deleted to ensure data integrity.
-                </div>
-
-                <h3>Submitting an Achievement</h3>
-                <ol>
-                    <li>Navigate to Dashboard (<code>/student/dashboard</code>)</li>
-                    <li>Fill Achievement Form:
-                        <ul>
-                            <li><strong>Title:</strong> Name of your achievement</li>
-                            <li><strong>Category:</strong> Select from dropdown (Scientific, Artistic, Competition,
-                                etc.)</li>
-                            <li><strong>Organization:</strong> Where you achieved this</li>
-                            <li><strong>Location:</strong> City/Country</li>
-                            <li><strong>Date:</strong> When you achieved this</li>
-                            <li><strong>Description:</strong> Detailed explanation (max 500 characters)</li>
-                            <li><strong>Evidence:</strong> Upload proof (PDF, image, max 10MB)</li>
-                        </ul>
-                    </li>
-                    <li>Click "Submit Achievement"</li>
-                </ol>
-
-                <h3>Points System</h3>
-                <table>
-                    <tr>
-                        <th>Category</th>
-                        <th>Points</th>
-                    </tr>
-                    <tr>
-                        <td>Scientific Research</td>
-                        <td>100</td>
-                    </tr>
-                    <tr>
-                        <td>Entrepreneurship</td>
-                        <td>100</td>
-                    </tr>
-                    <tr>
-                        <td>Hackathons</td>
-                        <td>95</td>
-                    </tr>
-                    <tr>
-                        <td>Competition</td>
-                        <td>90</td>
-                    </tr>
-                    <tr>
-                        <td>Global Exchange</td>
-                        <td>90</td>
-                    </tr>
-                    <tr>
-                        <td>Awards</td>
-                        <td>85</td>
-                    </tr>
-                    <tr>
-                        <td>Artistic</td>
-                        <td>80</td>
-                    </tr>
-                    <tr>
-                        <td>Sports</td>
-                        <td>75</td>
-                    </tr>
-                    <tr>
-                        <td>Internships</td>
-                        <td>70</td>
-                    </tr>
-                    <tr>
-                        <td>Volunteering</td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td>Special Training</td>
-                        <td>60</td>
-                    </tr>
-                    <tr>
-                        <td>Other</td>
-                        <td>50</td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Admin Guide -->
-            <div class="section" id="admin-guide">
-                <h2><span class="badge badge-user">FOR USERS</span> Admin User Guide</h2>
-
-                <h3>Admin Dashboard</h3>
-                <p>Access at <code>/admin/dashboard</code></p>
-                <ul>
-                    <li>Total users count</li>
-                    <li>Pending submissions</li>
-                    <li>Total achievements</li>
-                    <li>System statistics</li>
-                </ul>
-
-                <h3>Reviewing Submissions</h3>
-                <p>Location: <code>/admin/submissions</code></p>
-                <ol>
-                    <li>Click on a submission to view details</li>
-                    <li>Review student information, achievement details, and uploaded evidence</li>
-                    <li>Decision:
-                        <ul>
-                            <li><strong>Approve:</strong> Award points, student gets notified</li>
-                            <li><strong>Reject:</strong> Provide feedback explaining why</li>
-                        </ul>
-                    </li>
-                </ol>
-
-                <div class="alert alert-warning">
-                    <strong>⚠️ Best Practices:</strong> Review evidence carefully, provide constructive feedback for
-                    rejections, be consistent with approval criteria, and respond within 48 hours.
-                </div>
-
-                <h3>System Settings</h3>
-                <p>Location: <code>/admin/settings</code></p>
-                <table>
-                    <tr>
-                        <th>Setting</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td><strong>Portal Name</strong></td>
-                        <td>Customize the platform display name</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Academic Terms</strong></td>
-                        <td>Add, edit, delete semesters with optional date ranges. Set active term.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Maintenance Mode</strong></td>
-                        <td>Block all student access (admins can still access)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Allow Registrations</strong></td>
-                        <td>Show/hide Create Account option on login page</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Email Notifications</strong></td>
-                        <td>Toggle status update emails</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Auto-Approve Scientific</strong></td>
-                        <td>Automatically approve recognized journal papers</td>
-                    </tr>
-                </table>
-
-                <h3>User Management</h3>
-                <p>Location: <code>/admin/users</code></p>
-                <ul>
-                    <li><strong>Stats Cards:</strong> Total users, admins, students, active count</li>
-                    <li><strong>Search:</strong> Filter by name, email, or faculty</li>
-                    <li><strong>Role Filter:</strong> View all, admins only, or students only</li>
-                    <li><strong>Status Filter:</strong> Active or inactive users</li>
-                    <li><strong>Actions:</strong>
-                        <ul>
-                            <li>Promote/Demote between Admin and Student</li>
-                            <li>Activate/Deactivate accounts</li>
-                            <li>Add new users via modal form</li>
-                            <li>Delete users (with protection for last admin)</li>
-                        </ul>
-                    </li>
-                </ul>
-
-                <h3>Audit Logs</h3>
-                <p>Location: <code>/admin/audit-logs</code></p>
-                <p>Track all system activity with comprehensive logging:</p>
-                <ul>
-                    <li><strong>User Info:</strong> Email, name, role</li>
-                    <li><strong>Action Types:</strong> Login, logout, submit, approve, reject, delete</li>
-                    <li><strong>Device Info:</strong> Browser, OS, device type</li>
-                    <li><strong>Location:</strong> IP address, city, country</li>
-                    <li><strong>Filters:</strong> Date range, action type, device type, search</li>
-                </ul>
-            </div>
+            </section>
 
             <!-- Profile Management -->
-            <div class="section" id="profile-management">
-                <h2><span class="badge badge-user">FOR USERS</span> Profile Management</h2>
+            <section id="profile-management">
+                <h2><span class="badge badge-user me-2">FOR USERS</span>Profile Management</h2>
 
-                <h3>Profile Completion</h3>
-                <p><strong>Why Complete Your Profile?</strong></p>
-                <ul>
-                    <li>Unlock all features</li>
-                    <li>Appear in leaderboards</li>
-                    <li>Get personalized recommendations</li>
-                    <li>Build your academic portfolio</li>
-                </ul>
-
-                <h3>Student Required Fields (8)</h3>
-                <ol>
-                    <li>Full Name ✓ (from registration)</li>
-                    <li>Email ✓ (from registration)</li>
-                    <li>Profile Photo</li>
-                    <li>Faculty (e.g., "Computer Science")</li>
-                    <li>Academic Year (e.g., "2nd Year")</li>
-                    <li>Student ID</li>
-                    <li>Phone Number</li>
-                    <li>Bio (max 500 characters)</li>
-                </ol>
-
-                <h3>Admin Required Fields (6)</h3>
-                <ol>
-                    <li>Full Name ✓ (from registration)</li>
-                    <li>Email ✓ (from registration)</li>
-                    <li>Profile Photo</li>
-                    <li>Department</li>
-                    <li>Position/Title</li>
-                    <li>Phone Number</li>
-                </ol>
-
-                <p><strong>Completion Formula:</strong> <code>(filled fields / required fields) × 100</code></p>
-            </div>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header" style="background: var(--primary-color); color: white;">
+                                <i class="bi bi-mortarboard me-2"></i>Student Required Fields (8)
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><i
+                                        class="bi bi-check-circle-fill text-success me-2"></i>Full Name</li>
+                                <li class="list-group-item"><i
+                                        class="bi bi-check-circle-fill text-success me-2"></i>Email</li>
+                                <li class="list-group-item">Profile Photo</li>
+                                <li class="list-group-item">Faculty</li>
+                                <li class="list-group-item">Academic Year</li>
+                                <li class="list-group-item">Student ID</li>
+                                <li class="list-group-item">Phone Number</li>
+                                <li class="list-group-item">Bio</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header" style="background: var(--success-color); color: white;">
+                                <i class="bi bi-shield-check me-2"></i>Admin Required Fields (6)
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><i
+                                        class="bi bi-check-circle-fill text-success me-2"></i>Full Name</li>
+                                <li class="list-group-item"><i
+                                        class="bi bi-check-circle-fill text-success me-2"></i>Email</li>
+                                <li class="list-group-item">Profile Photo</li>
+                                <li class="list-group-item">Department</li>
+                                <li class="list-group-item">Position/Title</li>
+                                <li class="list-group-item">Phone Number</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- FAQ -->
-            <div class="section" id="faq">
-                <h2><span class="badge badge-user">FOR USERS</span> Frequently Asked Questions</h2>
+            <section id="faq">
+                <h2><span class="badge badge-user me-2">FOR USERS</span>Frequently Asked Questions</h2>
 
-                <h3>General</h3>
-                <p><strong>Q: How do I reset my password?</strong><br>
-                    A: Click "Forgot Password" on login page, enter your email, and follow the reset link.</p>
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq1">
+                                How do I reset my password?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">Click "Forgot Password" on the login page, enter your email, and
+                                follow the reset link.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq2">
+                                Can I edit a submitted achievement?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">Yes, but only if it's still "Pending". Once approved or
+                                rejected, submissions are locked.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq3">
+                                How do I earn more points?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">Submit achievements in high-value categories (Scientific
+                                Research, Entrepreneurship, Hackathons = 100 points each).</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                <p><strong>Q: How long does submission review take?</strong><br>
-                    A: Typically 24-48 hours. You'll be notified when reviewed.</p>
+            <!-- Architecture -->
+            <section id="architecture">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>System Architecture</h2>
+                <p>Built with <strong>JAMstack</strong> architecture using Next.js as the full-stack framework.</p>
 
-                <h3>For Students</h3>
-                <p><strong>Q: Why was my achievement rejected?</strong><br>
-                    A: Check the admin feedback on your submission. Common reasons: insufficient evidence, doesn't meet
-                    criteria, duplicate submission.</p>
-
-                <p><strong>Q: Can I edit a submitted achievement?</strong><br>
-                    A: Yes, but only if it's still "Pending". Once approved or rejected, submissions cannot be edited.
-                    You'll need to click the Edit button and confirm twice (once to open the editor, once to save
-                    changes).</p>
-
-                <p><strong>Q: Can I delete a submission?</strong><br>
-                    A: No, submissions are permanent once created. This ensures data integrity and prevents accidental
-                    loss of achievement records.</p>
-
-                <p><strong>Q: How do I earn more points?</strong><br>
-                    A: Submit achievements in high-value categories (Scientific Research, Entrepreneurship, Hackathons =
-                    100 points each).</p>
-
-                <p><strong>Q: What happens to my profile completion percentage?</strong><br>
-                    A: It updates automatically as you fill in required fields. Students need 8 fields (100%), admins
-                    need 6 fields (100%). The completion banner will disappear once you reach 100%.</p>
-            </div>
-
-            <!-- FOR DEVELOPERS SECTION -->
-            <div class="section" id="architecture">
-                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> System Architecture</h2>
-
-                <p>The Academic Excellence Portal is built using the <strong>JAMstack</strong> architecture with Next.js
-                    as the full-stack framework.</p>
-
-                <pre><code>┌─────────────────────────────────────────┐
-│           Client (Browser)              │
-│  ┌─────────────────────────────────┐   │
-│  │  Next.js React Components       │   │
-│  │  - Pages                        │   │
-│  │  - Components                   │   │
-│  │  - Client State (React Hooks)   │   │
-│  └─────────────────────────────────┘   │
-└──────────────┬──────────────────────────┘
-               │ HTTP/HTTPS
-               ▼
-┌─────────────────────────────────────────┐
-│         Next.js Server (Node.js)        │
-│  ┌─────────────────────────────────┐   │
-│  │  API Routes                     │   │
-│  │  - /api/auth/*                  │   │
-│  │  - /api/profile                 │   │
-│  │  - /api/submissions             │   │
-│  └─────────────────────────────────┘   │
-└──────────────┬──────────────────────────┘
-               │ Prisma ORM
-               ▼
-┌─────────────────────────────────────────┐
-│    Database (SQLite/PostgreSQL)         │
-│  - Users                                │
-│  - Submissions                          │
-└─────────────────────────────────────────┘</code></pre>
-            </div>
+                <div class="diagram-container">
+                    <div class="mermaid">
+                        flowchart TB
+                        subgraph Client["Client Browser"]
+                        A[React Components] --> B[Pages]
+                        A --> C[Client State]
+                        end
+                        subgraph Server["Next.js Server"]
+                        D[API Routes] --> E[Server Actions]
+                        F[Auth Middleware]
+                        end
+                        subgraph Database["Database Layer"]
+                        G[(PostgreSQL)]
+                        H[Prisma ORM]
+                        end
+                        subgraph Storage["File Storage"]
+                        I[Cloudflare R2]
+                        end
+                        Client --> |HTTPS| Server
+                        Server --> |Prisma| Database
+                        Server --> |S3 API| Storage
+                    </div>
+                </div>
+            </section>
 
             <!-- Tech Stack -->
-            <div class="section" id="tech-stack">
-                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Technology Stack</h2>
+            <section id="tech-stack">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>Technology Stack</h2>
 
-                <h3>Frontend</h3>
-                <ul>
-                    <li><strong>Framework:</strong> Next.js 14 (App Router)</li>
-                    <li><strong>UI Library:</strong> React 18</li>
-                    <li><strong>Styling:</strong> Tailwind CSS</li>
-                    <li><strong>Animations:</strong> Framer Motion</li>
-                    <li><strong>Icons:</strong> Lucide React, React Icons</li>
-                    <li><strong>Forms:</strong> React Hook Form + Zod validation</li>
-                </ul>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header"><i class="bi bi-laptop me-2"></i>Frontend</div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between"><span>Framework</span><span
+                                        class="badge bg-dark">Next.js 14</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>UI Library</span><span
+                                        class="badge bg-dark">React 18</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Styling</span><span
+                                        class="badge bg-dark">Tailwind CSS</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Animations</span><span
+                                        class="badge bg-dark">Framer Motion</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header"><i class="bi bi-server me-2"></i>Backend</div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between"><span>Auth</span><span
+                                        class="badge bg-dark">NextAuth.js</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>ORM</span><span
+                                        class="badge bg-dark">Prisma</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Database</span><span
+                                        class="badge bg-dark">PostgreSQL</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Storage</span><span
+                                        class="badge bg-dark">Cloudflare R2</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                <h3>Backend</h3>
-                <ul>
-                    <li><strong>Runtime:</strong> Node.js</li>
-                    <li><strong>Framework:</strong> Next.js API Routes</li>
-                    <li><strong>Authentication:</strong> NextAuth.js</li>
-                    <li><strong>ORM:</strong> Prisma</li>
-                    <li><strong>Database:</strong> SQLite (dev), PostgreSQL (production)</li>
-                </ul>
-            </div>
+            <!-- Sequence Diagrams -->
+            <section id="sequence-diagrams">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>Sequence Diagrams</h2>
+                <p>Interactive diagrams showing system flows for all user roles.</p>
 
-            <div class="section" id="new-features">
-                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> New Features (v2.2.0)</h2>
-
-                <div class="alert alert-success">
-                    <strong>✨ Latest Release:</strong> Version 2.2.0 introduces a real database-backed notification
-                    system, replacing the previous localStorage-based implementation.
+                <div class="accordion" id="diagramsAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#diag1">
+                                <i class="bi bi-person-badge me-2"></i>Student: Submit Achievement Flow
+                            </button>
+                        </h2>
+                        <div id="diag1" class="accordion-collapse collapse show" data-bs-parent="#diagramsAccordion">
+                            <div class="accordion-body">
+                                <div class="diagram-container">
+                                    <div class="mermaid">
+                                        sequenceDiagram
+                                        actor S as Student
+                                        participant UI as Dashboard
+                                        participant R2 as Cloudflare R2
+                                        participant SA as Server Action
+                                        participant DB as Database
+                                        S->>UI: Fill achievement form
+                                        S->>UI: Attach evidence file
+                                        UI->>R2: Upload file
+                                        R2-->>UI: File URL
+                                        UI->>SA: createSubmission(data)
+                                        SA->>DB: Check autoApproveScientific
+                                        alt Scientific + AutoApprove ON
+                                        SA->>DB: Create APPROVED
+                                        SA-->>UI: Auto-approved!
+                                        else Normal flow
+                                        SA->>DB: Create PENDING
+                                        SA-->>UI: Submitted for review
+                                        end
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#diag2">
+                                <i class="bi bi-shield-check me-2"></i>Admin: Review Submission Flow
+                            </button>
+                        </h2>
+                        <div id="diag2" class="accordion-collapse collapse" data-bs-parent="#diagramsAccordion">
+                            <div class="accordion-body">
+                                <div class="diagram-container">
+                                    <div class="mermaid">
+                                        sequenceDiagram
+                                        actor A as Admin
+                                        participant UI as Admin Panel
+                                        participant SA as Server Action
+                                        participant DB as Database
+                                        participant NS as Notification
+                                        A->>UI: Navigate to submissions
+                                        UI->>SA: getSubmissions()
+                                        SA-->>UI: List submissions
+                                        A->>UI: Click Approve + points
+                                        UI->>SA: updateSubmission()
+                                        SA->>DB: UPDATE status
+                                        SA->>NS: notifyStudent()
+                                        SA-->>UI: Success
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#diag3">
+                                <i class="bi bi-key me-2"></i>OAuth Login Flow
+                            </button>
+                        </h2>
+                        <div id="diag3" class="accordion-collapse collapse" data-bs-parent="#diagramsAccordion">
+                            <div class="accordion-body">
+                                <div class="diagram-container">
+                                    <div class="mermaid">
+                                        sequenceDiagram
+                                        actor U as User
+                                        participant LP as Login Page
+                                        participant Auth as NextAuth
+                                        participant OAuth as Google
+                                        participant DB as Database
+                                        U->>LP: Click Google Login
+                                        LP->>Auth: signIn google
+                                        Auth->>OAuth: Redirect
+                                        OAuth-->>Auth: User profile
+                                        Auth->>DB: Create/Update user
+                                        Auth-->>LP: Session created
+                                        LP-->>U: Redirect to dashboard
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <h3>🔔 Real Notification System (NEW in v2.2.0)</h3>
-                <p>Location: <code>lib/actions/notifications.ts</code>, <code>lib/notifications/service.ts</code>,
-                    <code>components/providers/NotificationProvider.tsx</code>
-                </p>
-                <ul>
-                    <li><strong>Database-backed:</strong> Notifications are now persisted in SQLite/PostgreSQL</li>
-                    <li><strong>Automatic triggers:</strong> Students are notified when submissions are
-                        approved/rejected</li>
-                    <li><strong>Real-time polling:</strong> Notifications refresh every 10 seconds</li>
-                    <li><strong>Optimistic updates:</strong> Instant UI feedback when marking as read</li>
-                    <li><strong>Deep linking:</strong> Click notifications to navigate to relevant submissions</li>
-                </ul>
-
-                <h4>Notification Types</h4>
-                <table>
-                    <tr>
-                        <th>Type</th>
-                        <th>Trigger</th>
-                        <th>Recipient</th>
-                    </tr>
-                    <tr>
-                        <td><code>SUBMISSION_APPROVED</code></td>
-                        <td>Admin approves a submission</td>
-                        <td>Student who submitted</td>
-                    </tr>
-                    <tr>
-                        <td><code>SUBMISSION_REJECTED</code></td>
-                        <td>Admin rejects a submission</td>
-                        <td>Student who submitted</td>
-                    </tr>
-                    <tr>
-                        <td><code>INFO</code></td>
-                        <td>General announcements</td>
-                        <td>Target user(s)</td>
-                    </tr>
-                </table>
-
-                <h3>Enhanced Audit Logging</h3>
-                <p>Location: <code>lib/audit-service.ts</code>, <code>lib/device-utils.ts</code>,
-                    <code>app/api/audit/route.ts</code>
-                </p>
-                <ul>
-                    <li>Device detection (browser, OS, device type)</li>
-                    <li>IP geolocation lookup using ip-api.com</li>
-                    <li>Comprehensive action tracking (login, logout, submit, approve, reject, delete)</li>
-                    <li>Admin audit logs viewer with filters at <code>/admin/audit-logs</code></li>
-                </ul>
-
-                <h3>Settings Persistence</h3>
-                <p>Location: <code>lib/settings-store.ts</code></p>
-                <pre><code>// Available Functions
-getSettings()              // Get all settings
-saveSettings(settings)     // Persist settings
-addTerm(name, start?, end?) // Add academic term
-updateTerm(id, updates)    // Update term
-deleteTerm(id)             // Remove term (except active)
-setActiveTerm(id)          // Set active term
-isMaintenanceMode()        // Check maintenance status
-isRegistrationAllowed()    // Check registration status</code></pre>
-
-                <h3>Flexible Term Management</h3>
-                <p>Admins can now create custom academic terms with:</p>
-                <ul>
-                    <li>Custom names (e.g., "Fall 2025", "Q1 2024", "Academic Year 2024-25")</li>
-                    <li>Optional start and end dates</li>
-                    <li>Set any term as active</li>
-                    <li>Edit and delete terms dynamically</li>
-                </ul>
-
-                <h3>Functional Maintenance Mode</h3>
-                <p>Location: <code>components/MaintenanceMode.tsx</code></p>
-                <ul>
-                    <li>Blocks all student access when enabled</li>
-                    <li>Admins can still access all features</li>
-                    <li>Login page always accessible for admin login</li>
-                    <li>Styled maintenance page with animations</li>
-                </ul>
-
-                <h3>Enhanced User Management</h3>
-                <p>Complete rewrite of <code>app/admin/users/page.tsx</code>:</p>
-                <ul>
-                    <li>Stats cards (total, admins, students, active)</li>
-                    <li>Search by name, email, faculty</li>
-                    <li>Filter by role and status</li>
-                    <li>Promote/demote users between Admin and Student</li>
-                    <li>Activate/deactivate users</li>
-                    <li>Add users via modal form</li>
-                    <li>Activity tracking from submissions</li>
-                </ul>
-
-                <h3>Animation Utilities</h3>
-                <p>Location: <code>lib/animations.tsx</code></p>
-                <pre><code>// Available Components
-import { 
-    AnimatedButton,
-    AnimatedCard,
-    PageTransition,
-    StaggerContainer,
-    StaggerItem 
-} from '@/lib/animations';
-
-// Animation Variants
-fadeIn, scaleIn, slideInLeft, slideInRight, slideInUp
-buttonHover, buttonPress, cardHover, pulse, shake</code></pre>
-
-                <h3>Mobile Improvements</h3>
-                <p>Enhanced in <code>app/globals.css</code>:</p>
-                <ul>
-                    <li>44px minimum touch targets</li>
-                    <li>iOS zoom prevention (16px font on inputs)</li>
-                    <li>Responsive table scrolling</li>
-                    <li>Shimmer loading animation</li>
-                    <li>Reduced motion preference support</li>
-                </ul>
-            </div>
+                <div class="alert alert-secondary mt-3">
+                    <i class="bi bi-file-earmark-text me-2"></i>Full diagrams: <code>docs/sequence_diagrams.md</code>
+                </div>
+            </section>
 
             <!-- Database Schema -->
-            <div class="section" id="database">
-                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Database Schema</h2>
+            <section id="database">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>Database Schema</h2>
 
-                <h3>Users Table</h3>
-                <pre><code>model User {
-  id            String   @id @default(cuid())
+                <div class="row g-3">
+                    <div class="col-lg-6">
+                        <h5>Users Table</h5>
+                        <pre><code>model User {
+  id            String   @id
   email         String   @unique
   name          String
   password      String?
   role          String   @default("STUDENT")
-  
-  // Profile fields
   avatar        String?
-  faculty       String?  // Students
-  year          String?  // Students
-  studentId     String?  // Students
-  department    String?  // Admins
-  position      String?  // Admins
-  phone         String?
-  bio           String?
-  
-  // Social links
-  linkedIn      String?
-  github        String?
-  twitter       String?
-  website       String?
-  
-  // Completion tracking
-  profileCompleted      Boolean @default(false)
-  completionPercentage  Int     @default(0)
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  faculty       String?
+  studentId     String?
+  profileCompleted  Boolean @default(false)
 }</code></pre>
-
-                <h3>Submissions Table</h3>
-                <pre><code>model Submission {
-  id               String   @id @default(cuid())
+                    </div>
+                    <div class="col-lg-6">
+                        <h5>Submissions Table</h5>
+                        <pre><code>model Submission {
+  id               String   @id
   studentEmail     String
-  studentName      String
   title            String
   category         String
-  orgName          String
-  location         String
-  achievementDate  String
-  description      String
-  evidenceUrl      String
-  evidenceFileName String?
-  evidenceFileType String?
   status           String   @default("PENDING")
   points           Int?
-  submittedAt      DateTime @default(now())
   reviewedAt       DateTime?
   reviewedBy       String?
-  adminFeedback    String?
 }</code></pre>
-
-                <h3>AuditLog Table</h3>
-                <pre><code>model AuditLog {
-  id              String   @id @default(cuid())
-  timestamp       DateTime @default(now())
-  action          String   // submit, approve, reject, delete
-  performedBy     String
-  performedByName String
-  submissionId    String
-  submissionTitle String
-  details         String?
-}</code></pre>
-
-                <h3>Notification Table (NEW in v2.2.0)</h3>
-                <pre><code>model Notification {
-  id        String   @id @default(cuid())
-  userId    String   // Email of the recipient
-  title     String
-  message   String
-  type      String   @default("INFO") 
-            // Types: INFO, SUCCESS, ERROR, 
-            // SUBMISSION_APPROVED, SUBMISSION_REJECTED,
-            // BADGE_EARNED, CERTIFICATE_ISSUED
-  read      Boolean  @default(false)
-  link      String?  // Optional deep link
-  createdAt DateTime @default(now())
-
-  @@index([userId, read])
-  @@index([userId, createdAt])
-}</code></pre>
-            </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- Server Actions -->
-            <div class="section" id="server-actions">
-                <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Server Actions (Phase 5)</h2>
+            <section id="server-actions">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>Server Actions</h2>
 
-                <div class="alert alert-info">
-                    <strong>💡 Note:</strong> Phase 5 introduced Server Actions to replace localStorage-based operations
-                    with persistent database storage using Prisma.
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Function</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="3"><code>submissions.ts</code></td>
+                                <td><code>createSubmission()</code></td>
+                                <td>Create with auto-approve check</td>
+                            </tr>
+                            <tr>
+                                <td><code>updateSubmission()</code></td>
+                                <td>Update status/feedback</td>
+                            </tr>
+                            <tr>
+                                <td><code>bulkUpdateSubmissionStatus()</code></td>
+                                <td>Bulk approve/reject</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2"><code>notifications.ts</code></td>
+                                <td><code>getNotifications()</code></td>
+                                <td>Fetch user notifications</td>
+                            </tr>
+                            <tr>
+                                <td><code>markNotificationAsRead()</code></td>
+                                <td>Mark as read</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2"><code>user-management.ts</code></td>
+                                <td><code>promoteUserRole()</code></td>
+                                <td>Promote user</td>
+                            </tr>
+                            <tr>
+                                <td><code>demoteUserRole()</code></td>
+                                <td>Demote user</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+            </section>
 
-                <h3>Submission Actions</h3>
-                <p>Location: <code>lib/actions/submissions.ts</code></p>
-                <table>
-                    <tr>
-                        <th>Function</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td><code>createSubmission()</code></td>
-                        <td>Create new submission in database</td>
-                    </tr>
-                    <tr>
-                        <td><code>getSubmissions()</code></td>
-                        <td>Fetch all submissions</td>
-                    </tr>
-                    <tr>
-                        <td><code>getSubmissionById(id)</code></td>
-                        <td>Fetch single submission</td>
-                    </tr>
-                    <tr>
-                        <td><code>updateSubmission(id, updates)</code></td>
-                        <td>Update submission status/feedback</td>
-                    </tr>
-                    <tr>
-                        <td><code>deleteSubmission(id)</code></td>
-                        <td>Remove submission</td>
-                    </tr>
-                    <tr>
-                        <td><code>bulkDeleteSubmissions(ids)</code></td>
-                        <td>Bulk delete submissions</td>
-                    </tr>
-                    <tr>
-                        <td><code>bulkUpdateSubmissionStatus(ids, status)</code></td>
-                        <td>Bulk approve/reject submissions</td>
-                    </tr>
-                    <tr>
-                        <td><code>getSubmissionStats()</code></td>
-                        <td>Get submission statistics</td>
-                    </tr>
-                </table>
+            <!-- API Reference -->
+            <section id="api">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>API Reference</h2>
 
-                <h3>Audit Log Actions</h3>
-                <p>Location: <code>lib/actions/audit.ts</code></p>
-                <table>
-                    <tr>
-                        <th>Function</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td><code>createAuditLog()</code></td>
-                        <td>Record an action</td>
-                    </tr>
-                    <tr>
-                        <td><code>getAuditLogs()</code></td>
-                        <td>Fetch all logs</td>
-                    </tr>
-                    <tr>
-                        <td><code>getRecentAuditLogs(limit)</code></td>
-                        <td>Fetch recent logs with limit</td>
-                    </tr>
-                    <tr>
-                        <td><code>getAuditLogsBySubmission(id)</code></td>
-                        <td>Filter logs by submission</td>
-                    </tr>
-                    <tr>
-                        <td><code>getAuditLogStats()</code></td>
-                        <td>Get audit statistics</td>
-                    </tr>
-                </table>
-
-                <h3>Notification Actions (NEW in v2.2.0)</h3>
-                <p>Location: <code>lib/actions/notifications.ts</code></p>
-                <table>
-                    <tr>
-                        <th>Function</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td><code>createNotification()</code></td>
-                        <td>Create a new notification in database</td>
-                    </tr>
-                    <tr>
-                        <td><code>getNotifications(userId)</code></td>
-                        <td>Fetch user's notifications (ordered by date)</td>
-                    </tr>
-                    <tr>
-                        <td><code>getUnreadCount(userId)</code></td>
-                        <td>Get count of unread notifications</td>
-                    </tr>
-                    <tr>
-                        <td><code>markNotificationAsRead(id)</code></td>
-                        <td>Mark single notification as read</td>
-                    </tr>
-                    <tr>
-                        <td><code>markAllNotificationsAsRead(userId)</code></td>
-                        <td>Mark all user's notifications as read</td>
-                    </tr>
-                    <tr>
-                        <td><code>deleteNotification(id)</code></td>
-                        <td>Remove a notification</td>
-                    </tr>
-                    <tr>
-                        <td><code>notifySubmissionApproved()</code></td>
-                        <td>Helper: Notify student of approval</td>
-                    </tr>
-                    <tr>
-                        <td><code>notifySubmissionRejected()</code></td>
-                        <td>Helper: Notify student of rejection</td>
-                    </tr>
-                </table>
-
-                <h3>File Upload Validation (Phase 5)</h3>
-                <p>Location: <code>app/api/upload/route.ts</code></p>
-                <table>
-                    <tr>
-                        <th>Validation</th>
-                        <th>Value</th>
-                    </tr>
-                    <tr>
-                        <td>Max File Size</td>
-                        <td>5MB</td>
-                    </tr>
-                    <tr>
-                        <td>Allowed Types</td>
-                        <td>JPEG, PNG, GIF, WebP, PDF</td>
-                    </tr>
-                    <tr>
-                        <td>Extensions</td>
-                        <td>.jpg, .jpeg, .png, .gif, .webp, .pdf</td>
-                    </tr>
-                </table>
-
-                <!-- API Reference -->
-                <div class="section" id="api">
-                    <h2><span class="badge badge-dev">FOR DEVELOPERS</span> API Reference</h2>
-
-                    <h3>Authentication</h3>
-                    <h4>POST /api/auth/register</h4>
-                    <p>Register a new user.</p>
-                    <pre><code>// Request Body
-{
-  "email": "student@example.com",
-  "name": "John Doe",
-  "password": "SecurePass123!"
-}
+                <div class="card mb-3">
+                    <div class="card-header"><code>POST /api/auth/register</code></div>
+                    <div class="card-body">
+                        <pre><code>// Request
+{ "email": "student@example.com", "name": "John", "password": "SecurePass123!" }
 
 // Response (201)
-{
-  "success": true,
-  "user": {
-    "id": "clx123...",
-    "email": "student@example.com",
-    "name": "John Doe",
-    "role": "STUDENT"
-  }
-}</code></pre>
+{ "success": true, "user": { "id": "clx123", "role": "STUDENT" } }</code></pre>
+                    </div>
+                </div>
+            </section>
 
-                    <h3>Profile Management</h3>
-                    <h4>GET /api/profile</h4>
-                    <p>Get current user's profile with completion data.</p>
-                    <pre><code>// Response (200)
-{
-  "user": {
-    "id": "clx123...",
-    "email": "student@example.com",
-    "name": "John Doe",
-    "role": "STUDENT",
-    "avatar": "/avatars/user123.jpg",
-    "faculty": "Computer Science",
-    "completionPercentage": 100
-  },
-  "completion": {
-    "percentage": 100,
-    "isComplete": true,
-    "missingFields": []
-  }
-}</code></pre>
+            <!-- Deployment -->
+            <section id="deployment">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>Deployment Guide</h2>
 
-                    <h4>PUT /api/profile</h4>
-                    <p>Update current user's profile.</p>
-                    <pre><code>// Request Body
-{
-  "name": "John Doe",
-  "faculty": "Computer Science",
-  "year": "3rd Year",
-  "phone": "+20 123 456 7890",
-  "bio": "Updated bio..."
-}</code></pre>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Supabase:</strong> Use Transaction Pooler (Port 6543) with <code>&pgbouncer=true</code>
                 </div>
 
-                <!-- Deployment -->
-                <div class="section" id="deployment">
-                    <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Deployment Guide</h2>
-
-                    <h3>Option 1: Vercel + Supabase (Recommended)</h3>
-                    <ol>
-                        <li><strong>Push to GitHub</strong>
-                            <pre><code>git init
-git add .
-git commit -m "Initial commit"
-git push -u origin main</code></pre>
-                        </li>
-                        <li><strong>Connect to Vercel</strong>
-                            <ul>
-                                <li>Go to vercel.com</li>
-                                <li>Import your repository</li>
-                                <li>Configure environment variables (see below)</li>
-                                <li>Deploy</li>
-                            </ul>
-                        </li>
-                        <li><strong>Database Migration</strong>
-                            <pre><code># Run locally to push schema to Supabase
-npx prisma db push --accept-data-loss
-npx prisma db seed</code></pre>
-                        </li>
-                    </ol>
-
-                    <h3>Environment Variables (Critical)</h3>
-                    <div class="alert alert-warning">
-                        <strong>⚠️ Supabase Transaction Mode:</strong> For Vercel, you must use the "Transaction Pooler"
-                        (Port 6543) and append <code>&pgbouncer=true</code> to disable prepared statements.
-                    </div>
-                    <pre><code># Database for Vercel (Transaction Mode 6543 + pgbouncer=true)
-DATABASE_URL="postgresql://user:pass@host:6543/postgres?sslmode=require&pgbouncer=true"
-
-# NextAuth
+                <h5>Environment Variables</h5>
+                <pre><code>DATABASE_URL="postgresql://user:pass@host:6543/postgres?pgbouncer=true"
 NEXTAUTH_URL="https://your-project.vercel.app"
-NEXTAUTH_SECRET="generate-random-32-char-string"
+NEXTAUTH_SECRET="generate-random-32-char-string"</code></pre>
+            </section>
 
-# OAuth (optional)
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"</code></pre>
+            <!-- Hardcoded Values -->
+            <section id="hardcoded-values">
+                <h2><span class="badge badge-dev me-2">FOR DEVELOPERS</span>Hardcoded Values Report</h2>
 
-                    <div class="alert alert-success">
-                        <strong>✅ Quick Deploy:</strong> The live site is now running at
-                        <code>deepminds-self.vercel.app</code>.
+                <div class="alert alert-danger">
+                    <i class="bi bi-shield-exclamation me-2"></i>
+                    <strong>32 hardcoded values</strong> found across 15 files. Full report:
+                    <code>docs/hardcoded_values_report.md</code>
+                </div>
+
+                <h5>Critical Issues</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead style="background: var(--danger-color); color: white;">
+                            <tr>
+                                <th>File</th>
+                                <th>Value</th>
+                                <th>Fix</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>app/admin/submissions/page.tsx</code></td>
+                                <td><code>'admin@example.com'</code></td>
+                                <td>Require valid session</td>
+                            </tr>
+                            <tr>
+                                <td><code>lib/email/service.ts</code></td>
+                                <td><code>'https://yourapp.com'</code></td>
+                                <td>Use <code>NEXT_PUBLIC_APP_URL</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>components/Footer.tsx</code></td>
+                                <td><code>csexcellence@msa.edu.eg</code></td>
+                                <td>Move to config</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer py-4 text-center">
+            <div class="container">
+                <p class="mb-2"><strong>CS Excellence Portal</strong> - Version 2.5.0</p>
+                <p class="mb-3"><small>Documentation updated January 26, 2026</small></p>
+                <div class="row justify-content-center g-2">
+                    <div class="col-auto"><span class="badge bg-warning text-dark">👑 Super Admin</span>
+                        <code>superadmin@example.com</code>
+                    </div>
+                    <div class="col-auto"><span class="badge bg-info">🛡️ Admin</span> <code>admin@example.com</code>
+                    </div>
+                    <div class="col-auto"><span class="badge bg-secondary">🎓 Student</span>
+                        <code>student@example.com</code>
                     </div>
                 </div>
-
-                <!-- Troubleshooting -->
-                <div class="section" id="troubleshooting">
-                    <h2><span class="badge badge-dev">FOR DEVELOPERS</span> Troubleshooting</h2>
-
-                    <h3>Common Issues</h3>
-
-                    <h4>Database Connection Error</h4>
-                    <p><strong>Error:</strong> <code>Can't reach database server</code></p>
-                    <p><strong>Solution:</strong></p>
-                    <ol>
-                        <li>Check DATABASE_URL in <code>.env.local</code></li>
-                        <li>Ensure database is running</li>
-                        <li>Verify network connectivity</li>
-                    </ol>
-
-                    <h4>Prisma Client Not Generated</h4>
-                    <p><strong>Error:</strong> <code>Cannot find module '@prisma/client'</code></p>
-                    <p><strong>Solution:</strong></p>
-                    <pre><code>npx prisma generate</code></pre>
-
-                    <h4>Build Fails</h4>
-                    <p><strong>Solution:</strong></p>
-                    <pre><code>rm -rf .next
-rm -rf node_modules && npm install
-npm run build</code></pre>
-                </div>
             </div>
+        </footer>
+    </main>
 
-            <!-- Footer -->
-            <div class="footer">
-                <p><strong>CS Excellence Portal</strong> - Version 2.4.0 (Deployment & Production Live)</p>
-                <p>Documentation updated on January 10, 2026</p>
-                <p><strong>Test Credentials (Live Site):</strong></p>
-                <p>👑 Super Admin: <code>superadmin@example.com</code> / <code>SuperAdmin@123456!</code></p>
-                <p>🛡️ Admin: <code>admin@example.com</code> / <code>Admin@123456!</code></p>
-                <p>🎓 Student: <code>student@example.com</code> / <code>Student@123456!</code></p>
-                <p>For support, contact: <a href="mailto:moasamy@msa.edu.eg"
-                        style="color: #06b6d4; text-decoration: none;">moasamy@msa.edu.eg</a></p>
-            </div>
-        </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ========== SIDEBAR TOGGLE ==========
+        const sidebar = document.getElementById('sidebarNav');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebarClose = document.getElementById('sidebarClose');
+
+        function openSidebar() {
+            sidebar.classList.add('show');
+            backdrop.classList.add('show');
+            menuToggle.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+            backdrop.classList.remove('show');
+            menuToggle.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        menuToggle.addEventListener('click', () => {
+            if (sidebar.classList.contains('show')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+
+        sidebarClose.addEventListener('click', closeSidebar);
+        backdrop.addEventListener('click', closeSidebar);
+
+        // Close sidebar when nav link is clicked
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+            link.addEventListener('click', closeSidebar);
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar.classList.contains('show')) {
+                closeSidebar();
+            }
+        });
+
+        // ========== THEME HANDLING ==========
+        // Load saved theme FIRST before Mermaid init
+        const savedTheme = localStorage.getItem('docs-theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars';
+        }
+
+        // Store original Mermaid source code for re-rendering
+        const mermaidSources = new Map();
+        document.querySelectorAll('.mermaid').forEach((el, index) => {
+            // Store the original source code before first render
+            const source = el.textContent.trim();
+            if (source && !source.includes('Syntax error')) {
+                mermaidSources.set(el, source);
+            }
+        });
+
+        // ========== MERMAID INIT ==========
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: currentTheme === 'dark' ? 'dark' : 'default',
+            securityLevel: 'loose'
+        });
+
+        // ========== THEME TOGGLE ==========
+        async function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-bs-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', next);
+
+            document.getElementById('themeIcon').className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars';
+            document.querySelector('meta[name="theme-color"]').content = next === 'dark' ? '#0f172a' : '#0ea5e9';
+
+            // Re-initialize Mermaid with new theme
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: next === 'dark' ? 'dark' : 'default',
+                securityLevel: 'loose'
+            });
+
+            // Re-render each Mermaid diagram with stored source
+            for (const [el, source] of mermaidSources.entries()) {
+                try {
+                    el.removeAttribute('data-processed');
+                    el.innerHTML = source;
+                    const uniqueId = 'mermaid-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                    const { svg } = await mermaid.render(uniqueId, source);
+                    el.innerHTML = svg;
+                } catch (e) {
+                    console.error('Mermaid render error:', e);
+                }
+            }
+
+            localStorage.setItem('docs-theme', next);
+        }
+
+        // ========== ACTIVE NAV LINK ==========
+        const sections = document.querySelectorAll('section[id]');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                if (scrollY >= section.offsetTop - 100) current = section.getAttribute('id');
+            });
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === `#${current}`);
+            });
+        });
+
+        // ========== PWA INSTALL ==========
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').classList.add('show');
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('installBtn').classList.remove('show');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('docs-sw.js').catch(err => console.log('SW registration failed:', err));
+        }
+    </script>
 </body>
 
 </html>
