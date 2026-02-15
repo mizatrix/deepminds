@@ -17,7 +17,8 @@ import {
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import ProgressRing from "@/components/ui/ProgressRing";
 import { useState, useEffect, useMemo } from 'react';
-import { getSubmissions, type Submission } from '@/lib/submissions';
+import { getSubmissions } from '@/lib/actions/submissions';
+import { type Submission } from '@/lib/actions/submissions';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -34,9 +35,16 @@ export default function AdminAnalytics() {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
 
     useEffect(() => {
-        // Load submissions from localStorage
-        const allSubmissions = getSubmissions();
-        setSubmissions(allSubmissions);
+        // Load submissions from database
+        const loadSubmissions = async () => {
+            try {
+                const allSubmissions = await getSubmissions();
+                setSubmissions(allSubmissions);
+            } catch (error) {
+                console.error('Error loading submissions for analytics:', error);
+            }
+        };
+        loadSubmissions();
     }, []);
 
     // Calculate real statistics from submissions

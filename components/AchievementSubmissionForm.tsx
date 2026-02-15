@@ -57,14 +57,19 @@ export default function StudentSubmissionForm() {
     useEffect(() => {
         setIsMounted(true);
 
-        // Restore form data from localStorage if available
-        const savedData = localStorage.getItem('achievement_draft');
+        // Restore form data from sessionStorage if available (after login redirect)
+        const savedData = sessionStorage.getItem('achievement_draft');
+        const savedStep = sessionStorage.getItem('achievement_draft_step');
         if (savedData) {
             try {
                 const parsed = JSON.parse(savedData);
                 setFormData(parsed);
+                if (savedStep) {
+                    setStep(parseInt(savedStep, 10));
+                }
                 // Clear the saved data after restoring
-                localStorage.removeItem('achievement_draft');
+                sessionStorage.removeItem('achievement_draft');
+                sessionStorage.removeItem('achievement_draft_step');
                 showToast('Your progress has been restored!', 'success');
             } catch (error) {
                 console.error('Error restoring form data:', error);
@@ -77,15 +82,16 @@ export default function StudentSubmissionForm() {
 
     const checkAuth = () => {
         if (!isAuthenticated) {
-            // Save current form data to localStorage before redirecting
+            // Save current form data and step to sessionStorage before redirecting
             try {
-                localStorage.setItem('achievement_draft', JSON.stringify(formData));
+                sessionStorage.setItem('achievement_draft', JSON.stringify(formData));
+                sessionStorage.setItem('achievement_draft_step', String(step));
                 showToast("Please login to continue. Your progress will be saved!", "info");
             } catch (error) {
                 console.error('Error saving form data:', error);
                 showToast("Please login to continue", "error");
             }
-            router.push("/login?redirect=/");
+            router.push("/login?callbackUrl=/");
             return false;
         }
         return true;

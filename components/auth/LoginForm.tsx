@@ -65,8 +65,10 @@ export default function LoginForm() {
                     details: 'User logged in successfully'
                 });
 
-                // Redirect based on user role
-                if (session?.user?.role === 'ADMIN') {
+                // Redirect based on callbackUrl or user role
+                if (callbackUrl && callbackUrl !== '/student/dashboard' && callbackUrl !== '/admin/dashboard') {
+                    router.push(callbackUrl);
+                } else if (session?.user?.role === 'ADMIN') {
                     router.push('/admin/dashboard');
                 } else {
                     router.push('/student/dashboard');

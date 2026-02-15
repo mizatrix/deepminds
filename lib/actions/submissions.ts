@@ -10,6 +10,7 @@ import {
     getAdminEmails,
 } from './notifications';
 import { checkAndAwardBadges } from './badges';
+import { getSystemSettings } from './settings';
 
 // Types matching the existing Submission interface
 export interface Submission {
@@ -61,6 +62,12 @@ function toSubmission(s: NonNullable<Awaited<ReturnType<typeof prisma.submission
  * Create a new submission
  */
 export async function createSubmission(data: Omit<Submission, 'id' | 'status' | 'submittedAt'>): Promise<Submission> {
+    // Check if auto-approve is enabled for Scientific submissions
+    const settings = await getSystemSettings();
+    const isScientific = data.category.toUpperCase() === 'SCIENTIFIC' ||
+        data.category === 'Scientific Research';
+    const shouldAutoApprove = isScientific && settings.autoApproveScientific;
+
     const submission = await prisma.submission.create({
         data: {
             studentEmail: data.studentEmail,
@@ -74,21 +81,44 @@ export async function createSubmission(data: Omit<Submission, 'id' | 'status' | 
             evidenceUrl: data.evidenceUrl,
             evidenceFileName: data.evidenceFileName,
             evidenceFileType: data.evidenceFileType,
-            status: 'PENDING',
+            status: shouldAutoApprove ? 'APPROVED' : 'PENDING',
+            reviewedAt: shouldAutoApprove ? new Date() : null,
+            reviewedBy: shouldAutoApprove ? 'System (Auto-Approved)' : null,
         },
     });
 
     // NOTE: Removed revalidatePath calls as they cause Cache API errors
     // Cache will invalidate naturally or on next navigation
 
-    // Notify admins about new submission (non-blocking)
-    try {
-        const adminEmails = await getAdminEmails();
-        if (adminEmails.length > 0) {
-            await notifyNewSubmission(adminEmails, data.studentName, data.title, submission.id);
+    if (shouldAutoApprove) {
+        // Notify student about auto-approval
+        try {
+            await notifySubmissionApproved(
+                submission.studentEmail,
+                submission.title,
+                undefined, // No points for auto-approved submissions
+                submission.id
+            );
+        } catch (error) {
+            console.error('Failed to notify student about auto-approval:', error);
         }
-    } catch (error) {
-        console.error('Failed to notify admins about new submission:', error);
+
+        // Check and award applicable badges
+        try {
+            await checkAndAwardBadges(submission.studentEmail, submission.category);
+        } catch (error) {
+            console.error('Failed to check badges for auto-approved submission:', error);
+        }
+    } else {
+        // Notify admins about new submission (non-blocking)
+        try {
+            const adminEmails = await getAdminEmails();
+            if (adminEmails.length > 0) {
+                await notifyNewSubmission(adminEmails, data.studentName, data.title, submission.id);
+            }
+        } catch (error) {
+            console.error('Failed to notify admins about new submission:', error);
+        }
     }
 
     return toSubmission(submission);
@@ -193,6 +223,43 @@ export async function updateSubmission(
     revalidatePath('/admin');
     revalidatePath('/dashboard');
     revalidatePath('/student');
+
+    return toSubmission(submission);
+}
+
+/**
+ * Update a submission by the student (only pending submissions, content fields only)
+ */
+export async function updateStudentSubmission(
+    id: string,
+    studentEmail: string,
+    updates: Partial<Pick<Submission, 'title' | 'category' | 'orgName' | 'location' | 'achievementDate' | 'description'>>
+): Promise<Submission> {
+    // Verify the submission exists and belongs to this student
+    const existing = await prisma.submission.findUnique({ where: { id } });
+    if (!existing) {
+        throw new Error('Submission not found');
+    }
+    if (existing.studentEmail !== studentEmail) {
+        throw new Error('You can only edit your own submissions');
+    }
+    if (existing.status !== 'PENDING') {
+        throw new Error('Only pending submissions can be edited');
+    }
+
+    const submission = await prisma.submission.update({
+        where: { id },
+        data: {
+            ...(updates.title && { title: updates.title }),
+            ...(updates.category && { category: updates.category }),
+            ...(updates.orgName && { orgName: updates.orgName }),
+            ...(updates.location && { location: updates.location }),
+            ...(updates.achievementDate && { achievementDate: updates.achievementDate }),
+            ...(updates.description && { description: updates.description }),
+        },
+    });
+
+    revalidatePath('/student/dashboard');
 
     return toSubmission(submission);
 }

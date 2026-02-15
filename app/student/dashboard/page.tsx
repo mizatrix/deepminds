@@ -6,7 +6,7 @@ import StudentStats from "@/components/StudentStats";
 import ProfileCompletionBanner from "@/components/ProfileCompletionBanner";
 import { ArrowRight, Trophy, FileCheck, Star, Eye, Clock, CheckCircle, XCircle, Edit2, Save, X as XIcon, Settings, Medal } from "lucide-react";
 import Link from "next/link";
-import { getSubmissionsByStudent } from "@/lib/actions/submissions";
+import { getSubmissionsByStudent, updateStudentSubmission } from "@/lib/actions/submissions";
 import { type Submission } from "@/lib/submissions";
 import { SkeletonDashboard } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -99,16 +99,25 @@ export default function StudentDashboard() {
         setShowConfirmDialog(true);
     };
 
-    const handleConfirmSave = () => {
-        // Update the submission in local storage
-        const allSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
-        const updatedSubmissions = allSubmissions.map((sub: Submission) =>
-            sub.id === editingSubmission?.id ? { ...sub, ...editFormData } : sub
-        );
-        localStorage.setItem('submissions', JSON.stringify(updatedSubmissions));
+    const handleConfirmSave = async () => {
+        try {
+            const userEmail = session?.user?.email;
+            if (!editingSubmission?.id || !userEmail) return;
 
-        // Reload submissions
-        loadSubmissions();
+            await updateStudentSubmission(editingSubmission.id, userEmail, {
+                title: editFormData.title,
+                category: editFormData.category,
+                orgName: editFormData.orgName,
+                location: editFormData.location,
+                achievementDate: editFormData.achievementDate,
+                description: editFormData.description,
+            });
+
+            // Reload submissions from database
+            await loadSubmissions();
+        } catch (error) {
+            console.error('Error saving submission:', error);
+        }
 
         // Close modals
         setShowConfirmDialog(false);

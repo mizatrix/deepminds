@@ -62,43 +62,45 @@ export default function InstallPrompt() {
                     transition={{ type: "spring", damping: 25, stiffness: 400 }}
                     className="fixed top-20 left-0 right-0 z-50 p-4 md:p-6"
                 >
-                    <div className="max-w-md mx-auto bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 flex items-center gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-                            <span className="text-white font-black text-lg">CS</span>
-                        </div>
+                    <div className="max-w-md mx-auto bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5">
+                        <div className="flex items-start gap-4">
+                            <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                                <span className="text-white font-black text-lg">CS</span>
+                            </div>
 
-                        <div className="flex-1">
-                            <h3 className="font-bold text-slate-900 dark:text-white">Install App</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                                {isIOS
-                                    ? "Add to Home Screen for the best experience."
-                                    : "Install for offline access and faster loading."}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-bold text-slate-900 dark:text-white text-base">Install App</h3>
+                                    <button
+                                        onClick={handleDismiss}
+                                        className="p-1.5 -mr-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                                    >
+                                        <X className="w-4 h-4 text-slate-400" />
+                                    </button>
+                                </div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                                    {isIOS
+                                        ? "Add to your Home Screen for the best experience."
+                                        : "Install for offline access and faster loading."}
+                                </p>
+                            </div>
                         </div>
 
                         {isIOS ? (
-                            <div className="flex flex-col items-end gap-1">
-                                <span className="text-xs font-bold text-purple-600 flex items-center gap-1">
-                                    Tap <Share className="w-3 h-3" /> then "Add to Home Screen"
+                            <div className="mt-4 flex items-center justify-center gap-1.5 py-2.5 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                                <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+                                    Tap
                                 </span>
-                                <button
-                                    onClick={handleDismiss}
-                                    className="text-xs text-slate-400 font-medium underline"
-                                >
-                                    Dismiss
-                                </button>
+                                <Share className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+                                    then &quot;Add to Home Screen&quot;
+                                </span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={handleDismiss}
-                                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
-                                >
-                                    <X className="w-5 h-5 text-slate-400" />
-                                </button>
+                            <div className="mt-4 flex justify-end">
                                 <button
                                     onClick={handleInstall}
-                                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-sm shadow-lg hover:scale-105 transition-transform"
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-sm shadow-lg hover:scale-105 transition-transform"
                                 >
                                     <Download className="w-4 h-4" />
                                     Install

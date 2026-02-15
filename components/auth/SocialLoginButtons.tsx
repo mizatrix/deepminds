@@ -2,7 +2,6 @@
 
 import { signIn } from 'next-auth/react';
 import { FcGoogle } from 'react-icons/fc';
-import { FaGithub } from 'react-icons/fa';
 
 interface SocialLoginButtonsProps {
     callbackUrl?: string;
@@ -28,23 +27,14 @@ export default function SocialLoginButtons({ callbackUrl = '/' }: SocialLoginBut
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex justify-center">
                 <button
                     type="button"
                     onClick={() => handleSocialLogin('google')}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
                 >
                     <FcGoogle className="h-5 w-5" />
-                    Google
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => handleSocialLogin('github')}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                >
-                    <FaGithub className="h-5 w-5" />
-                    GitHub
+                    Continue with Google
                 </button>
             </div>
         </div>

@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Academic Excellence Portal",
+  title: "CS Excellence Portal",
   description: "Browse and submit achievements across various categories.",
   manifest: "/manifest.json",
   appleWebApp: {
