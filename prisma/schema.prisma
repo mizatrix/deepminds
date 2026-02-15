@@ -220,3 +220,12 @@ model SystemSettings {
 
   @@map("system_settings")
 }
+
+model NewsletterSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  subscribedAt  DateTime @default(now())
+  isActive      Boolean  @default(true)
+
+  @@map("newsletter_subscribers")
+}

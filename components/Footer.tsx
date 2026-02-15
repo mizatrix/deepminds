@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Linkedin, MapPin, Mail, GraduationCap } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, MapPin, Mail, GraduationCap, Loader2, CheckCircle } from "lucide-react";
+import { subscribeToNewsletter } from "@/lib/actions/newsletter";
 
 export default function Footer() {
     return (
@@ -42,20 +44,7 @@ export default function Footer() {
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                             Get the latest achievements and updates delivered to your inbox.
                         </p>
-                        <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="w-full px-4 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                                required
-                            />
-                            <button
-                                type="submit"
-                                className="w-full px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:shadow-lg hover:scale-105 transition-all"
-                            >
-                                Subscribe
-                            </button>
-                        </form>
+                        <NewsletterForm />
                         <p className="text-xs text-slate-400 mt-3">
                             We respect your privacy. Unsubscribe anytime.
                         </p>
@@ -99,5 +88,78 @@ export default function Footer() {
                 </div>
             </div>
         </footer>
+    );
+}
+
+function NewsletterForm() {
+    const [email, setEmail] = useState('');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [message, setMessage] = useState('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+
+        setStatus('loading');
+        try {
+            const result = await subscribeToNewsletter(email);
+            if (result.success) {
+                setStatus('success');
+                setMessage(result.message);
+                setEmail('');
+            } else {
+                setStatus('error');
+                setMessage(result.message);
+            }
+        } catch {
+            setStatus('error');
+            setMessage('Something went wrong. Please try again.');
+        }
+
+        // Reset status after 4 seconds
+        setTimeout(() => {
+            setStatus('idle');
+            setMessage('');
+        }, 4000);
+    };
+
+    if (status === 'success') {
+        return (
+            <div className="flex items-center justify-center gap-2 py-3 px-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg text-sm font-semibold border border-green-200 dark:border-green-800">
+                <CheckCircle className="w-4 h-4" />
+                {message}
+            </div>
+        );
+    }
+
+    return (
+        <form className="space-y-3" onSubmit={handleSubmit}>
+            <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full px-4 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                required
+                disabled={status === 'loading'}
+            />
+            {status === 'error' && (
+                <p className="text-xs text-red-500 font-medium">{message}</p>
+            )}
+            <button
+                type="submit"
+                disabled={status === 'loading'}
+                className="w-full px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:shadow-lg hover:scale-105 transition-all disabled:opacity-60 disabled:hover:scale-100 flex items-center justify-center gap-2"
+            >
+                {status === 'loading' ? (
+                    <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Subscribing...
+                    </>
+                ) : (
+                    'Subscribe'
+                )}
+            </button>
+        </form>
     );
 }
