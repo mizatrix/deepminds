@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Award, Users, Settings, LogOut, GraduationCap } from "lucide-react";
+import { LayoutDashboard, Award, Users, Settings, LogOut, GraduationCap, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { label: "Achievements", href: "/dashboard/achievements", icon: Award },
     { label: "Users", href: "/dashboard/users", icon: Users },
+    { label: "Newsletter", href: "/admin/newsletter", icon: Mail },
     { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

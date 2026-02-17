@@ -7,7 +7,8 @@ import {
     FileText,
     TrendingUp,
     Settings,
-    Bell
+    Bell,
+    Mail
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getSubmissionStats } from "@/lib/actions/submissions";
@@ -50,6 +51,13 @@ export default function AdminDashboardPage() {
             href: "/admin/analytics",
             icon: TrendingUp,
             color: "amber"
+        },
+        {
+            title: "Newsletter",
+            description: "View and manage email subscribers.",
+            href: "/admin/newsletter",
+            icon: Mail,
+            color: "purple"
         },
         {
             title: "Settings",
