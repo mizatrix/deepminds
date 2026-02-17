@@ -1,17 +1,29 @@
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-    },
-});
+function getTransporter() {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+        return null;
+    }
+    return nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASSWORD,
+        },
+    });
+}
 
 export async function sendWelcomeEmail(toEmail: string) {
-    const html = `
+    try {
+        const transporter = getTransporter();
+        if (!transporter) {
+            console.warn('SMTP not configured — skipping welcome email for', toEmail);
+            return;
+        }
+
+        const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -43,7 +55,7 @@ export async function sendWelcomeEmail(toEmail: string) {
                                             <p style="color:#334155;font-size:14px;margin:0;line-height:1.6;">
                                                 ✨ <strong>Latest News</strong> — Stay updated with department announcements<br>
                                                 🏆 <strong>Student Achievements</strong> — Celebrate outstanding accomplishments<br>
-                                                📅 <strong>Upcoming Events</strong> — Workshops, competitions & more<br>
+                                                📅 <strong>Upcoming Events</strong> — Workshops, competitions &amp; more<br>
                                                 💡 <strong>Opportunities</strong> — Internships, research, and career openings
                                             </p>
                                         </td>
@@ -81,12 +93,19 @@ export async function sendWelcomeEmail(toEmail: string) {
         </table>
     </body>
     </html>
-    `;
+        `;
 
-    await transporter.sendMail({
-        from: '"CS Excellence Portal" <csexcellence@msa.edu.eg>',
-        to: toEmail,
-        subject: 'Welcome to CS Excellence Newsletter! 🎓',
-        html,
-    });
+        await transporter.sendMail({
+            from: '"CS Excellence Portal" <csexcellence@msa.edu.eg>',
+            to: toEmail,
+            subject: 'Welcome to CS Excellence Newsletter! 🎓',
+            html,
+        });
+
+        console.log('Welcome email sent to', toEmail);
+    } catch (error) {
+        // Never let email failures crash the app
+        console.error('Failed to send welcome email to', toEmail, '—', error);
+    }
 }
+
