@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function subscribeToNewsletter(email: string): Promise<{ success: boolean; message: string }> {
     if (!email || !email.includes('@')) {
@@ -22,6 +23,8 @@ export async function subscribeToNewsletter(email: string): Promise<{ success: b
                 where: { email: email.toLowerCase().trim() },
                 data: { isActive: true },
             });
+            // Send welcome-back email (fire and forget)
+            sendWelcomeEmail(email.toLowerCase().trim()).catch(() => { });
             return { success: true, message: 'Welcome back! You\'ve been resubscribed.' };
         }
 
@@ -29,12 +32,16 @@ export async function subscribeToNewsletter(email: string): Promise<{ success: b
             data: { email: email.toLowerCase().trim() },
         });
 
+        // Send welcome email (fire and forget)
+        sendWelcomeEmail(email.toLowerCase().trim()).catch(() => { });
+
         return { success: true, message: 'Thanks for subscribing! 🎉' };
     } catch (error) {
         console.error('Newsletter subscription error:', error);
         return { success: false, message: 'Something went wrong. Please try again.' };
     }
 }
+
 
 export type NewsletterSubscriberData = {
     id: string;
