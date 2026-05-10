@@ -55,7 +55,7 @@ export default function RootLayout({
                   <NotificationProvider>
                     <MaintenanceMode>
                       <SkipLink />
-                      <InstallPrompt />
+                      {/* <InstallPrompt /> — Disabled: PWA install prompt hidden */}
                       <Navbar />
                       <main id="main-content" className="flex-1 container mx-auto px-4 py-8">
                         {children}

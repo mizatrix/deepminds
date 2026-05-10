@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>System Sequence Diagrams — MSA Graduate Tracking System</title>
+    <meta name="description" content="System Sequence Diagrams for the MSA Graduate Tracking System covering all user roles and authentication flows.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <style>
+        /* ========== CSS Reset & Variables ========== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card-hover: rgba(30, 41, 59, 0.8);
+            --border-color: rgba(99, 102, 241, 0.15);
+            --border-hover: rgba(99, 102, 241, 0.35);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-primary: #818cf8;
+            --accent-secondary: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.2);
+            --gradient-start: #818cf8;
+            --gradient-end: #c084fc;
+            --student-color: #34d399;
+            --admin-color: #fbbf24;
+            --super-admin-color: #f87171;
+            --cross-role-color: #60a5fa;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ========== Base Styles ========== */
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Subtle animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(192, 132, 252, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ========== Header ========== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 26, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 20px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ========== Navigation (Table of Contents) ========== */
+        .toc-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .toc-toggle:hover {
+            border-color: var(--border-hover);
+            color: var(--accent-primary);
+        }
+
+        .toc-toggle svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .toc-panel {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            max-width: 85vw;
+            height: 100vh;
+            background: rgba(17, 24, 39, 0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-left: 1px solid var(--border-color);
+            z-index: 200;
+            padding: 24px 20px;
+            overflow-y: auto;
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toc-panel.open {
+            right: 0;
+        }
+
+        .toc-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 199;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .toc-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .toc-panel h2 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toc-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.4rem;
+            line-height: 1;
+            padding: 4px;
+        }
+
+        .toc-section {
+            margin-bottom: 16px;
+        }
+
+        .toc-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-section-title .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .toc-section-title.student .dot { background: var(--student-color); }
+        .toc-section-title.admin .dot { background: var(--admin-color); }
+        .toc-section-title.super-admin .dot { background: var(--super-admin-color); }
+        .toc-section-title.cross-role .dot { background: var(--cross-role-color); }
+
+        .toc-link {
+            display: block;
+            padding: 8px 12px 8px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .toc-link:hover {
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+        }
+
+        /* ========== Main Content ========== */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px 80px;
+        }
+
+        /* ========== Role Section ========== */
+        .role-section {
+            margin-bottom: 40px;
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            position: sticky;
+            top: 68px;
+            z-index: 10;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .role-indicator {
+            width: 4px;
+            height: 32px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .role-section.student .role-indicator { background: var(--student-color); }
+        .role-section.admin .role-indicator { background: var(--admin-color); }
+        .role-section.super-admin .role-indicator { background: var(--super-admin-color); }
+        .role-section.cross-role .role-indicator { background: var(--cross-role-color); }
+
+        .role-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .role-count {
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(100, 116, 139, 0.15);
+            padding: 4px 10px;
+            border-radius: 100px;
+        }
+
+        /* ========== Diagram Card ========== */
+        .diagram-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .diagram-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 0 24px var(--accent-glow);
+        }
+
+        .diagram-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: var(--transition);
+        }
+
+        .diagram-card-header:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .diagram-card-header:active {
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        .diagram-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .student .diagram-number { background: rgba(52, 211, 153, 0.15); color: var(--student-color); }
+        .admin .diagram-number { background: rgba(251, 191, 36, 0.15); color: var(--admin-color); }
+        .super-admin .diagram-number { background: rgba(248, 113, 113, 0.15); color: var(--super-admin-color); }
+        .cross-role .diagram-number { background: rgba(96, 165, 250, 0.15); color: var(--cross-role-color); }
+
+        .diagram-card-title {
+            flex: 1;
+            margin-left: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .chevron {
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .diagram-card.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .diagram-card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .diagram-card.open .diagram-card-body {
+            max-height: 2000px;
+        }
+
+        .diagram-wrapper {
+            padding: 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .diagram-wrapper .mermaid {
+            display: flex;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .diagram-wrapper .mermaid svg {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        /* Pinch-to-zoom container */
+        .diagram-zoom-container {
+            position: relative;
+            touch-action: pan-x pan-y;
+        }
+
+        .zoom-hint {
+            display: none;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* ========== Legend ========== */
+        .legend-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-top: 32px;
+        }
+
+        .legend-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: rgba(100, 116, 139, 0.08);
+            border-radius: var(--radius-sm);
+        }
+
+        .legend-symbol {
+            font-family: 'Fira Code', 'SF Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .legend-meaning {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* ========== Footer ========== */
+        .footer {
+            text-align: center;
+            padding: 24px 16px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        /* ========== Scroll to Top ========== */
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-secondary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            z-index: 50;
+            box-shadow: var(--shadow-md);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-top:active {
+            transform: scale(0.92);
+        }
+
+        /* ========== Mobile-first Media Queries ========== */
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 14px;
+            }
+
+            .header h1 {
+                font-size: 0.95rem;
+            }
+
+            .container {
+                padding: 16px 10px 60px;
+            }
+
+            .role-header {
+                padding: 12px 14px;
+                top: 56px;
+            }
+
+            .role-title {
+                font-size: 1rem;
+            }
+
+            .diagram-card-header {
+                padding: 14px 16px;
+            }
+
+            .diagram-card-title {
+                font-size: 0.88rem;
+            }
+
+            .diagram-wrapper {
+                padding: 10px;
+            }
+
+            .legend-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .zoom-hint {
+                display: block;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 768px) {
+            .zoom-hint {
+                display: block;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .container {
+                padding: 32px 24px 80px;
+            }
+
+            .diagram-wrapper .mermaid svg {
+                max-width: 90%;
+            }
+        }
+
+        /* ========== Loading State ========== */
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .loading-indicator .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== Print Styles ========== */
+        @media print {
+            .header, .toc-toggle, .scroll-top, .zoom-hint, .toc-panel, .toc-overlay { display: none !important; }
+            body { background: white; color: black; }
+            .diagram-card { break-inside: avoid; border: 1px solid #ddd; }
+            .diagram-card-body { max-height: none !important; }
+            .role-header { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header" id="top">
+        <div class="header-content">
+            <div>
+                <h1>System Sequence Diagrams</h1>
+                <div class="subtitle">MSA Graduate Tracking System</div>
+            </div>
+            <button class="toc-toggle" id="tocToggle" aria-label="Open navigation">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+                <span>Menu</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- TOC Overlay -->
+    <div class="toc-overlay" id="tocOverlay"></div>
+
+    <!-- TOC Slide-out Panel -->
+    <nav class="toc-panel" id="tocPanel" aria-label="Table of contents">
+        <button class="toc-close" id="tocClose" aria-label="Close navigation">&times;</button>
+        <h2>Contents</h2>
+
+        <div class="toc-section">
+            <div class="toc-section-title student"><span class="dot"></span> Student Role</div>
+            <a href="#diagram-1" class="toc-link" data-close-toc>1. Registration & Login</a>
+            <a href="#diagram-2" class="toc-link" data-close-toc>2. Submit Achievement</a>
+            <a href="#diagram-3" class="toc-link" data-close-toc>3. Edit Pending Submission</a>
+            <a href="#diagram-4" class="toc-link" data-close-toc>4. View Notifications</a>
+        </div>
+
+        <div class="toc-section">
+            <div class="toc-section-title admin"><span class="dot"></span> Admin Role</div>
+            <a href="#diagram-5" class="toc-link" data-close-toc>5. Review Submission</a>
+            <a href="#diagram-6" class="toc-link" data-close-toc>6. Manage Users</a>
+            <a href="#diagram-7" class="toc-link" data-close-toc>7. System Settings</a>
+        </div>
+
+        <div class="toc-section">
+            <div class="toc-section-title super-admin"><span class="dot"></span> Super Admin Role</div>
+            <a href="#diagram-8" class="toc-link" data-close-toc>8. Promote/Demote User</a>
+            <a href="#diagram-9" class="toc-link" data-close-toc>9. View Audit Logs</a>
+        </div>
+
+        <div class="toc-section">
+            <div class="toc-section-title cross-role"><span class="dot"></span> Cross-Role</div>
+            <a href="#diagram-10" class="toc-link" data-close-toc>10. OAuth Login</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- ============ Student Role ============ -->
+        <section class="role-section student" id="student-role">
+            <div class="role-header">
+                <div class="role-indicator"></div>
+                <h2 class="role-title">Student Role</h2>
+                <span class="role-count">4 flows</span>
+            </div>
+
+            <!-- 1. Registration & Login -->
+            <div class="diagram-card open" id="diagram-1">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">1</span>
+                    <span class="diagram-card-title">Registration & Login Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor S as Student
+    participant LP as Login Page
+    participant API as /api/auth
+    participant DB as Database
+    participant Auth as NextAuth
+
+    Note over S,Auth: Registration Flow
+    S->>LP: Click "Create Account"
+    S->>LP: Fill registration form
+    LP->>API: POST /api/auth/register
+    API->>DB: Check email exists
+    alt Email exists
+        DB-->>API: User found
+        API-->>LP: Error: Email in use
+    else New user
+        DB-->>API: No user
+        API->>DB: Create user (hashed password)
+        DB-->>API: User created
+        API-->>LP: Success
+        LP-->>S: Redirect to login
+    end
+
+    Note over S,Auth: Login Flow
+    S->>LP: Enter credentials
+    LP->>Auth: signIn("credentials")
+    Auth->>DB: Validate credentials
+    alt Valid
+        DB-->>Auth: User data
+        Auth-->>LP: Session created
+        LP-->>S: Redirect to /student/dashboard
+    else Invalid
+        Auth-->>LP: Error
+        LP-->>S: Show error message
+    end
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+
+            <!-- 2. Submit Achievement -->
+            <div class="diagram-card" id="diagram-2">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">2</span>
+                    <span class="diagram-card-title">Submit Achievement Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor S as Student
+    participant UI as Dashboard
+    participant R2 as Cloudflare R2
+    participant SA as Server Action
+    participant DB as Database
+    participant NS as Notification Service
+
+    S->>UI: Fill achievement form
+    S->>UI: Attach evidence file
+    UI->>R2: Upload file
+    R2-->>UI: File URL
+    UI->>SA: createSubmission(data)
+    SA->>DB: Check autoApproveScientific setting
+    
+    alt Scientific + AutoApprove ON
+        SA->>DB: Create submission (APPROVED)
+        SA->>NS: notifySubmissionApproved()
+        SA->>SA: checkAndAwardBadges()
+        SA-->>UI: Submission approved
+        UI-->>S: "Achievement auto-approved!"
+    else Normal flow
+        SA->>DB: Create submission (PENDING)
+        SA->>NS: notifyNewSubmission(admins)
+        SA-->>UI: Submission created
+        UI-->>S: "Submitted for review"
+    end
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+
+            <!-- 3. Edit Pending Submission -->
+            <div class="diagram-card" id="diagram-3">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">3</span>
+                    <span class="diagram-card-title">Edit Pending Submission Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor S as Student
+    participant UI as Dashboard
+    participant SA as Server Action
+    participant DB as Database
+
+    S->>UI: Click Edit on pending submission
+    UI-->>S: Confirm dialog
+    S->>UI: Confirm edit
+    UI->>SA: getSubmissionById(id)
+    SA->>DB: Fetch submission
+    DB-->>SA: Submission data
+    SA-->>UI: Submission details
+    UI-->>S: Edit modal with form
+
+    S->>UI: Modify fields
+    S->>UI: Click Save
+    UI-->>S: Confirm dialog
+    S->>UI: Confirm save
+    UI->>SA: updateSubmission(id, updates)
+    SA->>DB: Check status === PENDING
+    alt Status is PENDING
+        SA->>DB: Update submission
+        DB-->>SA: Updated
+        SA-->>UI: Success
+        UI-->>S: "Changes saved"
+    else Not PENDING
+        SA-->>UI: Error
+        UI-->>S: "Cannot edit reviewed submission"
+    end
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+
+            <!-- 4. View Notifications -->
+            <div class="diagram-card" id="diagram-4">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">4</span>
+                    <span class="diagram-card-title">View Notifications Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor S as Student
+    participant NB as Notification Bell
+    participant SA as Server Action
+    participant DB as Database
+
+    Note over S,DB: On page load (polling every 10s)
+    NB->>SA: getUnreadNotifications(email)
+    SA->>DB: SELECT unread notifications
+    DB-->>SA: Notifications[]
+    SA-->>NB: Count + list
+    NB-->>S: Show badge count
+
+    S->>NB: Click notification
+    NB->>SA: markAsRead(id)
+    SA->>DB: UPDATE isRead = true
+    DB-->>SA: Updated
+    SA-->>NB: Success
+    NB-->>S: Navigate to submission
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Admin Role ============ -->
+        <section class="role-section admin" id="admin-role">
+            <div class="role-header">
+                <div class="role-indicator"></div>
+                <h2 class="role-title">Admin Role</h2>
+                <span class="role-count">3 flows</span>
+            </div>
+
+            <!-- 5. Review Submission -->
+            <div class="diagram-card" id="diagram-5">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">5</span>
+                    <span class="diagram-card-title">Review Submission Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor A as Admin
+    participant UI as Admin Panel
+    participant SA as Server Action
+    participant DB as Database
+    participant NS as Notification Service
+    participant ES as Email Service
+    participant AL as Audit Log
+
+    A->>UI: Navigate to /admin/submissions
+    UI->>SA: getSubmissions()
+    SA->>DB: SELECT pending submissions
+    DB-->>SA: Submissions[]
+    SA-->>UI: List submissions
+    UI-->>A: Display table
+
+    A->>UI: Click submission
+    UI-->>A: Show details modal
+
+    alt Approve
+        A->>UI: Click Approve + set points
+        UI->>SA: updateSubmission(id, {status:'approved', points})
+        SA->>DB: UPDATE submission
+        SA->>NS: notifySubmissionApproved()
+        SA->>ES: Send approval email
+        SA->>SA: checkAndAwardBadges()
+        SA->>AL: Log action
+        SA-->>UI: Success
+        UI-->>A: Refresh list
+    else Reject
+        A->>UI: Click Reject + add feedback
+        UI->>SA: updateSubmission(id, {status:'rejected', feedback})
+        SA->>DB: UPDATE submission
+        SA->>NS: notifySubmissionRejected()
+        SA->>ES: Send rejection email
+        SA->>AL: Log action
+        SA-->>UI: Success
+        UI-->>A: Refresh list
+    end
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+
+            <!-- 6. Manage Users -->
+            <div class="diagram-card" id="diagram-6">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">6</span>
+                    <span class="diagram-card-title">Manage Users Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor A as Admin
+    participant UI as /admin/users
+    participant SA as Server Action
+    participant DB as Database
+
+    A->>UI: Navigate to users page
+    UI->>SA: getAllUsers()
+    SA->>DB: SELECT users
+    DB-->>SA: Users[]
+    SA-->>UI: User list
+    UI-->>A: Display table with stats
+
+    A->>UI: Search/filter users
+    UI-->>A: Filtered results
+
+    alt Deactivate User
+        A->>UI: Click Deactivate
+        UI->>SA: deactivateUser(id)
+        SA->>DB: UPDATE isActive = false
+        SA-->>UI: Success
+        UI-->>A: User deactivated
+    else Create New User
+        A->>UI: Click Add User
+        A->>UI: Fill form
+        UI->>SA: createUser(data)
+        SA->>DB: INSERT user
+        SA-->>UI: Success
+        UI-->>A: User created
+    end
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+
+            <!-- 7. System Settings -->
+            <div class="diagram-card" id="diagram-7">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">7</span>
+                    <span class="diagram-card-title">System Settings Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor A as Admin
+    participant UI as /admin/settings
+    participant SA as Server Action
+    participant DB as Database
+
+    A->>UI: Open settings page
+    UI->>SA: getSystemSettings()
+    SA->>DB: SELECT settings
+    DB-->>SA: Settings data
+    SA-->>UI: Current settings
+    UI-->>A: Display settings form
+
+    A->>UI: Toggle setting (e.g., autoApproveScientific)
+    UI->>SA: saveSystemSettings(newSettings)
+    SA->>DB: UPSERT settings
+    DB-->>SA: Saved
+    SA-->>UI: Success
+    UI-->>A: "Settings saved"
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Super Admin Role ============ -->
+        <section class="role-section super-admin" id="super-admin-role">
+            <div class="role-header">
+                <div class="role-indicator"></div>
+                <h2 class="role-title">Super Admin Role</h2>
+                <span class="role-count">2 flows</span>
+            </div>
+
+            <!-- 8. Promote/Demote User -->
+            <div class="diagram-card" id="diagram-8">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">8</span>
+                    <span class="diagram-card-title">Promote / Demote User Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor SA as Super Admin
+    participant UI as /admin/users
+    participant Act as Server Action
+    participant DB as Database
+    participant NS as Notification Service
+
+    SA->>UI: View user list
+    SA->>UI: Click Promote on STUDENT
+
+    UI->>Act: promoteUserRole(userId)
+    Act->>DB: Get current user (verify SUPER_ADMIN)
+    Act->>DB: Get target user
+    
+    alt Target is STUDENT
+        Act->>DB: UPDATE role = 'ADMIN'
+        Act->>NS: notifyRolePromotion()
+        Act-->>UI: Success (newRole: ADMIN)
+        UI-->>SA: User is now Admin
+    else Target is ADMIN
+        Act->>DB: Check no existing SUPER_ADMIN
+        alt Can promote
+            Act->>DB: UPDATE role = 'SUPER_ADMIN'
+            Act-->>UI: Success
+            UI-->>SA: User is now Super Admin
+        else Already exists
+            Act-->>UI: Error: Only 1 Super Admin allowed
+        end
+    end
+
+    Note over SA,NS: Demote Flow
+    SA->>UI: Click Demote on ADMIN
+    UI->>Act: demoteUserRole(userId)
+    Act->>DB: Verify caller is SUPER_ADMIN
+    Act->>DB: Check target is not SUPER_ADMIN
+    Act->>DB: UPDATE role = 'STUDENT'
+    Act-->>UI: Success
+    UI-->>SA: User demoted to Student
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+
+            <!-- 9. View Audit Logs -->
+            <div class="diagram-card" id="diagram-9">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">9</span>
+                    <span class="diagram-card-title">View Audit Logs Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor SA as Super Admin
+    participant UI as /admin/audit-logs
+    participant API as /api/audit
+    participant DB as Database
+
+    SA->>UI: Navigate to audit logs
+    UI->>API: GET /api/audit
+    API->>DB: SELECT audit_logs (paginated)
+    DB-->>API: Logs[]
+    API-->>UI: Audit entries
+
+    UI-->>SA: Display logs table
+
+    SA->>UI: Apply filters (date, action, device)
+    UI->>API: GET /api/audit?filters
+    API->>DB: SELECT with filters
+    DB-->>API: Filtered logs
+    API-->>UI: Results
+    UI-->>SA: Updated table
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Cross-Role ============ -->
+        <section class="role-section cross-role" id="cross-role">
+            <div class="role-header">
+                <div class="role-indicator"></div>
+                <h2 class="role-title">Cross-Role: Authentication</h2>
+                <span class="role-count">1 flow</span>
+            </div>
+
+            <!-- 10. OAuth Login -->
+            <div class="diagram-card" id="diagram-10">
+                <div class="diagram-card-header" onclick="toggleCard(this)">
+                    <span class="diagram-number">10</span>
+                    <span class="diagram-card-title">OAuth Login Flow</span>
+                    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="diagram-card-body">
+                    <div class="diagram-wrapper">
+                        <div class="diagram-zoom-container">
+                            <pre class="mermaid">
+sequenceDiagram
+    actor U as User
+    participant LP as Login Page
+    participant Auth as NextAuth
+    participant OAuth as Google/GitHub
+    participant DB as Database
+    participant CB as Callbacks
+
+    U->>LP: Click "Continue with Google"
+    LP->>Auth: signIn("google")
+    Auth->>OAuth: Redirect to OAuth provider
+    OAuth-->>U: Consent screen
+    U->>OAuth: Approve
+    OAuth-->>Auth: Authorization code
+    Auth->>OAuth: Exchange for tokens
+    OAuth-->>Auth: User profile
+
+    Auth->>CB: signIn callback
+    CB->>DB: Check user exists
+    alt New user
+        CB->>DB: Create user
+        CB->>DB: Set role = STUDENT
+    else Existing user
+        CB->>DB: Update lastLogin
+    end
+    CB-->>Auth: Allow sign in
+
+    Auth->>CB: jwt callback
+    CB->>DB: Get user role
+    CB-->>Auth: Token with role
+
+    Auth-->>LP: Session created
+    LP-->>U: Redirect based on role
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="zoom-hint">↔ Scroll horizontally to see full diagram · Pinch to zoom</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Legend ============ -->
+        <div class="legend-card">
+            <h3 class="legend-title">Legend</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="legend-symbol">actor</span>
+                    <span class="legend-meaning">User / Role</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">participant</span>
+                    <span class="legend-meaning">System component</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">->></span>
+                    <span class="legend-meaning">Request / Action</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">-->></span>
+                    <span class="legend-meaning">Response</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">alt/else</span>
+                    <span class="legend-meaning">Conditional branch</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol">Note over</span>
+                    <span class="legend-meaning">Explanation</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        MSA Graduate Tracking System — Sequence Diagrams Documentation
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+
+    <script>
+        // ---- Mermaid Init ----
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#1e293b',
+                primaryTextColor: '#f1f5f9',
+                primaryBorderColor: '#4f46e5',
+                lineColor: '#818cf8',
+                secondaryColor: '#1e1b4b',
+                tertiaryColor: '#0f172a',
+                noteBkgColor: '#1e1b4b',
+                noteTextColor: '#c7d2fe',
+                actorBkg: '#312e81',
+                actorTextColor: '#e0e7ff',
+                actorBorder: '#6366f1',
+                signalColor: '#c7d2fe',
+                labelBoxBkgColor: '#1e1b4b',
+                labelTextColor: '#e0e7ff',
+                altSectionBkgColor: 'rgba(99, 102, 241, 0.06)',
+            },
+            sequence: {
+                diagramMarginX: 16,
+                diagramMarginY: 16,
+                actorMargin: 60,
+                width: 150,
+                height: 50,
+                boxMargin: 6,
+                boxTextMargin: 5,
+                noteMargin: 8,
+                messageMargin: 30,
+                mirrorActors: true,
+                useMaxWidth: true,
+                wrap: true,
+            },
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 13,
+        });
+
+        // ---- Toggle Diagram Cards ----
+        function toggleCard(header) {
+            const card = header.closest('.diagram-card');
+            card.classList.toggle('open');
+        }
+
+        // ---- TOC Panel ----
+        const tocToggle = document.getElementById('tocToggle');
+        const tocPanel = document.getElementById('tocPanel');
+        const tocOverlay = document.getElementById('tocOverlay');
+        const tocClose = document.getElementById('tocClose');
+
+        function openToc() {
+            tocPanel.classList.add('open');
+            tocOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeToc() {
+            tocPanel.classList.remove('open');
+            tocOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        tocToggle.addEventListener('click', openToc);
+        tocOverlay.addEventListener('click', closeToc);
+        tocClose.addEventListener('click', closeToc);
+
+        document.querySelectorAll('[data-close-toc]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                closeToc();
+                // Open the target card
+                const targetId = link.getAttribute('href').slice(1);
+                const targetCard = document.getElementById(targetId);
+                if (targetCard && !targetCard.classList.contains('open')) {
+                    targetCard.classList.add('open');
+                }
+            });
+        });
+
+        // ---- Scroll to Top ----
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        }, { passive: true });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ---- Keyboard: Escape closes TOC ----
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeToc();
+        });
+    </script>
+</body>
+</html>

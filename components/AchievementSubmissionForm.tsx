@@ -32,13 +32,14 @@ import { useToast } from "@/lib/ToastContext";
 import { useRole } from "@/lib/RoleContext";
 import { useRouter } from "next/navigation";
 
+
 export default function StudentSubmissionForm() {
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [uploading, setUploading] = useState(false);
     const { isAuthenticated } = useRole();
-    const { data: session } = useSession();
+    const { data: session, status: sessionStatus } = useSession();
     const router = useRouter();
     const [formData, setFormData] = useState({
         title: "",
@@ -81,6 +82,11 @@ export default function StudentSubmissionForm() {
     const prevStep = () => setStep(s => s - 1);
 
     const checkAuth = () => {
+        // Don't redirect while session is still loading — wait for it to resolve
+        if (sessionStatus === 'loading') {
+            showToast("Please wait, verifying your session...", "info");
+            return false;
+        }
         if (!isAuthenticated) {
             // Save current form data and step to sessionStorage before redirecting
             try {
@@ -103,8 +109,8 @@ export default function StudentSubmissionForm() {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Check file size (max 5MB for R2)
-        const maxSizeMB = 5;
+        // Check file size (max 10MB for Cloudflare R2)
+        const maxSizeMB = 10;
         if (file.size > maxSizeMB * 1024 * 1024) {
             showToast(`File too large. Maximum size is ${maxSizeMB}MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB.`, "error");
             return;
