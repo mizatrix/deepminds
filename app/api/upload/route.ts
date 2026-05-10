@@ -2,15 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadEvidenceFile } from "@/lib/storage";
 import { auth } from "@/lib/auth/config";
 
-// Next.js Route Segment Config — increase body size limit for file uploads
+// Next.js App Router Route Segment Config
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30; // seconds
-export const config = {
-    api: {
-        bodyParser: false, // We handle FormData manually
-        responseLimit: false,
-    },
-};
 
 // Configuration
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB (Cloudflare R2)
