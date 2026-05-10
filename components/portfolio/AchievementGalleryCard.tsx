@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ExternalLink, Calendar, MapPin, Building2, Trophy, Eye } from "lucide-react";
+import { getProxiedEvidenceUrl } from "@/lib/evidence-url";
 import { Submission } from "@/lib/submissions";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +35,7 @@ export default function AchievementGalleryCard({ achievement, onView }: Achievem
             <div className="h-48 bg-slate-100 dark:bg-slate-950/50 relative overflow-hidden">
                 {achievement.evidenceFileType?.startsWith('image/') ? (
                     <img
-                        src={achievement.evidenceUrl}
+                        src={getProxiedEvidenceUrl(achievement.evidenceUrl) || ''}
                         alt={achievement.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -55,7 +56,7 @@ export default function AchievementGalleryCard({ achievement, onView }: Achievem
                     </button>
                     {achievement.evidenceUrl && achievement.evidenceUrl !== 'No evidence uploaded' && (
                         <a
-                            href={achievement.evidenceUrl}
+                            href={getProxiedEvidenceUrl(achievement.evidenceUrl) || achievement.evidenceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-3 bg-white/90 text-slate-900 rounded-full hover:scale-110 transition-transform shadow-lg"
