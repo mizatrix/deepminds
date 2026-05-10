@@ -2,12 +2,17 @@
 
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
-// Cloudflare R2 Configuration
-const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID!;
-const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!;
-const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY!;
-const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || 'evidence-files';
-const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!; // Your custom domain or R2.dev URL
+// Cloudflare R2 Configuration — trim() prevents ERR_INVALID_CHAR from whitespace in env vars
+const R2_ACCOUNT_ID = (process.env.R2_ACCOUNT_ID || '').trim();
+const R2_ACCESS_KEY_ID = (process.env.R2_ACCESS_KEY_ID || '').trim();
+const R2_SECRET_ACCESS_KEY = (process.env.R2_SECRET_ACCESS_KEY || '').trim();
+const R2_BUCKET_NAME = (process.env.R2_BUCKET_NAME || 'evidence-files').trim();
+const R2_PUBLIC_URL = (process.env.R2_PUBLIC_URL || '').trim();
+
+// Validate that credentials exist
+if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
+    console.error('R2 Storage: Missing required environment variables');
+}
 
 // Initialize S3 Client for Cloudflare R2
 const s3Client = new S3Client({
