@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getProxiedEvidenceUrl } from "@/lib/evidence-url";
 import { useSession } from "next-auth/react";
 import StudentStats from "@/components/StudentStats";
 import ProfileCompletionBanner from "@/components/ProfileCompletionBanner";
@@ -383,6 +384,62 @@ export default function StudentDashboard() {
                                 {selectedSubmission.description}
                             </p>
                         </div>
+
+                        {/* Evidence Preview */}
+                        {selectedSubmission.evidenceUrl && selectedSubmission.evidenceUrl !== 'No evidence uploaded' && (
+                            <div>
+                                <label className="text-xs font-bold uppercase text-slate-400">Evidence</label>
+                                <div className="mt-2 border-2 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                                    {selectedSubmission.evidenceFileType?.startsWith('image/') ? (
+                                        <img
+                                            src={getProxiedEvidenceUrl(selectedSubmission.evidenceUrl) || ''}
+                                            alt="Evidence"
+                                            className="w-full h-auto max-h-96 object-contain bg-slate-50 dark:bg-slate-950"
+                                        />
+                                    ) : selectedSubmission.evidenceFileType === 'application/pdf' ? (
+                                        <div className="p-4 bg-slate-50 dark:bg-slate-950">
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="w-12 h-12 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                                                    <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                                    </svg>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-medium text-slate-900 dark:text-white">{selectedSubmission.evidenceFileName || 'Evidence.pdf'}</p>
+                                                    <p className="text-xs text-slate-500">PDF Document</p>
+                                                </div>
+                                            </div>
+                                            <iframe
+                                                src={getProxiedEvidenceUrl(selectedSubmission.evidenceUrl) || ''}
+                                                className="w-full h-80 rounded-lg border border-slate-200 dark:border-slate-700"
+                                                title="PDF Preview"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="p-6 bg-slate-50 dark:bg-slate-950 text-center">
+                                            <div className="w-16 h-16 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mx-auto mb-3">
+                                                <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <p className="font-medium text-slate-900 dark:text-white mb-1">{selectedSubmission.evidenceFileName || 'Uploaded File'}</p>
+                                            <p className="text-sm text-slate-500 mb-3">{selectedSubmission.evidenceFileType || 'File'}</p>
+                                            <a
+                                                href={getProxiedEvidenceUrl(selectedSubmission.evidenceUrl) || selectedSubmission.evidenceUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                </svg>
+                                                Download File
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {selectedSubmission.adminFeedback && (
                             <div>
