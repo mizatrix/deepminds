@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getProxiedEvidenceUrl } from "@/lib/evidence-url";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, SortAsc, LayoutGrid, List, Share2, Trophy } from "lucide-react";
@@ -234,7 +235,7 @@ export default function PortfolioPage() {
 
                         {selectedAchievement.evidenceUrl && selectedAchievement.evidenceUrl !== 'No evidence uploaded' && (
                             <img
-                                src={selectedAchievement.evidenceUrl}
+                                src={getProxiedEvidenceUrl(selectedAchievement.evidenceUrl) || ''}
                                 alt="Evidence"
                                 className="w-full h-64 object-cover rounded-xl bg-slate-100"
                             />

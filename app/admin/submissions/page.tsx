@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { getProxiedEvidenceUrl } from "@/lib/evidence-url";
 import { useSession } from "next-auth/react";
 import { Check, X, Search, Eye, Trash2, Calendar, Filter, Download, RefreshCw, ChevronDown } from "lucide-react";
 import { useToast } from "@/lib/ToastContext";
@@ -613,7 +614,7 @@ export default function SubmissionsPage() {
                                     <div className="border-2 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
                                         {selectedSubmission.evidenceFileType?.startsWith('image/') ? (
                                             <img
-                                                src={selectedSubmission.evidenceUrl}
+                                                src={getProxiedEvidenceUrl(selectedSubmission.evidenceUrl) || ''}
                                                 alt="Evidence"
                                                 className="w-full h-auto max-h-96 object-contain bg-slate-50 dark:bg-slate-950"
                                             />
@@ -631,7 +632,7 @@ export default function SubmissionsPage() {
                                                     </div>
                                                 </div>
                                                 <iframe
-                                                    src={selectedSubmission.evidenceUrl}
+                                                    src={getProxiedEvidenceUrl(selectedSubmission.evidenceUrl) || ''}
                                                     className="w-full h-96 rounded-lg border border-slate-200 dark:border-slate-700"
                                                     title="PDF Preview"
                                                 />
@@ -649,14 +650,14 @@ export default function SubmissionsPage() {
                                                     onClick={async () => {
                                                         try {
                                                             //Check if file exists
-                                                            const response = await fetch(selectedSubmission.evidenceUrl!, { method: 'HEAD' });
+                                                            const response = await fetch(getProxiedEvidenceUrl(selectedSubmission.evidenceUrl) || selectedSubmission.evidenceUrl!, { method: 'HEAD' });
                                                             if (!response.ok) {
                                                                 showToast('File not found. This file may have been deleted or moved.', 'error');
                                                                 return;
                                                             }
                                                             // File exists, proceed with download
                                                             const link = document.createElement('a');
-                                                            link.href = selectedSubmission.evidenceUrl!;
+                                                            link.href = getProxiedEvidenceUrl(selectedSubmission.evidenceUrl) || selectedSubmission.evidenceUrl!;
                                                             link.download = selectedSubmission.evidenceFileName || 'evidence';
                                                             link.click();
                                                         } catch (error) {
