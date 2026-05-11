@@ -40,9 +40,26 @@ export default function SubmissionsPage() {
         setSelectedIds(new Set());
     }, [filter, search, categoryFilter, dateRange]);
 
-    // Load submissions from database
+    // Load submissions from database — refetch on mount, on tab focus, and on a 30s poll.
+    // This way new student submissions appear without manual refresh.
     useEffect(() => {
         loadSubmissions();
+
+        const onVisibility = () => {
+            if (document.visibilityState === 'visible') loadSubmissions();
+        };
+        document.addEventListener('visibilitychange', onVisibility);
+        window.addEventListener('focus', loadSubmissions);
+
+        const poll = window.setInterval(() => {
+            if (document.visibilityState === 'visible') loadSubmissions();
+        }, 30000);
+
+        return () => {
+            document.removeEventListener('visibilitychange', onVisibility);
+            window.removeEventListener('focus', loadSubmissions);
+            window.clearInterval(poll);
+        };
     }, []);
 
     const loadSubmissions = async () => {
