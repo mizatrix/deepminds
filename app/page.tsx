@@ -8,7 +8,7 @@ import BackgroundGradient from "@/components/BackgroundGradient";
 import DataWall from "@/components/DataWall";
 import CategoriesSection from "@/components/CategoriesSection";
 import { motion } from "framer-motion";
-import { Sparkles, Shield, ArrowRight } from "lucide-react";
+import { Sparkles, Shield, ArrowRight, LogIn, GraduationCap } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -84,6 +84,44 @@ export default function Home() {
                       <p className="font-semibold text-slate-900 dark:text-white text-sm">View Analytics</p>
                     </Link>
                   </div>
+                </div>
+              </div>
+            ) : !isAuthenticated ? (
+              /* Anonymous visitor — sign-in CTA instead of letting them start a draft they can't submit */
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl border border-slate-200 dark:border-slate-800">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <GraduationCap className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
+                    Sign in to submit your achievement
+                  </h2>
+                  <p className="text-slate-500 dark:text-slate-400 mb-6">
+                    Access is restricted to MSA students with an{" "}
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">@msa.edu.eg</span>{" "}
+                    Google account. Sign in to add and track your achievements, earn badges, and appear on the leaderboard.
+                  </p>
+                  <Link
+                    href="/sign-in?callbackUrl=/"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:shadow-lg hover:scale-105 transition-all"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Sign in with Google
+                  </Link>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Want to see what others have achieved? Browse the{" "}
+                    <Link href="/student/leaderboard" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                      leaderboard
+                    </Link>
+                    {" "}or{" "}
+                    <Link href="/categories" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                      categories
+                    </Link>
+                    .
+                  </p>
                 </div>
               </div>
             ) : (

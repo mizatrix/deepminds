@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/config';
 
-const protectedRoutes = ['/dashboard', '/profile', '/admin'];
+const protectedRoutes = ['/profile', '/admin'];
 const authRoutes = ['/sign-in'];
 const legacyAuthRoutes = ['/login', '/register'];
 
@@ -56,7 +56,6 @@ export default auth((req) => {
 
 export const config = {
     matcher: [
-        '/dashboard/:path*',
         '/profile/:path*',
         '/admin/:path*',
         '/student/:path*',

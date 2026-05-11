@@ -4,6 +4,7 @@ import { useNotifications } from '@/components/providers/NotificationProvider';
 import NotificationItem from './NotificationItem';
 import { CheckCheck, BellOff, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRole } from '@/lib/RoleContext';
 
 interface NotificationDropdownProps {
     onClose: () => void;
@@ -11,6 +12,8 @@ interface NotificationDropdownProps {
 
 export default function NotificationDropdown({ onClose }: NotificationDropdownProps) {
     const { notifications, markAsRead, markAllAsRead } = useNotifications();
+    const { isAdmin } = useRole();
+    const viewAllHref = isAdmin ? '/admin/notifications' : '/student/notifications';
 
     // Show only the 5 most recent notifications in the dropdown
     const recentNotifications = notifications.slice(0, 5);
@@ -58,7 +61,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
             {notifications.length > 0 && (
                 <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                     <Link
-                        href="/student/notifications"
+                        href={viewAllHref}
                         onClick={onClose}
                         className="flex items-center justify-center gap-2 w-full py-2 text-sm font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
                     >
