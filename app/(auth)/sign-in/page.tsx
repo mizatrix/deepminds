@@ -51,7 +51,7 @@ function SignInContent() {
     };
 
     return (
-        <div className="min-h-[calc(100vh-80px)] grid lg:grid-cols-2">
+        <div className="lg:min-h-[calc(100vh-80px)] grid lg:grid-cols-2">
             {/* Left: brand / value panel — desktop only */}
             <div className="hidden lg:flex relative overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 p-12 text-white flex-col justify-between">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, white 0, transparent 50%), radial-gradient(circle at 80% 80%, white 0, transparent 50%)' }} />
@@ -94,7 +94,7 @@ function SignInContent() {
             </div>
 
             {/* Right: auth card */}
-            <div className="flex items-center justify-center p-6 sm:p-12 bg-slate-50 dark:bg-slate-950">
+            <div className="flex items-start lg:items-center justify-center py-10 px-6 sm:p-12 bg-slate-50 dark:bg-slate-950">
                 <div className="w-full max-w-sm">
                     <div className="lg:hidden flex justify-center mb-6">
                         <div className="inline-flex items-center gap-2 text-blue-600">
