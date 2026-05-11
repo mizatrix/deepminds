@@ -1,114 +1,66 @@
 import NextAuth, { NextAuthConfig } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import GitHubProvider from 'next-auth/providers/github';
-import { verifyPassword, createUser, findUserByEmail, findDeletedUserByEmail } from './users-db';
-import { loginSchema } from './validation';
+import { cookies } from 'next/headers';
+import { createUser, findUserByEmail, findDeletedUserByEmail } from './users-db';
 
 export const authConfig: NextAuthConfig = {
     providers: [
-        // Email/Password Credentials Provider
-        CredentialsProvider({
-            name: 'credentials',
-            credentials: {
-                email: { label: 'Email', type: 'email' },
-                password: { label: 'Password', type: 'password' },
-            },
-            async authorize(credentials) {
-                try {
-                    // Validate input
-                    const { email, password } = loginSchema.parse(credentials);
-
-                    // Verify user credentials
-                    const user = await verifyPassword(email, password);
-
-                    if (!user) {
-                        return null;
-                    }
-
-                    // Return user object (password excluded)
-                    return {
-                        id: user.id,
-                        email: user.email,
-                        name: user.name,
-                        image: user.image,
-                        role: user.role,
-                    };
-                } catch (error) {
-                    console.error('Authorization error:', error);
-                    return null;
-                }
-            },
-        }),
-
-        // Google OAuth Provider
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             authorization: {
                 params: {
-                    prompt: 'consent',
-                    access_type: 'offline',
-                    response_type: 'code',
+                    prompt: 'select_account',
+                    hd: 'msa.edu.eg',
                 },
             },
-        }),
-
-        // GitHub OAuth Provider
-        GitHubProvider({
-            clientId: process.env.GITHUB_ID!,
-            clientSecret: process.env.GITHUB_SECRET!,
         }),
     ],
 
     pages: {
-        signIn: '/login',
-        signOut: '/login',
-        error: '/login',
+        signIn: '/sign-in',
+        signOut: '/sign-in',
+        error: '/sign-in',
     },
 
     callbacks: {
-        async signIn({ user, account, profile }) {
-            console.log('[signIn] Checking account status for:', user.email, 'provider:', account?.provider);
+        async signIn({ user, account }) {
+            const email = (user.email || '').toLowerCase();
 
-            // For OAuth providers, check if this email was previously deleted FIRST
-            if (account?.provider !== 'credentials') {
-                // Check if this email belongs to a deleted account - block re-registration
-                const deletedUser = await findDeletedUserByEmail(user.email!);
-                if (deletedUser) {
-                    console.log('[signIn] BLOCKED - Account was deleted, cannot re-register:', user.email);
-                    return false; // Block sign-in for deleted accounts
-                }
-
-                const existingUser = await findUserByEmail(user.email!);
-
-                if (!existingUser) {
-                    try {
-                        console.log('[signIn] Creating new OAuth user:', user.email);
-                        await createUser({
-                            email: user.email!,
-                            name: user.name || 'User',
-                            image: user.image ?? undefined,
-                            provider: account?.provider,
-                            role: 'STUDENT', // Default role for OAuth users
-                        });
-                    } catch (error) {
-                        console.error('[signIn] Error creating OAuth user:', error);
-                        return false;
-                    }
-                }
+            if (!email.endsWith('@msa.edu.eg')) {
+                try {
+                    const cookieStore = await cookies();
+                    cookieStore.set('auth_rejected_email', email, {
+                        maxAge: 60,
+                        httpOnly: false,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'lax',
+                        path: '/',
+                    });
+                } catch {}
+                return false;
             }
 
-            // NOW check if user account is active (after potentially creating it)
-            const dbUser = await findUserByEmail(user.email!);
+            if (await findDeletedUserByEmail(email)) return false;
 
-            if (dbUser && !dbUser.isActive) {
-                console.log('[signIn] BLOCKED - Account is deactivated:', user.email);
-                // Account is deactivated - prevent login
-                return false; // Return false to block sign-in
+            const existingUser = await findUserByEmail(email);
+            if (!existingUser) {
+                try {
+                    await createUser({
+                        email,
+                        name: user.name || 'User',
+                        image: user.image ?? undefined,
+                        provider: account?.provider,
+                        role: 'STUDENT',
+                    });
+                } catch (error) {
+                    console.error('[signIn] Error creating user:', error);
+                    return false;
+                }
+            } else if (!existingUser.isActive) {
+                return false;
             }
 
-            console.log('[signIn] ALLOWED - Account is active:', user.email);
             return true;
         },
 

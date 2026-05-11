@@ -191,20 +191,12 @@ export default function Navbar() {
                                     </AnimatePresence>
                                 </div>
                             ) : (
-                                <>
-                                    <Link
-                                        href="/login"
-                                        className="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-purple-600 transition-colors"
-                                    >
-                                        Login
-                                    </Link>
-                                    <Link
-                                        href="/register"
-                                        className="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:shadow-lg hover:scale-105 shadow-purple-500/25 transition-all"
-                                    >
-                                        Join Now
-                                    </Link>
-                                </>
+                                <Link
+                                    href="/sign-in"
+                                    className="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:shadow-lg hover:scale-105 shadow-purple-500/25 transition-all"
+                                >
+                                    Sign in
+                                </Link>
                             )}
                             {/* Admin quick access - only show if admin and authenticated */}
                             {isAdmin && isAuthenticated && (
@@ -348,26 +340,9 @@ export default function Navbar() {
                                                     </svg>
                                                     <span className="font-bold text-sm text-slate-700 dark:text-slate-200">Sign in with Google</span>
                                                 </button>
-
-                                                {/* Email Login & Register */}
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <Link
-                                                        href="/login"
-                                                        onClick={() => setIsOpen(false)}
-                                                        className="flex items-center justify-center gap-2 py-2.5 text-slate-700 dark:text-slate-200 font-bold bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm"
-                                                    >
-                                                        <LogIn className="w-4 h-4" />
-                                                        Login
-                                                    </Link>
-                                                    <Link
-                                                        href="/register"
-                                                        onClick={() => setIsOpen(false)}
-                                                        className="flex items-center justify-center gap-2 py-2.5 text-white font-bold bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:shadow-lg shadow-purple-500/20 transition-all text-sm"
-                                                    >
-                                                        <UserPlus className="w-4 h-4" />
-                                                        Join Now
-                                                    </Link>
-                                                </div>
+                                                <p className="text-xs text-center text-slate-500 dark:text-slate-400">
+                                                    Restricted to <span className="font-semibold">@msa.edu.eg</span> accounts
+                                                </p>
                                             </div>
                                         )}
                                     </div>

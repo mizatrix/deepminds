@@ -2,52 +2,52 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/config';
 
-// Define protected routes
 const protectedRoutes = ['/dashboard', '/profile', '/admin'];
-const authRoutes = ['/login', '/register'];
+const authRoutes = ['/sign-in'];
+const legacyAuthRoutes = ['/login', '/register'];
 
 export default auth((req) => {
-    const { pathname } = req.nextUrl;
+    const { pathname, search } = req.nextUrl;
     const session = req.auth;
     const isAuthenticated = !!session?.user;
     const userRole = (session?.user as any)?.role;
 
-    // Check if route is protected
+    // Legacy /login and /register → /sign-in (preserve query string)
+    if (legacyAuthRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))) {
+        const target = new URL(`/sign-in${search}`, req.url);
+        return NextResponse.redirect(target);
+    }
+
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
     const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
 
-    // Redirect to login if accessing protected route without authentication
     if (isProtectedRoute && !isAuthenticated) {
-        const loginUrl = new URL('/login', req.url);
-        loginUrl.searchParams.set('callbackUrl', pathname);
-        return NextResponse.redirect(loginUrl);
+        const signInUrl = new URL('/sign-in', req.url);
+        signInUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(signInUrl);
     }
 
-    // Redirect authenticated users away from auth pages to their appropriate dashboard
     if (isAuthRoute && isAuthenticated) {
         const dashboardUrl = userRole === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
         return NextResponse.redirect(new URL(dashboardUrl, req.url));
     }
 
-    // Protect admin routes - only ADMIN or SUPER_ADMIN role can access
     if (pathname.startsWith('/admin')) {
         if (!isAuthenticated) {
-            const loginUrl = new URL('/login', req.url);
-            loginUrl.searchParams.set('callbackUrl', pathname);
-            return NextResponse.redirect(loginUrl);
+            const signInUrl = new URL('/sign-in', req.url);
+            signInUrl.searchParams.set('callbackUrl', pathname);
+            return NextResponse.redirect(signInUrl);
         }
         if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
-            // Redirect non-admin users to student dashboard
             return NextResponse.redirect(new URL('/student/dashboard', req.url));
         }
     }
 
-    // Protect student routes - require authentication
     if (pathname.startsWith('/student')) {
         if (!isAuthenticated) {
-            const loginUrl = new URL('/login', req.url);
-            loginUrl.searchParams.set('callbackUrl', pathname);
-            return NextResponse.redirect(loginUrl);
+            const signInUrl = new URL('/sign-in', req.url);
+            signInUrl.searchParams.set('callbackUrl', pathname);
+            return NextResponse.redirect(signInUrl);
         }
     }
 
@@ -56,15 +56,12 @@ export default auth((req) => {
 
 export const config = {
     matcher: [
-        /*
-         * Match only the routes that actually require authentication or protection.
-         * This avoids running middleware on every single request and fixes the deprecation warning.
-         */
         '/dashboard/:path*',
         '/profile/:path*',
         '/admin/:path*',
         '/student/:path*',
+        '/sign-in',
         '/login',
-        '/register'
+        '/register',
     ],
 };

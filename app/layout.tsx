@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -13,8 +12,6 @@ import { SettingsProvider } from "@/lib/SettingsContext";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import SkipLink from "@/components/a11y/SkipLink";
 import MaintenanceMode from "@/components/MaintenanceMode";
-
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
 export const viewport: Viewport = {
   themeColor: "#7c3aed",
@@ -41,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(outfit.className, "min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased")} suppressHydrationWarning>
+      <body className={cn("min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased font-sans")} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
