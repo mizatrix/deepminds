@@ -82,22 +82,25 @@ export default function StudentSubmissionForm() {
     const prevStep = () => setStep(s => s - 1);
 
     const checkAuth = () => {
-        // Don't redirect while session is still loading — wait for it to resolve
+        // sessionStatus is the source of truth — isAuthenticated from RoleContext
+        // lags by one render and would falsely redirect signed-in users.
         if (sessionStatus === 'loading') {
             showToast("Please wait, verifying your session...", "info");
             return false;
         }
-        if (!isAuthenticated) {
-            // Save current form data and step to sessionStorage before redirecting
+        if (sessionStatus !== 'authenticated') {
             try {
                 sessionStorage.setItem('achievement_draft', JSON.stringify(formData));
                 sessionStorage.setItem('achievement_draft_step', String(step));
-                showToast("Please login to continue. Your progress will be saved!", "info");
+                showToast("Please sign in to continue. Your progress will be saved!", "info");
             } catch (error) {
                 console.error('Error saving form data:', error);
-                showToast("Please login to continue", "error");
+                showToast("Please sign in to continue", "error");
             }
-            router.push("/login?callbackUrl=/");
+            const callback = typeof window !== 'undefined'
+                ? window.location.pathname + window.location.search
+                : '/';
+            router.push(`/sign-in?callbackUrl=${encodeURIComponent(callback)}`);
             return false;
         }
         return true;
@@ -400,7 +403,7 @@ export default function StudentSubmissionForm() {
 
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1 flex items-center gap-2">
-                                    <Calendar className="w-4 h-4" /> Achievement is During the Period
+                                    <Calendar className="w-4 h-4" /> Achievement date
                                 </label>
                                 <input
                                     required
