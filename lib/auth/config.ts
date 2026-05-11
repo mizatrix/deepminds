@@ -43,10 +43,10 @@ export const authConfig: NextAuthConfig = {
 
             if (await findDeletedUserByEmail(email)) return false;
 
-            const existingUser = await findUserByEmail(email);
-            if (!existingUser) {
+            let dbUser = await findUserByEmail(email);
+            if (!dbUser) {
                 try {
-                    await createUser({
+                    dbUser = await createUser({
                         email,
                         name: user.name || 'User',
                         image: user.image ?? undefined,
@@ -57,9 +57,16 @@ export const authConfig: NextAuthConfig = {
                     console.error('[signIn] Error creating user:', error);
                     return false;
                 }
-            } else if (!existingUser.isActive) {
+            } else if (!dbUser.isActive) {
                 return false;
             }
+
+            // Attach DB-authoritative id and role to the NextAuth user so the
+            // jwt callback (which runs in Edge runtime and cannot hit Prisma)
+            // can read them. Without this, every JWT defaults to role=STUDENT
+            // and admins get redirected away from /admin/* by proxy.ts.
+            (user as any).id = dbUser.id;
+            (user as any).role = dbUser.role;
 
             return true;
         },
