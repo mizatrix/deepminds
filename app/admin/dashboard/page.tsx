@@ -17,15 +17,32 @@ export default function AdminDashboardPage() {
     const [pendingCount, setPendingCount] = useState(0);
 
     useEffect(() => {
+        let cancelled = false;
         async function loadStats() {
             try {
                 const stats = await getSubmissionStats();
-                setPendingCount(stats.pending);
+                if (!cancelled) {
+                    setPendingCount(prev => (prev === stats.pending ? prev : stats.pending));
+                }
             } catch (error) {
                 console.error('Error loading submission stats:', error);
             }
         }
         loadStats();
+
+        const onVisibility = () => {
+            if (document.visibilityState === 'visible') loadStats();
+        };
+        document.addEventListener('visibilitychange', onVisibility);
+        const poll = window.setInterval(() => {
+            if (document.visibilityState === 'visible') loadStats();
+        }, 60000);
+
+        return () => {
+            cancelled = true;
+            document.removeEventListener('visibilitychange', onVisibility);
+            window.clearInterval(poll);
+        };
     }, []);
 
     const cards = [

@@ -40,8 +40,9 @@ export default function SubmissionsPage() {
         setSelectedIds(new Set());
     }, [filter, search, categoryFilter, dateRange]);
 
-    // Load submissions from database — refetch on mount, on tab focus, and on a 30s poll.
-    // This way new student submissions appear without manual refresh.
+    // Refetch on mount, when tab regains visibility, and on a 60s poll while visible.
+    // The poll is silent: state only updates when the list actually changes, so the
+    // page does not visibly re-render on every tick.
     useEffect(() => {
         loadSubmissions();
 
@@ -49,22 +50,33 @@ export default function SubmissionsPage() {
             if (document.visibilityState === 'visible') loadSubmissions();
         };
         document.addEventListener('visibilitychange', onVisibility);
-        window.addEventListener('focus', loadSubmissions);
 
         const poll = window.setInterval(() => {
             if (document.visibilityState === 'visible') loadSubmissions();
-        }, 30000);
+        }, 60000);
 
         return () => {
             document.removeEventListener('visibilitychange', onVisibility);
-            window.removeEventListener('focus', loadSubmissions);
             window.clearInterval(poll);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const loadSubmissions = async () => {
         const data = await getSubmissions();
-        setSubmissions(data);
+        setSubmissions(prev => {
+            // Skip state update if nothing changed — avoids re-render flicker on poll.
+            if (prev.length === data.length) {
+                const same = prev.every((p, i) =>
+                    p.id === data[i].id &&
+                    p.status === data[i].status &&
+                    p.adminFeedback === data[i].adminFeedback &&
+                    p.points === data[i].points
+                );
+                if (same) return prev;
+            }
+            return data;
+        });
     };
 
     const handleApprove = async (submission: Submission) => {
