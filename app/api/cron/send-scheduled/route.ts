@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { processScheduledNotifications } from '@/lib/actions/scheduled-notifications';
+import { purgeOldReadNotifications } from '@/lib/actions/notifications';
 
 /**
  * Cron endpoint to process scheduled notifications
@@ -34,9 +35,20 @@ export async function GET(request: NextRequest) {
         // Process scheduled notifications
         const result = await processScheduledNotifications();
 
+        // Prune read notifications older than the retention window
+        // (default 30 days, configurable via NOTIFICATION_RETENTION_DAYS).
+        // Unread notifications are preserved regardless of age.
+        let purged = 0;
+        try {
+            purged = await purgeOldReadNotifications();
+        } catch (purgeError) {
+            console.error('Notification purge failed (non-fatal):', purgeError);
+        }
+
         return NextResponse.json({
             success: true,
             timestamp: new Date().toISOString(),
+            purgedReadNotifications: purged,
             ...result,
         });
     } catch (error) {

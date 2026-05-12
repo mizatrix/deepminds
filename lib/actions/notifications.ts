@@ -124,6 +124,26 @@ export async function deleteNotification(id: string): Promise<void> {
 }
 
 /**
+ * Delete read notifications older than the retention window. Called from the
+ * daily cron so the notification bell does not accumulate stale workflow nudges
+ * forever. Unread notifications are always preserved regardless of age — an
+ * admin who has not yet reviewed a submission should not lose the reminder.
+ */
+export async function purgeOldReadNotifications(retentionDays?: number): Promise<number> {
+    const days = retentionDays ?? parseInt(process.env.NOTIFICATION_RETENTION_DAYS || '30', 10);
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const result = await prisma.notification.deleteMany({
+        where: {
+            read: true,
+            createdAt: { lt: cutoff },
+        },
+    });
+
+    return result.count;
+}
+
+/**
  * Delete all notifications for a user
  */
 export async function deleteAllNotifications(userId: string): Promise<number> {
