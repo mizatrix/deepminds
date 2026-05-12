@@ -6,6 +6,7 @@ import { Text, Float, Stars, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from 'next-themes';
 import { getRecentAchievements, LiveAchievement } from '@/lib/actions/achievements';
+import { polling } from '@/lib/config';
 
 interface DisplayAchievement {
     text: string;
@@ -149,7 +150,7 @@ export default function DataWall() {
         fetchAchievements();
 
         // Poll every 60 seconds (more reasonable interval)
-        const interval = setInterval(fetchAchievements, 60000);
+        const interval = setInterval(fetchAchievements, polling.publicWallMs);
 
         return () => clearInterval(interval);
     }, []);

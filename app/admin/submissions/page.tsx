@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions/submissions";
 import { type Submission } from "@/lib/submissions";
 import { createEnhancedAuditLog } from "@/lib/audit-service";
+import { polling } from "@/lib/config";
 import BulkActionBar from "@/components/admin/BulkActionBar";
 import { exportSubmissionsToCSV, exportSubmissionsToPDF } from "@/lib/admin/exportUtils";
 
@@ -53,7 +54,7 @@ export default function SubmissionsPage() {
 
         const poll = window.setInterval(() => {
             if (document.visibilityState === 'visible') loadSubmissions();
-        }, 60000);
+        }, polling.submissionListMs);
 
         return () => {
             document.removeEventListener('visibilitychange', onVisibility);

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getSubmissionStats } from "@/lib/actions/submissions";
+import { polling } from "@/lib/config";
 
 export default function AdminDashboardPage() {
     const [pendingCount, setPendingCount] = useState(0);
@@ -36,7 +37,7 @@ export default function AdminDashboardPage() {
         document.addEventListener('visibilitychange', onVisibility);
         const poll = window.setInterval(() => {
             if (document.visibilityState === 'visible') loadStats();
-        }, 60000);
+        }, polling.dashboardStatsMs);
 
         return () => {
             cancelled = true;

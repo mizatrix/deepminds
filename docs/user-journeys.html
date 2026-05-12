@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CS Excellence — User Journeys</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-2: #f1f5f9;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #475569;
+            --text-subtle: #64748b;
+            --accent: #7c3aed;
+            --accent-2: #2563eb;
+            --student: #2563eb;
+            --admin: #db2777;
+            --super: #7c3aed;
+            --anon: #64748b;
+            --ok: #059669;
+            --warn: #d97706;
+            --err: #dc2626;
+            --code-bg: #f1f5f9;
+            --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-lg: 0 10px 30px -10px rgba(15, 23, 42, 0.12);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #020617;
+                --surface: #0f172a;
+                --surface-2: #1e293b;
+                --border: #1e293b;
+                --text: #f1f5f9;
+                --text-muted: #cbd5e1;
+                --text-subtle: #94a3b8;
+                --code-bg: #1e293b;
+            }
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+        }
+
+        .toc {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 32px 20px;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .toc h2 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-subtle);
+            margin: 0 0 12px;
+        }
+
+        .toc ul { list-style: none; padding: 0; margin: 0 0 24px; }
+        .toc li { margin: 2px 0; }
+        .toc a {
+            display: block;
+            padding: 6px 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 6px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .toc a:hover { background: var(--surface-2); color: var(--text); }
+        .toc .brand {
+            display: block;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text);
+            margin-bottom: 24px;
+            text-decoration: none;
+        }
+        .toc .brand small {
+            display: block;
+            font-weight: 500;
+            font-size: 11px;
+            color: var(--text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 2px;
+        }
+
+        main {
+            padding: 48px 56px 96px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        @media (max-width: 700px) {
+            main { padding: 32px 20px 64px; }
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 56px 0 12px;
+            padding-top: 16px;
+            letter-spacing: -0.015em;
+        }
+
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 28px 0 8px;
+            color: var(--text);
+        }
+
+        p { color: var(--text-muted); margin: 0 0 16px; }
+
+        .lead {
+            font-size: 17px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--text-subtle);
+            margin-bottom: 40px;
+        }
+
+        .meta span::before { content: "·"; margin-right: 16px; color: var(--border); }
+        .meta span:first-child::before { content: none; }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 24px 0 32px;
+        }
+
+        .role-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left-width: 4px;
+            border-radius: 10px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+        }
+        .role-card.anon { border-left-color: var(--anon); }
+        .role-card.student { border-left-color: var(--student); }
+        .role-card.admin { border-left-color: var(--admin); }
+        .role-card.super { border-left-color: var(--super); }
+
+        .role-card h4 {
+            margin: 0 0 4px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .role-card p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-subtle);
+        }
+
+        .diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 16px 0 24px;
+            overflow: auto;
+            box-shadow: var(--shadow);
+        }
+
+        .diagram .mermaid {
+            display: flex;
+            justify-content: center;
+            min-height: 200px;
+            min-width: min(900px, 100%);
+            text-align: center;
+        }
+
+        .diagram .mermaid svg {
+            max-width: 100%;
+            height: auto;
+            min-height: 280px;
+        }
+
+        .diagram.tall .mermaid svg { min-height: 520px; }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin: 8px 0 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend span::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+        }
+        .legend .public::before { background: #dbeafe; border-color: #3b82f6; }
+        .legend .gate::before { background: #fef3c7; border-color: #d97706; }
+        .legend .action::before { background: #dcfce7; border-color: #16a34a; }
+        .legend .blocked::before { background: #fee2e2; border-color: #dc2626; }
+        .legend .system::before { background: #ede9fe; border-color: #7c3aed; }
+
+        @media (prefers-color-scheme: dark) {
+            .legend .public::before { background: #1e3a8a; border-color: #60a5fa; }
+            .legend .gate::before { background: #78350f; border-color: #fbbf24; }
+            .legend .action::before { background: #14532d; border-color: #4ade80; }
+            .legend .blocked::before { background: #7f1d1d; border-color: #f87171; }
+            .legend .system::before { background: #4c1d95; border-color: #a78bfa; }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 24px;
+            font-size: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: var(--surface-2);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-subtle);
+        }
+        tr:last-child td { border-bottom: none; }
+        td code, p code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12.5px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        .note {
+            border-left: 3px solid var(--accent);
+            background: var(--surface);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0 24px;
+            color: var(--text-muted);
+            font-size: 14.5px;
+        }
+
+        .fact-list {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        .fact-list li {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent-2);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            box-shadow: var(--shadow);
+        }
+
+        .fact-list li strong {
+            display: block;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .note strong { color: var(--text); }
+        .note.warn { border-left-color: var(--warn); }
+
+        .file-ref {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .file-ref:hover { text-decoration: underline; }
+
+        footer {
+            margin-top: 80px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            color: var(--text-subtle);
+            font-size: 13px;
+        }
+
+        /* Initial state — hide diagrams until Mermaid renders to avoid raw text flash */
+        .diagram .mermaid:not([data-processed]) { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <nav class="toc" aria-label="Table of contents">
+            <a class="brand" href="#top">
+                CS Excellence
+                <small>User journeys</small>
+            </a>
+            <h2>Sections</h2>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#roles">Roles</a></li>
+                <li><a href="#anonymous">1. Anonymous visitor</a></li>
+                <li><a href="#sign-in">2. Sign-in flow</a></li>
+                <li><a href="#student">3. Student</a></li>
+                <li><a href="#admin">4. Admin &amp; Super Admin</a></li>
+                <li style="padding-left:12px"><a href="#admin-landing">&nbsp;&nbsp;Landing &amp; nav</a></li>
+                <li style="padding-left:12px"><a href="#admin-review">&nbsp;&nbsp;Review workflow</a></li>
+                <li style="padding-left:12px"><a href="#admin-users">&nbsp;&nbsp;User &amp; settings</a></li>
+                <li><a href="#gates">Access gates</a></li>
+                <li><a href="#notes">Open notes</a></li>
+            </ul>
+        </nav>
+
+        <main id="top">
+            <h1>User journeys</h1>
+            <p class="lead">A map of how each role moves through the CS Excellence portal — from arrival to outcome — and where the system enforces access.</p>
+            <div class="meta">
+                <span>Live URL: <strong>csexcellence.msa.edu.eg</strong></span>
+                <span>Auth: NextAuth v5 + Google OAuth</span>
+                <span>Domain restriction: <strong>@msa.edu.eg</strong></span>
+            </div>
+
+            <h2 id="overview">Overview</h2>
+            <p>The portal is a public showcase with a gated submission and review workflow. Anyone can browse the home page, leaderboard, and approved achievements. Submitting an achievement, viewing personal data, or reviewing submissions requires an authenticated MSA Google account. Roles fan out from there.</p>
+
+            <div class="legend">
+                <span class="public">Public route</span>
+                <span class="gate">Auth gate</span>
+                <span class="action">User action</span>
+                <span class="system">System effect</span>
+                <span class="blocked">Blocked / redirect</span>
+            </div>
+
+            <h2 id="roles">Roles</h2>
+            <div class="role-grid">
+                <div class="role-card anon">
+                    <h4>Anonymous</h4>
+                    <p>No session. Read-only access to public pages.</p>
+                </div>
+                <div class="role-card student">
+                    <h4>Student</h4>
+                    <p>Default for new MSA accounts. Submits and tracks own achievements.</p>
+                </div>
+                <div class="role-card admin">
+                    <h4>Admin</h4>
+                    <p>Reviews submissions, manages users, sees analytics.</p>
+                </div>
+                <div class="role-card super">
+                    <h4>Super Admin</h4>
+                    <p>Everything Admin can do, plus role grants and system settings.</p>
+                </div>
+            </div>
+
+            <h2 id="anonymous">1. Anonymous visitor</h2>
+            <p>Visitors can browse approved content freely. Any attempt to submit or open a protected page is intercepted by <a class="file-ref" href="../proxy.ts">proxy.ts</a> and redirected to the sign-in screen with a <code>callbackUrl</code> so the visitor returns to their original destination after authenticating.</p>
+
+            <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+    A(["Visitor lands"]):::public
+
+    subgraph BROWSE ["Free to browse"]
+        H["Home page"]:::public
+        LB["Leaderboard"]:::public
+        CAT["Categories"]:::public
+        VRF["Verify certificate"]:::public
+    end
+
+    subgraph GATED ["Gated actions"]
+        SUB{{"Submit or open<br/>dashboard"}}:::action
+        GATE["proxy.ts<br/>auth check"]:::gate
+        RED["Redirect to /sign-in<br/>callbackUrl preserved"]:::blocked
+        SI["Sign-in page"]:::public
+    end
+
+    A --> H
+    H --> LB
+    H --> CAT
+    H --> VRF
+    A --> SUB
+    SUB --> GATE
+    GATE -->|"no session"| RED
+    RED --> SI
+
+    %% CLASSDEFS-INJECTED-HERE
+</pre>
+            </div>
+
+            <h2 id="sign-in">2. Sign-in flow</h2>
+            <p>One button: <strong>Continue with Google</strong>. The server enforces the MSA domain after Google returns — a personal Gmail surfaces a friendly error naming the rejected address, not a generic failure.</p>
+
+            <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant P as Sign-in page
+    participant G as Google OAuth
+    participant CB as signIn callback
+    participant DB as Database
+    participant JWT as Session JWT
+
+    U->>P: Click "Continue with Google"
+    P->>G: Redirect with hd=msa.edu.eg
+    G-->>U: Account chooser
+    U->>G: Select @msa.edu.eg account
+    G->>CB: Profile and tokens
+    CB->>CB: Check email ends with @msa.edu.eg
+    alt domain mismatch
+        CB->>P: return false + rejected-email cookie
+        P-->>U: Show "isn't an MSA account" error
+    else domain OK
+        CB->>DB: findUserByEmail
+        alt new user
+            CB->>DB: createUser role=STUDENT
+        else deactivated
+            CB->>P: return false
+        end
+        CB->>JWT: attach id and role from DB
+        JWT-->>U: Session cookie set
+        U->>P: Redirect to callbackUrl
+    end
+</pre>
+            </div>
+
+            <div class="note">
+                <strong>Role-into-JWT is critical:</strong> the <code>signIn</code> callback attaches <code>dbUser.role</code> to the NextAuth <code>user</code> object so the <code>jwt</code> callback can persist it. Without this step the JWT defaults to <code>STUDENT</code> and proxy.ts redirects every admin away from <code>/admin/*</code>. Changing a user's role in the DB requires that user to sign out and back in once to refresh the JWT.
+            </div>
+
+            <h2 id="student">3. Student</h2>
+            <p>Default destination after sign-in is <code>/student/dashboard</code>. The submission flow is multi-step and persists drafts to <code>sessionStorage</code> so a mid-flow sign-in prompt doesn't lose the user's work.</p>
+
+            <div class="diagram tall">
+<pre class="mermaid">
+flowchart TB
+    Start(["Signed in<br/>as STUDENT"]):::public
+
+    subgraph LANDING ["Default landing"]
+        direction TB
+        Dash["student/dashboard"]:::public
+        Stats["Stats cards<br/>total / approved / pending"]:::system
+        Own["My Submissions<br/>filtered by email"]:::public
+    end
+
+    subgraph FUNNEL ["New Submission funnel"]
+        direction TB
+        NewBtn(["Click New Submission"]):::action
+        S1["Step 1<br/>title, category, org,<br/>date, location"]:::action
+        S2["Step 2<br/>description"]:::action
+        S3["Step 3<br/>evidence upload to R2"]:::action
+        Save["createSubmission"]:::system
+        Auto{"Scientific +<br/>auto-approve?"}:::gate
+    end
+
+    subgraph OUTCOMES ["Submission outcomes"]
+        direction TB
+        AppFlow["status = APPROVED<br/>notify student<br/>award badges"]:::system
+        PenFlow["status = PENDING<br/>notify admins"]:::system
+        NotifyA["Student sees<br/>approval + points"]:::system
+        Wait["Submission waits<br/>for admin review"]:::system
+    end
+
+    subgraph SIDE ["Side features"]
+        direction LR
+        Bad["badges"]:::public
+        Cert["certificates"]:::public
+        Port["portfolio<br/>shareable"]:::public
+        LB["leaderboard"]:::public
+        Notif["notifications"]:::public
+        Set["settings"]:::public
+    end
+
+    subgraph BLOCKED ["Out of reach"]
+        Try(["Opens /admin/*"]):::action --> Block["proxy.ts redirects<br/>to student dashboard"]:::blocked
+    end
+
+    Start --> Dash
+    Dash --> Stats
+    Dash --> Own
+    Dash --> NewBtn
+    Dash --> SIDE
+    NewBtn --> S1 --> S2 --> S3 --> Save --> Auto
+    Auto -->|"yes"| AppFlow --> NotifyA
+    Auto -->|"no"| PenFlow --> Wait
+
+    %% CLASSDEFS-INJECTED-HERE
+</pre>
+            </div>
+
+            <h3>What the student sees after review</h3>
+            <p>On approval: in-app notification, optional points and badges, the submission appears on the public leaderboard if it qualifies, and a certificate may be issued. On rejection: notification with the admin's feedback so the student can revise and resubmit.</p>
+
+            <h3>Things worth knowing</h3>
+            <p>Students see <strong>every</strong> submission they have made on <code>/student/dashboard</code> &mdash; sorted by most recent first &mdash; together with aggregated stats (total / approved / pending) and total points.</p>
+
+            <ul class="fact-list">
+                <li>
+                    <strong>No pagination yet.</strong>
+                    Fine up to a few hundred entries. Easy follow-up if a student ever crosses ~50 submissions.
+                </li>
+                <li>
+                    <strong>Edit while pending.</strong>
+                    A student can revise a <code>PENDING</code> submission via the pencil icon next to its row &mdash; backed by <code>updateStudentSubmission</code>. Once an admin approves or rejects it, only admins can change it.
+                </li>
+                <li>
+                    <strong>Public portfolio.</strong>
+                    <code>/student/portfolio</code> renders the shareable, public-facing view of a student's approved submissions. The link works for visitors who are not signed in.
+                </li>
+                <li>
+                    <strong>No server-side drafts.</strong>
+                    A submission is either posted (<code>status=PENDING</code>) or held in the browser's <code>sessionStorage</code> until the user returns. There is no drafts collection in the database today.
+                </li>
+            </ul>
+
+            <h2 id="admin">4. Admin &amp; Super Admin</h2>
+            <p>Three responsibilities, three diagrams. Admins land on <code>/admin/dashboard</code> by default; the review queue auto-refreshes when the tab regains focus and silently every 60 seconds while visible.</p>
+
+            <h3 id="admin-landing">4a. Landing &amp; navigation</h3>
+            <p>What an admin sees on the first page, and where they can go from there.</p>
+
+            <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+    Start(["Signed in as<br/>ADMIN or SUPER_ADMIN"]):::public --> Dash["admin/dashboard"]:::public
+    Dash --> Pending["Pending count card<br/>silent 60s poll"]:::system
+
+    subgraph NAV ["Quick navigation"]
+        direction TB
+        Sub["submissions<br/>review queue"]:::public
+        Usr["users"]:::public
+        An["analytics"]:::public
+        Log["audit-logs"]:::public
+        Notif["notifications"]:::public
+        News["newsletter"]:::public
+        Trig["triggers"]:::public
+        Set["settings"]:::public
+    end
+
+    Dash --> NAV
+
+    %% CLASSDEFS-INJECTED-HERE
+</pre>
+            </div>
+
+            <h3 id="admin-review">4b. Reviewing submissions</h3>
+            <p>The core admin loop: filter the queue, open a submission, decide.</p>
+
+            <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+    Open(["Open admin/submissions"]):::action
+
+    subgraph QUEUE ["Review queue"]
+        direction TB
+        Filt["Filter by status,<br/>category, date, search"]:::action
+        List["All students submissions<br/>silent refetch on focus + 60s"]:::public
+        Pick(["Open submission"]):::action
+    end
+
+    Decide{"Decision"}:::gate
+
+    subgraph SINGLE ["Single submission"]
+        direction TB
+        Ap["status = approved<br/>+ points + feedback"]:::system
+        Rj["status = rejected<br/>+ feedback"]:::system
+        NotifyApp["Student notified<br/>badges checked"]:::system
+        NotifyRej["Student notified<br/>with feedback"]:::system
+    end
+
+    subgraph MANY ["Bulk operations"]
+        direction TB
+        Bulk["Bulk approve / reject / delete"]:::system
+        Export["Export CSV / PDF"]:::system
+    end
+
+    Open --> Filt --> List --> Pick --> Decide
+    Decide -->|"Approve"| Ap --> NotifyApp
+    Decide -->|"Reject"| Rj --> NotifyRej
+    Decide -->|"Bulk"| Bulk
+    Bulk --> Export
+
+    %% CLASSDEFS-INJECTED-HERE
+</pre>
+            </div>
+
+            <h3 id="admin-users">4c. User &amp; system management</h3>
+            <p>Where the Admin vs Super Admin distinction actually matters. Both can deactivate users; only Super Admin can grant the ADMIN role or change system-wide settings.</p>
+
+            <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+    subgraph USERS ["User management"]
+        direction TB
+        Usr(["Open admin/users"]):::action --> UMgmt["Deactivate or<br/>promote users"]:::action
+        UMgmt --> SuperOnly{"Grant ADMIN role?"}:::gate
+        SuperOnly -->|"SUPER_ADMIN"| Granted["Role updated in DB<br/>user must re-sign-in"]:::system
+        SuperOnly -->|"ADMIN"| Denied["Action blocked"]:::blocked
+    end
+
+    subgraph SETTINGS ["System settings"]
+        direction TB
+        Set(["Open admin/settings"]):::action --> Gate2{"SUPER_ADMIN?"}:::gate
+        Gate2 -->|"yes"| SysToggles["Auto-approve toggles,<br/>maintenance mode,<br/>portal name"]:::action
+        SysToggles --> Persist["Settings persisted<br/>affect all users"]:::system
+        Gate2 -->|"no"| ReadOnly["Read-only view"]:::blocked
+    end
+
+    %% CLASSDEFS-INJECTED-HERE
+</pre>
+            </div>
+
+            <h2 id="gates">Access gates</h2>
+            <p>Five points in the codebase enforce who can do what. They run in this order on every gated request.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gate</th>
+                        <th>Location</th>
+                        <th>Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Authentication required</td>
+                        <td><code>proxy.ts</code></td>
+                        <td>No session → redirect to <code>/sign-in?callbackUrl=…</code></td>
+                    </tr>
+                    <tr>
+                        <td>Admin route role check</td>
+                        <td><code>proxy.ts</code></td>
+                        <td><code>STUDENT</code> on <code>/admin/*</code> → redirect to <code>/student/dashboard</code></td>
+                    </tr>
+                    <tr>
+                        <td>Domain whitelist</td>
+                        <td><code>lib/auth/config.ts</code> · signIn</td>
+                        <td>Email must end with <code>@msa.edu.eg</code> or sign-in returns false</td>
+                    </tr>
+                    <tr>
+                        <td>Deactivated account</td>
+                        <td><code>lib/auth/config.ts</code> · signIn</td>
+                        <td><code>isActive=false</code> → sign-in rejected</td>
+                    </tr>
+                    <tr>
+                        <td>Role hand-off into JWT</td>
+                        <td><code>lib/auth/config.ts</code> · signIn → jwt</td>
+                        <td>Attaches <code>dbUser.role</code> to NextAuth user so the JWT carries it</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 id="notes">Open notes</h2>
+
+            <h3>Submission form lives on the public home page</h3>
+            <p>Anonymous visitors can start filling in a submission and only hit the sign-in wall at upload time. The form preserves draft state via <code>sessionStorage</code> and returns the user after authentication. It works, but it invests effort before the wall is visible. A clearer pattern is to show a <em>"Sign in to submit"</em> CTA upfront for anonymous users.</p>
+
+            <h3>Legacy <code>/dashboard/*</code> routes</h3>
+            <p>The <code>/dashboard</code>, <code>/profile</code>, and <code>/stats</code> routes appear to be prototype leftovers that read from a hardcoded <code>lib/data</code> stub. Current navigation does not link to them. Candidate for deletion in a follow-up dead-code PR.</p>
+
+            <h3>JWT staleness on role change</h3>
+            <p>If a SUPER_ADMIN promotes a user from STUDENT to ADMIN, the target user must sign out and back in once before their JWT carries the new role. The default JWT lifetime is 30 days with 24-hour rolling updates. There is no server-side session invalidation today.</p>
+
+            <footer>
+                <p>Generated from the live codebase. Source references: <a class="file-ref" href="../proxy.ts">proxy.ts</a>, <a class="file-ref" href="../lib/auth/config.ts">lib/auth/config.ts</a>, <a class="file-ref" href="../components/AchievementSubmissionForm.tsx">components/AchievementSubmissionForm.tsx</a>, <a class="file-ref" href="../app/admin/submissions/page.tsx">app/admin/submissions/page.tsx</a>.</p>
+            </footer>
+        </main>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+        const palettes = {
+            light: {
+                public:  { fill: '#dbeafe', stroke: '#3b82f6', color: '#1e3a8a' },
+                gate:    { fill: '#fef3c7', stroke: '#d97706', color: '#78350f' },
+                action:  { fill: '#dcfce7', stroke: '#16a34a', color: '#14532d' },
+                blocked: { fill: '#fee2e2', stroke: '#dc2626', color: '#7f1d1d' },
+                system:  { fill: '#ede9fe', stroke: '#7c3aed', color: '#4c1d95' },
+            },
+            dark: {
+                public:  { fill: '#1e3a8a', stroke: '#60a5fa', color: '#dbeafe' },
+                gate:    { fill: '#78350f', stroke: '#fbbf24', color: '#fef3c7' },
+                action:  { fill: '#14532d', stroke: '#4ade80', color: '#dcfce7' },
+                blocked: { fill: '#7f1d1d', stroke: '#f87171', color: '#fee2e2' },
+                system:  { fill: '#4c1d95', stroke: '#a78bfa', color: '#ede9fe' },
+            },
+        };
+
+        function classDefBlock(mode) {
+            const p = palettes[mode];
+            return Object.entries(p)
+                .map(([name, c]) => `    classDef ${name} fill:${c.fill},stroke:${c.stroke},color:${c.color},stroke-width:1.5px;`)
+                .join('\n');
+        }
+
+        function renderAll(mode) {
+            mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: mode === 'dark' ? 'dark' : 'default',
+                themeVariables: mode === 'dark'
+                    ? {
+                        fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+                        fontSize: '15px',
+                        background: '#0f172a',
+                        primaryColor: '#1e293b',
+                        primaryTextColor: '#f1f5f9',
+                        primaryBorderColor: '#475569',
+                        lineColor: '#94a3b8',
+                        secondaryColor: '#1e293b',
+                        tertiaryColor: '#0f172a',
+                        clusterBkg: '#0b1322',
+                        clusterBorder: '#334155',
+                        titleColor: '#cbd5e1',
+                        // sequence diagram specifics
+                        actorBkg: '#1e293b',
+                        actorBorder: '#475569',
+                        actorTextColor: '#f1f5f9',
+                        actorLineColor: '#64748b',
+                        signalColor: '#cbd5e1',
+                        signalTextColor: '#f1f5f9',
+                        labelBoxBkgColor: '#1e293b',
+                        labelBoxBorderColor: '#475569',
+                        labelTextColor: '#f1f5f9',
+                        loopTextColor: '#f1f5f9',
+                        noteBkgColor: '#1e293b',
+                        noteBorderColor: '#475569',
+                        noteTextColor: '#f1f5f9',
+                        activationBkgColor: '#475569',
+                        activationBorderColor: '#64748b',
+                        sequenceNumberColor: '#0f172a',
+                    }
+                    : {
+                        fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+                        fontSize: '15px',
+                        primaryColor: '#ffffff',
+                        primaryTextColor: '#0f172a',
+                        primaryBorderColor: '#94a3b8',
+                        lineColor: '#64748b',
+                        clusterBkg: '#f8fafc',
+                        clusterBorder: '#cbd5e1',
+                        titleColor: '#475569',
+                    },
+                flowchart: {
+                    curve: 'basis',
+                    padding: 20,
+                    nodeSpacing: 70,
+                    rankSpacing: 90,
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    diagramPadding: 16,
+                },
+                sequence: {
+                    useMaxWidth: true,
+                    mirrorActors: false,
+                    showSequenceNumbers: false,
+                    boxMargin: 10,
+                    messageMargin: 35,
+                },
+            });
+
+            const blocks = document.querySelectorAll('.mermaid');
+            const classDefs = classDefBlock(mode);
+
+            blocks.forEach((el, i) => {
+                if (!el.dataset.original) el.dataset.original = el.textContent;
+                // Inject the theme-appropriate classDefs in place of the placeholder.
+                const source = el.dataset.original.replace(
+                    /%% CLASSDEFS-INJECTED-HERE/,
+                    classDefs
+                );
+                el.removeAttribute('data-processed');
+                el.textContent = source;
+                el.id = 'mermaid-' + i;
+            });
+
+            mermaid.run({ querySelector: '.mermaid' }).catch(err => {
+                console.error('Mermaid render error:', err);
+            });
+        }
+
+        const mql = window.matchMedia('(prefers-color-scheme: dark)');
+        renderAll(mql.matches ? 'dark' : 'light');
+        mql.addEventListener('change', e => renderAll(e.matches ? 'dark' : 'light'));
+    </script>
+</body>
+</html>

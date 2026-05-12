@@ -1,21 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadEvidenceFile } from "@/lib/storage";
 import { auth } from "@/lib/auth/config";
+import { upload } from "@/lib/config";
 
-// Next.js App Router Route Segment Config
 export const dynamic = 'force-dynamic';
-export const maxDuration = 30; // seconds
-
-// Configuration
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB (Cloudflare R2)
-const ALLOWED_FILE_TYPES = [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'application/pdf',
-];
-const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+export const maxDuration = 30;
 
 export async function POST(request: NextRequest) {
     try {
@@ -38,27 +27,24 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validate file size
-        if (file.size > MAX_FILE_SIZE) {
+        if (file.size > upload.maxSizeBytes) {
             return NextResponse.json(
-                { error: `File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB` },
+                { error: `File too large. Maximum size is ${upload.maxSizeMB}MB` },
                 { status: 400 }
             );
         }
 
-        // Validate file type
-        if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        if (!upload.allowedMimeTypes.includes(file.type)) {
             return NextResponse.json(
-                { error: `Invalid file type. Allowed types: ${ALLOWED_EXTENSIONS.join(', ')}` },
+                { error: `Invalid file type. Allowed types: ${upload.allowedExtensions.join(', ')}` },
                 { status: 400 }
             );
         }
 
-        // Validate file extension
         const extension = file.name.split('.').pop()?.toLowerCase();
-        if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+        if (!extension || !upload.allowedExtensions.includes(extension)) {
             return NextResponse.json(
-                { error: `Invalid file extension. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}` },
+                { error: `Invalid file extension. Allowed: ${upload.allowedExtensions.join(', ')}` },
                 { status: 400 }
             );
         }

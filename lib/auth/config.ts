@@ -2,6 +2,7 @@ import NextAuth, { NextAuthConfig } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { cookies } from 'next/headers';
 import { createUser, findUserByEmail, findDeletedUserByEmail } from './users-db';
+import { ALLOWED_EMAIL_DOMAIN, isAllowedEmail, session as sessionConfig } from '../config';
 
 export const authConfig: NextAuthConfig = {
     providers: [
@@ -11,7 +12,7 @@ export const authConfig: NextAuthConfig = {
             authorization: {
                 params: {
                     prompt: 'select_account',
-                    hd: 'msa.edu.eg',
+                    hd: ALLOWED_EMAIL_DOMAIN,
                 },
             },
         }),
@@ -27,7 +28,7 @@ export const authConfig: NextAuthConfig = {
         async signIn({ user, account }) {
             const email = (user.email || '').toLowerCase();
 
-            if (!email.endsWith('@msa.edu.eg')) {
+            if (!isAllowedEmail(email)) {
                 try {
                     const cookieStore = await cookies();
                     cookieStore.set('auth_rejected_email', email, {
@@ -100,8 +101,8 @@ export const authConfig: NextAuthConfig = {
 
     session: {
         strategy: 'jwt',
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-        updateAge: 24 * 60 * 60, // Update session every 24 hours to keep it fresh
+        maxAge: sessionConfig.maxAgeSec,
+        updateAge: sessionConfig.updateAgeSec,
     },
 
     // Trust the host header from Vercel's proxy
