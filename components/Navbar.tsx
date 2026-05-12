@@ -34,7 +34,7 @@ const adminItems = [
     { label: "Submissions", href: "/admin/submissions" },
     { label: "Users", href: "/admin/users" },
     { label: "Analytics", href: "/admin/analytics" },
-    { label: "Audit Logs", href: "/admin/audit-logs" },
+    { label: "Audit Logs", href: "/admin/audit-log" },
     { label: "Back to Site", href: "/" },
 ];
 
