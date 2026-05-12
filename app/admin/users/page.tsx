@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Shield, GraduationCap, Search, Plus, Trash2, ArrowUpDown, UserCheck, UserX, Activity, Crown, ShieldAlert } from "lucide-react";
+import { User, Shield, GraduationCap, Search, Plus, Trash2, ArrowUpDown, UserCheck, UserX, Activity, Crown, ShieldAlert, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useToast } from "@/lib/ToastContext";
 import { useRole } from "@/lib/RoleContext";
 import { getUsers, toggleUserStatus, deleteUser as deleteUserAction, promoteUserRole, demoteUserRole, type UserData } from "@/lib/actions/user-management";
@@ -75,6 +75,8 @@ export default function UsersPage() {
     const [statusFilter, setStatusFilter] = useState<"ALL" | "Active" | "Inactive">("ALL");
     const [sortBy, setSortBy] = useState<"name" | "email" | "role" | "joinedAt">("name");
     const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [showAddModal, setShowAddModal] = useState(false);
     const [newUser, setNewUser] = useState({ name: "", email: "", faculty: "", role: "STUDENT" as UserRole });
 
@@ -86,6 +88,11 @@ export default function UsersPage() {
         };
         loadData();
     }, []);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, roleFilter, statusFilter]);
 
     // Filter and sort users
     const filteredUsers = users
@@ -106,6 +113,25 @@ export default function UsersPage() {
             else if (sortBy === "joinedAt") cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             return sortDir === "asc" ? cmp : -cmp;
         });
+
+    // Pagination calculations
+    const totalFiltered = filteredUsers.length;
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+    const safePage = Math.min(currentPage, totalPages);
+    const startIndex = (safePage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalFiltered);
+    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+    // Generate visible page numbers (max 5 around current)
+    const getPageNumbers = () => {
+        const pages: number[] = [];
+        const maxVisible = 5;
+        let start = Math.max(1, safePage - Math.floor(maxVisible / 2));
+        const end = Math.min(totalPages, start + maxVisible - 1);
+        start = Math.max(1, end - maxVisible + 1);
+        for (let i = start; i <= end; i++) pages.push(i);
+        return pages;
+    };
 
     const handleSort = (field: typeof sortBy) => {
         if (sortBy === field) {
@@ -332,7 +358,7 @@ export default function UsersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {filteredUsers.map(user => {
+                            {paginatedUsers.map(user => {
                                 const canManage = canManageUser(userRole, user.role);
                                 const canPromote = canManage && user.role !== 'SUPER_ADMIN' && (user.role === 'STUDENT' || (user.role === 'ADMIN' && isSuperAdmin));
                                 const canDemote = canManage && user.role === 'ADMIN';
@@ -438,9 +464,107 @@ export default function UsersPage() {
                         </tbody>
                     </table>
                 </div>
-                {filteredUsers.length === 0 && (
+                {paginatedUsers.length === 0 && (
                     <div className="p-12 text-center text-slate-500">
                         No users found matching your criteria.
+                    </div>
+                )}
+
+                {/* Pagination Bar */}
+                {totalFiltered > 0 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
+                        {/* Left: Showing info + page size */}
+                        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                            <span>
+                                Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{startIndex + 1}</span>–<span className="font-semibold text-slate-700 dark:text-slate-200">{endIndex}</span> of{" "}
+                                <span className="font-semibold text-slate-700 dark:text-slate-200">{totalFiltered}</span> users
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <label htmlFor="pageSize" className="text-xs">Per page:</label>
+                                <select
+                                    id="pageSize"
+                                    value={pageSize}
+                                    onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+                                    className="px-2 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Right: Page navigation */}
+                        <div className="flex items-center gap-1">
+                            {/* First page */}
+                            <button
+                                onClick={() => setCurrentPage(1)}
+                                disabled={safePage <= 1}
+                                className={`p-2 rounded-lg transition-colors ${
+                                    safePage <= 1
+                                        ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed'
+                                        : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                                }`}
+                                title="First page"
+                            >
+                                <ChevronsLeft className="w-4 h-4" />
+                            </button>
+                            {/* Previous */}
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={safePage <= 1}
+                                className={`p-2 rounded-lg transition-colors ${
+                                    safePage <= 1
+                                        ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed'
+                                        : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                                }`}
+                                title="Previous page"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            {/* Page numbers */}
+                            {getPageNumbers().map(page => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+                                        page === safePage
+                                            ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
+                                            : 'text-slate-600 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600'
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+
+                            {/* Next */}
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={safePage >= totalPages}
+                                className={`p-2 rounded-lg transition-colors ${
+                                    safePage >= totalPages
+                                        ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed'
+                                        : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                                }`}
+                                title="Next page"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                            {/* Last page */}
+                            <button
+                                onClick={() => setCurrentPage(totalPages)}
+                                disabled={safePage >= totalPages}
+                                className={`p-2 rounded-lg transition-colors ${
+                                    safePage >= totalPages
+                                        ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed'
+                                        : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                                }`}
+                                title="Last page"
+                            >
+                                <ChevronsRight className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
