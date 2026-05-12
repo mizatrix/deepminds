@@ -7,6 +7,10 @@ import {
     Filter,
     ChevronDown,
     ChevronUp,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
     Monitor,
     Smartphone,
     Tablet,
@@ -25,6 +29,8 @@ export default function AuditLogsPage() {
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     // Filters
     const [searchQuery, setSearchQuery] = useState('');
@@ -89,6 +95,29 @@ export default function AuditLogsPage() {
             return true;
         });
     }, [logs, searchQuery, actionFilter, deviceFilter, dateRange]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, actionFilter, deviceFilter, dateRange]);
+
+    // Pagination calculations
+    const totalFiltered = filteredLogs.length;
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+    const safePage = Math.min(currentPage, totalPages);
+    const startIndex = (safePage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalFiltered);
+    const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
+
+    const getPageNumbers = () => {
+        const pages: number[] = [];
+        const maxVisible = 5;
+        let start = Math.max(1, safePage - Math.floor(maxVisible / 2));
+        const end = Math.min(totalPages, start + maxVisible - 1);
+        start = Math.max(1, end - maxVisible + 1);
+        for (let i = start; i <= end; i++) pages.push(i);
+        return pages;
+    };
 
     const getDeviceIcon = (deviceType: string) => {
         switch (deviceType) {
@@ -268,7 +297,7 @@ export default function AuditLogsPage() {
                     </div>
                 ) : (
                     <div className="divide-y divide-slate-200 dark:divide-slate-800">
-                        {filteredLogs.map((log) => (
+                        {paginatedLogs.map((log) => (
                             <motion.div
                                 key={log.id}
                                 initial={{ opacity: 0 }}
@@ -386,6 +415,40 @@ export default function AuditLogsPage() {
                                 </AnimatePresence>
                             </motion.div>
                         ))}
+                    </div>
+                )}
+
+                {/* Pagination Bar */}
+                {totalFiltered > 0 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
+                        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                            <span>
+                                Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{startIndex + 1}</span>–<span className="font-semibold text-slate-700 dark:text-slate-200">{endIndex}</span> of{" "}
+                                <span className="font-semibold text-slate-700 dark:text-slate-200">{totalFiltered}</span> logs
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <label htmlFor="auditPageSize" className="text-xs">Per page:</label>
+                                <select
+                                    id="auditPageSize"
+                                    value={pageSize}
+                                    onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+                                    className="px-2 py-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <button onClick={() => setCurrentPage(1)} disabled={safePage <= 1} className={`p-2 rounded-lg transition-colors ${safePage <= 1 ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`} title="First page"><ChevronsLeft className="w-4 h-4" /></button>
+                            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safePage <= 1} className={`p-2 rounded-lg transition-colors ${safePage <= 1 ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`} title="Previous page"><ChevronLeft className="w-4 h-4" /></button>
+                            {getPageNumbers().map(page => (
+                                <button key={page} onClick={() => setCurrentPage(page)} className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${page === safePage ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20' : 'text-slate-600 dark:text-slate-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600'}`}>{page}</button>
+                            ))}
+                            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safePage >= totalPages} className={`p-2 rounded-lg transition-colors ${safePage >= totalPages ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`} title="Next page"><ChevronRight className="w-4 h-4" /></button>
+                            <button onClick={() => setCurrentPage(totalPages)} disabled={safePage >= totalPages} className={`p-2 rounded-lg transition-colors ${safePage >= totalPages ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20'}`} title="Last page"><ChevronsRight className="w-4 h-4" /></button>
+                        </div>
                     </div>
                 )}
             </div>
