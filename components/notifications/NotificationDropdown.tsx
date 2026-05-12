@@ -11,7 +11,7 @@ interface NotificationDropdownProps {
 }
 
 export default function NotificationDropdown({ onClose }: NotificationDropdownProps) {
-    const { notifications, markAsRead, markAllAsRead } = useNotifications();
+    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
     const { isAdmin } = useRole();
     const viewAllHref = isAdmin ? '/admin/notifications' : '/student/notifications';
 
@@ -23,7 +23,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
         <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10">
                 <h3 className="font-semibold text-slate-800 dark:text-slate-100">Notifications</h3>
-                {notifications.length > 0 && (
+                {unreadCount > 0 && (
                     <button
                         onClick={markAllAsRead}
                         className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 transition-colors"

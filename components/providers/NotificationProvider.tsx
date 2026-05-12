@@ -86,20 +86,38 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }, [refresh, userId]);
 
     const markAsRead = useCallback(async (id: string) => {
-        await notificationService.markAsRead(id);
-        // Optimistic update
+        // Optimistic update first — instant visual feedback, then the server call.
+        // Only decrement the unread count if this item was actually unread.
+        let wasUnread = false;
         setNotifications(prev =>
-            prev.map(n => n.id === id ? { ...n, read: true } : n)
+            prev.map(n => {
+                if (n.id === id && !n.read) {
+                    wasUnread = true;
+                    return { ...n, read: true };
+                }
+                return n;
+            })
         );
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        if (wasUnread) {
+            setUnreadCount(prev => Math.max(0, prev - 1));
+        }
+        try {
+            await notificationService.markAsRead(id);
+        } catch (error) {
+            console.error('markAsRead failed:', error);
+        }
     }, []);
 
     const markAllAsRead = useCallback(async () => {
         if (!userId) return;
-        await notificationService.markAllAsRead(userId);
-        // Optimistic update
+        // Optimistic update first — instant feedback, then persist.
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
         setUnreadCount(0);
+        try {
+            await notificationService.markAllAsRead(userId);
+        } catch (error) {
+            console.error('markAllAsRead failed:', error);
+        }
     }, [userId]);
 
     const addNotification = useCallback(async (
