@@ -24,49 +24,52 @@ export async function createEnhancedAuditLog(params: CreateAuditLogParams): Prom
         // Get device info from browser
         const deviceInfo = getDeviceInfo();
 
-        // Call API to get IP and location info
+        // POST audit log to API (saves to database) and get IP/location info back
         let ipAddress = 'Unknown';
         let city = 'Unknown';
         let country = 'Unknown';
 
         try {
             const response = await fetch('/api/audit', {
-                method: 'GET'
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userEmail: params.userEmail,
+                    userName: params.userName,
+                    userRole: params.userRole,
+                    action: params.action,
+                    targetType: params.targetType,
+                    targetId: params.targetId || '',
+                    targetTitle: params.targetTitle || '',
+                    details: params.details,
+                }),
             });
 
             if (response.ok) {
-                const data = await response.json();
-                ipAddress = data.ip || 'Unknown';
-                city = data.city || 'Unknown';
-                country = data.country || 'Unknown';
+                const result = await response.json();
+                ipAddress = result.data?.ipAddress || 'Unknown';
+                city = result.data?.city || 'Unknown';
+                country = result.data?.country || 'Unknown';
             }
         } catch (error) {
-            console.warn('Could not fetch location info:', error);
+            console.warn('Could not post audit log:', error);
         }
 
-        // Create full audit log
+        // Also save to localStorage for the enhanced audit-logs view
         const auditLog: AuditLog = {
             id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             timestamp: new Date().toISOString(),
-
-            // User info
             userEmail: params.userEmail,
             userName: params.userName,
             userRole: params.userRole,
-
-            // Action info
             action: params.action,
             targetType: params.targetType,
             targetId: params.targetId,
             targetTitle: params.targetTitle,
             details: params.details,
-
-            // Location info
             ipAddress,
             city,
             country,
-
-            // Device info
             userAgent: deviceInfo.userAgent,
             deviceType: deviceInfo.deviceType,
             browser: deviceInfo.browser,
@@ -74,7 +77,6 @@ export async function createEnhancedAuditLog(params: CreateAuditLogParams): Prom
             os: deviceInfo.os
         };
 
-        // Save to localStorage
         const logs = getAuditLogs();
         logs.push(auditLog);
         localStorage.setItem(AUDIT_LOGS_KEY, JSON.stringify(logs));

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 interface LocationInfo {
     city: string;
@@ -70,6 +71,22 @@ export async function POST(request: NextRequest) {
 
         // Get location from IP
         const location = await getLocationFromIP(clientIP);
+
+        // Save to database
+        try {
+            await prisma.auditLog.create({
+                data: {
+                    action: body.action || 'view',
+                    performedBy: body.userEmail || 'Unknown',
+                    performedByName: body.userName || 'Unknown',
+                    submissionId: body.targetId || '',
+                    submissionTitle: body.targetTitle || '',
+                    details: `${body.details || ''} | IP: ${location.ip} | ${location.city}, ${location.country} | ${userAgent}`,
+                },
+            });
+        } catch (dbError) {
+            console.error('Failed to save audit log to database:', dbError);
+        }
 
         // Build response with device and location info
         const auditData = {
