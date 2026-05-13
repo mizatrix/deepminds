@@ -77,39 +77,50 @@ export async function toggleUserStatus(userId: string): Promise<{ success: boole
 
 /**
  * Get all users with submission stats
+ * Uses aggregation queries instead of N+1 individual queries to avoid
+ * PgBouncer "prepared statement does not exist" errors on Supabase.
  */
 export async function getUsers(): Promise<UserData[]> {
     try {
+        // Single query to get all users
         const users = await prisma.user.findMany({
             where: { isDeleted: false },
             orderBy: { createdAt: 'desc' }
         });
 
-        // Get submission stats for each user
-        const usersWithStats = await Promise.all(
-            users.map(async (user) => {
-                const submissions = await prisma.submission.findMany({
-                    where: { studentEmail: user.email }
-                });
+        // Single aggregation query: count submissions per studentEmail
+        const submissionCounts = await prisma.submission.groupBy({
+            by: ['studentEmail'],
+            _count: { id: true },
+        });
 
-                const approvedSubmissions = submissions.filter(s => s.status === 'approved');
-                const totalPoints = approvedSubmissions.reduce((sum, s) => sum + (s.points || 0), 0);
+        // Single aggregation query: sum points for approved submissions per studentEmail
+        const pointSums = await prisma.submission.groupBy({
+            by: ['studentEmail'],
+            where: { status: 'APPROVED' },
+            _sum: { points: true },
+        });
 
-                return {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role as UserRole,
-                    faculty: user.faculty,
-                    isActive: user.isActive,
-                    createdAt: user.createdAt.toISOString(),
-                    submissionCount: submissions.length,
-                    points: totalPoints
-                };
-            })
+        // Build lookup maps for O(1) access
+        const countMap = new Map(
+            submissionCounts.map(s => [s.studentEmail, s._count.id])
+        );
+        const pointsMap = new Map(
+            pointSums.map(s => [s.studentEmail, s._sum.points || 0])
         );
 
-        return usersWithStats;
+        // Join in-memory — no extra DB calls
+        return users.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role as UserRole,
+            faculty: user.faculty,
+            isActive: user.isActive,
+            createdAt: user.createdAt.toISOString(),
+            submissionCount: countMap.get(user.email) || 0,
+            points: pointsMap.get(user.email) || 0,
+        }));
     } catch (error) {
         console.error('[getUsers] Error:', error);
         return [];
