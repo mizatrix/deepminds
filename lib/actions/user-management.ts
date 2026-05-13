@@ -88,29 +88,69 @@ export async function getUsers(): Promise<UserData[]> {
             orderBy: { createdAt: 'desc' }
         });
 
-        // Single aggregation query: count submissions per studentEmail
-        const submissionCounts = await prisma.submission.groupBy({
-            by: ['studentEmail'],
-            _count: { id: true },
-        });
+        // Fetch submission stats with separate error handling
+        // so user list still works even if aggregation fails
+        let countMap = new Map<string, number>();
+        let pointsMap = new Map<string, number>();
 
-        // Single aggregation query: sum points for approved submissions per studentEmail
-        const pointSums = await prisma.submission.groupBy({
-            by: ['studentEmail'],
-            where: { status: 'APPROVED' },
-            _sum: { points: true },
-        });
+        try {
+            // Single aggregation query: count submissions per studentEmail
+            const submissionCounts = await prisma.submission.groupBy({
+                by: ['studentEmail'],
+                _count: { id: true },
+            });
+            countMap = new Map(
+                submissionCounts.map(s => [s.studentEmail, s._count.id])
+            );
+            console.log('[getUsers] Submission counts loaded:', submissionCounts.length, 'groups');
+        } catch (aggError) {
+            console.error('[getUsers] Failed to load submission counts via groupBy, falling back to count query:', aggError);
+            // Fallback: try a simpler approach
+            try {
+                const allSubmissions = await prisma.submission.findMany({
+                    select: { studentEmail: true },
+                });
+                const counts = new Map<string, number>();
+                for (const s of allSubmissions) {
+                    counts.set(s.studentEmail, (counts.get(s.studentEmail) || 0) + 1);
+                }
+                countMap = counts;
+                console.log('[getUsers] Fallback submission counts loaded:', allSubmissions.length, 'submissions');
+            } catch (fallbackError) {
+                console.error('[getUsers] Fallback submission count also failed:', fallbackError);
+            }
+        }
 
-        // Build lookup maps for O(1) access
-        const countMap = new Map(
-            submissionCounts.map(s => [s.studentEmail, s._count.id])
-        );
-        const pointsMap = new Map(
-            pointSums.map(s => [s.studentEmail, s._sum.points || 0])
-        );
+        try {
+            // Single aggregation query: sum points for approved submissions per studentEmail
+            const pointSums = await prisma.submission.groupBy({
+                by: ['studentEmail'],
+                where: { status: 'APPROVED' },
+                _sum: { points: true },
+            });
+            pointsMap = new Map(
+                pointSums.map(s => [s.studentEmail, s._sum.points || 0])
+            );
+        } catch (ptError) {
+            console.error('[getUsers] Failed to load point sums:', ptError);
+            // Fallback for points
+            try {
+                const approvedSubs = await prisma.submission.findMany({
+                    where: { status: 'APPROVED' },
+                    select: { studentEmail: true, points: true },
+                });
+                const pts = new Map<string, number>();
+                for (const s of approvedSubs) {
+                    pts.set(s.studentEmail, (pts.get(s.studentEmail) || 0) + (s.points || 0));
+                }
+                pointsMap = pts;
+            } catch (fallbackError) {
+                console.error('[getUsers] Fallback points also failed:', fallbackError);
+            }
+        }
 
         // Join in-memory — no extra DB calls
-        return users.map(user => ({
+        const result = users.map(user => ({
             id: user.id,
             name: user.name,
             email: user.email,
@@ -121,6 +161,11 @@ export async function getUsers(): Promise<UserData[]> {
             submissionCount: countMap.get(user.email) || 0,
             points: pointsMap.get(user.email) || 0,
         }));
+
+        const withSubs = result.filter(u => u.submissionCount > 0).length;
+        console.log('[getUsers] Returning', result.length, 'users,', withSubs, 'with submissions');
+
+        return result;
     } catch (error) {
         console.error('[getUsers] Error:', error);
         return [];
