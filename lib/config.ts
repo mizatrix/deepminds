@@ -29,8 +29,9 @@ export function isAllowedEmail(email: string | null | undefined): boolean {
 /**
  * Emails explicitly allowed to bulk-export ALL student achievements (the ZIP
  * export that bundles every student's evidence files). This is a sensitive,
- * PII-heavy operation, so it is restricted to specific accounts rather than all
- * admins. Override with the EXPORT_ALLOWED_EMAILS env var (comma-separated).
+ * PII-heavy operation, so beyond these specific accounts it is limited to super
+ * admins — regular admins cannot use it. Override the email list with the
+ * EXPORT_ALLOWED_EMAILS env var (comma-separated).
  */
 export const EXPORT_ALLOWED_EMAILS = envStr(
     'EXPORT_ALLOWED_EMAILS',
@@ -40,8 +41,15 @@ export const EXPORT_ALLOWED_EMAILS = envStr(
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
 
-/** Returns true if the given email is allowed to run the bulk data export. */
-export function canExportData(email: string | null | undefined): boolean {
+/**
+ * Returns true if the given user may run the bulk data export: any SUPER_ADMIN,
+ * or an account whose email is on the explicit allowlist.
+ */
+export function canExportData(
+    email: string | null | undefined,
+    role?: string | null
+): boolean {
+    if (role === 'SUPER_ADMIN') return true;
     if (!email) return false;
     return EXPORT_ALLOWED_EMAILS.includes(email.toLowerCase());
 }

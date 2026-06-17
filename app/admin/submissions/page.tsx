@@ -419,7 +419,7 @@ export default function SubmissionsPage() {
                         <p className="text-slate-500 dark:text-slate-400">Validate student achievements and award points.</p>
                     </div>
                     <div className="flex gap-2">
-                        {canExportData(session?.user?.email) && (
+                        {canExportData(session?.user?.email, (session?.user as { role?: string } | undefined)?.role) && (
                             <button
                                 onClick={handleExportZip}
                                 disabled={exportingZip}
