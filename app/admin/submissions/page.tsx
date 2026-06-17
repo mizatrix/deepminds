@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { getProxiedEvidenceUrl } from "@/lib/evidence-url";
 import { useSession } from "next-auth/react";
-import { Check, X, Search, Eye, Trash2, Calendar, Filter, Download, RefreshCw, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Check, X, Search, Eye, Trash2, Calendar, Filter, Download, RefreshCw, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileArchive, Loader2 } from "lucide-react";
 import { useToast } from "@/lib/ToastContext";
 import {
     getSubmissions,
@@ -12,7 +12,7 @@ import {
 } from "@/lib/actions/submissions";
 import { type Submission } from "@/lib/submissions";
 import { createEnhancedAuditLog } from "@/lib/audit-service";
-import { polling } from "@/lib/config";
+import { polling, canExportData } from "@/lib/config";
 import BulkActionBar from "@/components/admin/BulkActionBar";
 import { exportSubmissionsToCSV, exportSubmissionsToPDF } from "@/lib/admin/exportUtils";
 
@@ -37,6 +37,7 @@ export default function SubmissionsPage() {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [exportingZip, setExportingZip] = useState(false);
 
     // Effect to clear selection when filter changes
     useEffect(() => {
@@ -343,6 +344,59 @@ export default function SubmissionsPage() {
         exportSubmissionsToPDF(selectedSubmissions.length > 0 ? selectedSubmissions : filtered);
     };
 
+    // Download a ZIP of every submission: a master index.csv plus each student's
+    // uploaded evidence files, organized into per-student folders for offline review.
+    const handleExportZip = async () => {
+        if (exportingZip) return;
+        setExportingZip(true);
+        showToast("Preparing ZIP — bundling evidence files may take a moment…", "info");
+        try {
+            const res = await fetch("/api/admin/export-zip");
+            if (!res.ok) {
+                showToast(
+                    res.status === 403
+                        ? "You don't have permission to export."
+                        : `Export failed (HTTP ${res.status}).`,
+                    "error"
+                );
+                return;
+            }
+
+            const blob = await res.blob();
+            const disposition = res.headers.get("Content-Disposition") || "";
+            const match = disposition.match(/filename="?([^"]+)"?/);
+            const filename = match?.[1] || `student-achievements-${new Date().toISOString().slice(0, 10)}.zip`;
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast(`Exported ${submissions.length} submissions as ZIP`, "success");
+
+            // DB-backed audit trail — exporting all student PII + files is sensitive.
+            if (session?.user) {
+                createEnhancedAuditLog({
+                    userEmail: session.user.email || "unknown",
+                    userName: session.user.name || "Admin",
+                    userRole: "ADMIN",
+                    action: "view",
+                    targetType: "system",
+                    details: `Exported ${submissions.length} submissions as ZIP (with evidence files)`,
+                });
+            }
+        } catch (err) {
+            console.error("ZIP export error:", err);
+            showToast("Export failed. Please try again.", "error");
+        } finally {
+            setExportingZip(false);
+        }
+    };
+
     const clearFilters = () => {
         setFilter("ALL");
         setSearch("");
@@ -365,6 +419,21 @@ export default function SubmissionsPage() {
                         <p className="text-slate-500 dark:text-slate-400">Validate student achievements and award points.</p>
                     </div>
                     <div className="flex gap-2">
+                        {canExportData(session?.user?.email) && (
+                            <button
+                                onClick={handleExportZip}
+                                disabled={exportingZip}
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                title="Download all submissions and evidence files as a ZIP"
+                            >
+                                {exportingZip ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <FileArchive className="w-4 h-4" />
+                                )}
+                                {exportingZip ? "Preparing…" : "Export All (ZIP)"}
+                            </button>
+                        )}
                         <button
                             onClick={loadSubmissions}
                             className="flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"

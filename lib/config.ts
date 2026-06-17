@@ -26,6 +26,26 @@ export function isAllowedEmail(email: string | null | undefined): boolean {
     return email.toLowerCase().endsWith(`@${ALLOWED_EMAIL_DOMAIN.toLowerCase()}`);
 }
 
+/**
+ * Emails explicitly allowed to bulk-export ALL student achievements (the ZIP
+ * export that bundles every student's evidence files). This is a sensitive,
+ * PII-heavy operation, so it is restricted to specific accounts rather than all
+ * admins. Override with the EXPORT_ALLOWED_EMAILS env var (comma-separated).
+ */
+export const EXPORT_ALLOWED_EMAILS = envStr(
+    'EXPORT_ALLOWED_EMAILS',
+    'kanwar@msa.edu.eg,nemam@msa.edu.eg'
+)
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+/** Returns true if the given email is allowed to run the bulk data export. */
+export function canExportData(email: string | null | undefined): boolean {
+    if (!email) return false;
+    return EXPORT_ALLOWED_EMAILS.includes(email.toLowerCase());
+}
+
 /** Uploads — kept in sync with the storage provider's limits. */
 export const upload = {
     maxSizeMB: envInt('MAX_UPLOAD_SIZE_MB', 10),

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // archiver loads its format plugins dynamically; keep it external so the
+  // server bundler doesn't try to trace/inline those requires.
+  serverExternalPackages: ['archiver'],
   images: {
     remotePatterns: [
       {
